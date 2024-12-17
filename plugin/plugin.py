@@ -182,12 +182,8 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         return resp
 
     async def start_webserver(self):
-        def process_url(before: str):
-            url = yarl.URL(before)
-            return str(url.with_scheme("https"))
-
         def write_libs(libs: list[dict[str, str]]):
-            self.libraries = {lib["name"]: process_url(lib["url"]) for lib in libs}
+            self.libraries = {lib["name"]: lib["url"] for lib in libs}
             log.info(f"--- {self.libraries=} ---")
             asyncio.create_task(self.ensure_keywords())
 
