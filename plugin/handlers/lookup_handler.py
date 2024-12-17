@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import re
 from functools import partial
 
-from flogin import Query, RegexCondition, Result, SearchHandler
+from flogin import Query, Result, SearchHandler
 
 from ..fuzzy import finder as fuzzy_finder
 from ..plugin import RtfmPlugin

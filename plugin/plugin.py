@@ -6,15 +6,12 @@ Credits to Danny/Rapptz for the original rtfm code
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import os
 import re
 
 import aiohttp
-import yarl
-from flogin import Plugin, QueryResponse, Settings
-from flogin.utils import cached_property
+from flogin import Plugin, QueryResponse
 
 from .icons import get_icon
 from .results import OpenSettingsResult, ReloadCacheResult

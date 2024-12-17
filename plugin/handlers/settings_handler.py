@@ -1,13 +1,9 @@
 from __future__ import annotations
 
 import logging
-import re
-from functools import partial
 
-from flogin import KeywordCondition, Query, Result, SearchHandler
-from flogin._types import SearchHandlerCondition
+from flogin import Query, SearchHandler
 
-from ..fuzzy import finder as fuzzy_finder
 from ..plugin import RtfmPlugin
 from ..results import OpenSettingsResult, ReloadCacheResult
 
@@ -22,7 +18,6 @@ class SettingsHandler(SearchHandler[RtfmPlugin]):
         assert self.plugin
 
         res = query.keyword == self.plugin.main_kw
-        log.info(f"SettingsHandlerCondition = {res!r}")
         return res
 
     async def callback(self, query: Query):
