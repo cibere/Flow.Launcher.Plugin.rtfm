@@ -6,19 +6,22 @@ Credits to Danny/Rapptz for the original rtfm code
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import os
 import re
 
 import aiohttp
-import yarl, json
+import yarl
 from flogin import Plugin, QueryResponse, Settings
+from flogin.utils import cached_property
+
 from .icons import get_icon
 from .results import OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
 from .settings import RtfmSettings
 from .sphinx_object import SphinxObjectFileReader
-from flogin.utils import cached_property
+
 log = logging.getLogger("rtfm")
 
 

@@ -23,7 +23,7 @@ else:
         wand_lib: Any = None
     else:
         wand_installed = True
-        
+
 log = logging.getLogger(__name__)
 
 
