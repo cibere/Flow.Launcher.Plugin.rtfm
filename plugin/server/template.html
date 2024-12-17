@@ -65,11 +65,8 @@
             <button onclick="addRow()">
               Add Row
             </button>
-            <button onclick="saveAndReload()">
-              Save Settings & Reload Cache
-            </button>
             <button onclick="saveSettings()">
-              Save Settings
+              Save Settings & Reload Cache
             </button>
             <button onclick="reloadCache()">
               Reload Cache
@@ -130,11 +127,13 @@
             for (let row of rows){
               console.log(row.children[1].children[0]);
                 row_data = {
-                    name: row.children[1].children[0].innerText,
-                    url: row.children[2].children[0].innerText
+                    name: row.children[1].children[0].value,
+                    url: row.children[2].children[0].value
                 }
                 data.push(row_data)
             }
+
+            console.log("Data for new settings", data)
 
             let resp = await fetch("/api/save_settings", {
                 method: "PUT",
@@ -161,10 +160,6 @@
             }).then(response => response.json())
             console.log("Settings Keyword Saved", resp);
             alert("Settings Keyword Successfully Updated")
-        }
-        async function saveAndReload() {
-          saveSettings();
-          reloadCache();
         }
     </script>
 </html>
