@@ -1,0 +1,5 @@
+git+https://github.com/cibere/flogin@75a1ba6dd73442244f5f506965ab16699b855bb2
+favicon==0.7.0
+Wand==0.6.13
+aiohttp==3.11.10
+aiohttp-jinja==2-1.6

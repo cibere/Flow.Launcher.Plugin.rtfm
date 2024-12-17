@@ -1,0 +1,4 @@
+body:
+  - type: textBlock
+    attributes:
+      description: Thank you for using rtfm. Due to limits with flow and the way this plugin was written, I am unable to put the plugin settings in this settings menu. By default, your plugin settings can be accessed by going to the following website "http://localhost:2907/". Additionally, the default settings keyword is "rtfm", which will give you quick access to the website and a button to reload the cache.

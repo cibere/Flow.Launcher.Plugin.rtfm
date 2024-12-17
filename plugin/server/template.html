@@ -1,0 +1,164 @@
+<html>
+    <head>
+        <style>
+            table {
+              font-family: arial, sans-serif;
+              border-collapse: collapse;
+              width: 100%;
+            }
+            
+            .content-td, th {
+              border: 1px solid #dddddd;
+              text-align: left;
+              padding: 8px;
+            }
+            
+            tr:nth-child(even) {
+              background-color: #dddddd;
+            }
+
+            .delete-btn {
+              color: red;
+            }
+
+            textarea {
+              border: none;
+              background: none;
+              width: 100%;
+              height: 20px;
+            }
+
+            .keyword {
+              width: 15%;
+            }
+            .url {
+              width: 80%;
+            }
+            .dash {
+              width: 5%;
+            }
+            </style>
+    </head>
+    <body>
+      <h1>rtfm settings</h1>
+        <table id="table">
+            <tr id="table-header">
+              <th></th>
+              <th>Library Name</th>
+              <th>URL</th>
+            </tr>
+            {% for lib in libs %}
+                <tr class="row">
+                    <td class="dash"><button class="delete-btn" onclick="deleteRow(this)">-</button></td>
+                    <td class="content-td keyword"><textarea>{{ lib[0] }}</textarea></td>
+                    <td class="content-td url"><textarea>{{ lib[1] }}</textarea></td>
+                </tr>
+            {% endfor %}
+          </table>
+          <div>
+            <button onclick="addRow()">
+              Add Row
+            </button>
+            <button onclick="saveAndReload()">
+              Save Settings & Reload Cache
+            </button>
+            <button onclick="saveSettings()">
+              Save Settings
+            </button>
+            <button onclick="reloadCache()">
+              Reload Cache
+            </button>
+          </div>
+          <hr>
+          <div>
+            <label>Settings Keyword <input type="text" id="settings-keyword" value="{{ main_kw }}"></label>
+            <button onclick="setSettingsKeyword()">
+              Save Settings Keyword
+            </button>
+          </div>
+    </body>
+    <script>
+        function deleteRow(button) {
+          console.log(button)
+          console.log(button.onclick)
+          let td = button.parentNode;
+          console.log("td", td)
+          let row = td.parentNode;
+          console.log("row", row)
+          row.remove();
+        }
+
+        function addRow() {
+            let table_parent = document.getElementById("table");
+            let table = table_parent.children[0];
+            let row = document.createElement("tr");
+            row.className = "row";
+
+            let firstTd = document.createElement("td");
+            firstTd.className = "dash";
+            let button = document.createElement("button");
+            button.className = "delete-btn";
+            button.innerText = "-";
+            button.onclick = function() {deleteRow(this)};
+            firstTd.appendChild(button);
+            row.appendChild(firstTd);
+
+            let keywordTd = document.createElement("td");
+            keywordTd.className = "content-td keyword";
+            let keywordTextarea = document.createElement("textarea");
+            keywordTd.appendChild(keywordTextarea);
+            row.appendChild(keywordTd);
+
+            let urlTd = document.createElement("td");
+            urlTd.className = "content-td url";
+            let urlTextarea = document.createElement("textarea");
+            urlTd.appendChild(urlTextarea);
+            row.appendChild(urlTd);
+
+            table.appendChild(row);
+        }
+        async function saveSettings() {
+            let data = []
+
+            let rows = document.getElementsByClassName("row");
+            for (let row of rows){
+              console.log(row.children[1].children[0]);
+                row_data = {
+                    name: row.children[1].children[0].innerText,
+                    url: row.children[2].children[0].innerText
+                }
+                data.push(row_data)
+            }
+
+            let resp = await fetch("/api/save_settings", {
+                method: "PUT",
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+            console.log("Saved settings response", resp);
+            alert("Settings successfully saved")
+        }
+        async function reloadCache() {
+            let resp = await fetch("/api/reload_cache", {
+                method: "POST",
+            }).then(response => response.json())
+            console.log("Cache Reloaded", resp);
+            alert("Cache successfully reloaded")
+        }
+        async function setSettingsKeyword() {
+            let el = document.getElementById("settings-keyword");
+            let data = {
+              keyword: el.value
+            }
+            let resp = await fetch("/api/set_main_kw", {
+                method: "PUT",
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+            console.log("Settings Keyword Saved", resp);
+            alert("Settings Keyword Successfully Updated")
+        }
+        async function saveAndReload() {
+          saveSettings();
+          reloadCache();
+        }
+    </script>
+</html>
