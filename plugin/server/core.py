@@ -29,6 +29,9 @@ async def run_app(
         content = await request.json()
         log.info(f"Writiting new settings: {content}")
         write_settings(content)
+        log.info(f"Reloading cache")
+        await plugin.build_rtfm_lookup_table()
+        log.info("Cache reloaded")
         return web.json_response({"success": True})
 
     @routes.put("/api/set_main_kw")
@@ -41,13 +44,6 @@ async def run_app(
             asyncio.create_task(plugin.ensure_keywords())
             return web.json_response({"success": True})
         return web.json_response({"success": False})
-
-    @routes.post("/api/reload_cache")
-    async def reload_cache_route(request: web.Request):
-        log.info(f"Reloading cache")
-        await plugin.build_rtfm_lookup_table()
-        log.info("Cache reloaded")
-        return web.json_response({"success": True})
 
     @routes.get("/")
     @aiohttp_jinja2.template("template.html")
