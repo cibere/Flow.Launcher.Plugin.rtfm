@@ -22,13 +22,13 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
                 f"Library '{library}' not found in settings", icon="Images/error.png"
             )
 
-        if text is None:
+        if not text:
             return Result.create_with_partial(
-                partial(self.plugin.api.open_url, url), title="Open documentation"
+                partial(self.plugin.api.open_url, url), title="Open documentation", icon=self.plugin.icons.get(library)
             )
 
         if not hasattr(self.plugin, "_rtfm_cache"):
-            await self.plugin.build_rtfm_lookup_table()
+            await self.plugin.build_rtfm_lookup_tables()
 
         try:
             cache = list(self.plugin._rtfm_cache[library].items())
