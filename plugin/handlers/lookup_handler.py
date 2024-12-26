@@ -13,41 +13,37 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
         assert self.plugin
 
         text = query.text
-        library = query.keyword
+        keyword = query.keyword
 
         try:
-            url = self.plugin.libraries[library]
+            library = self.plugin.libraries[keyword]
         except KeyError:
             return Result(
-                f"Library '{library}' not found in settings", icon="Images/error.png"
+                f"Library '{keyword}' not found in settings", icon="Images/error.png"
             )
 
+        if library.cache is None:
+            return Result(
+                f"Library '{library.name}' not found in cache", icon="Images/error.png"
+            )
+        
         if not text:
             return Result.create_with_partial(
-                partial(self.plugin.api.open_url, url), title="Open documentation", icon=self.plugin.icons.get(library)
+                partial(self.plugin.api.open_url, str(library.url)), title="Open documentation", icon=library.icon
             )
 
-        if not hasattr(self.plugin, "_rtfm_cache"):
-            await self.plugin.build_rtfm_lookup_tables()
-
-        try:
-            cache = list(self.plugin._rtfm_cache[library].items())
-        except KeyError:
-            return Result(
-                f"Library '{library}' not found in cache", icon="Images/error.png"
-            )
-
+        cache = list(library.cache.items())
         matches = fuzzy_finder(text, cache, key=lambda t: t[0])
 
         if len(matches) == 0:
-            return "Could not find anything. Sorry."
+            return Result("Could not find anything. Sorry.", icon=library.icon)
 
         return [
             Result.create_with_partial(
                 partial(self.plugin.api.open_url, match[1]),
                 title=match[0],
                 score=100 - idx,
-                icon=self.plugin.icons.get(library),
+                icon=library.icon,
             )
             for idx, match in enumerate(matches)
         ]

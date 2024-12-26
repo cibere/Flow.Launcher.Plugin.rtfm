@@ -7,25 +7,19 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
-import re
-
 import aiohttp
 from flogin import Plugin, QueryResponse
-from typing import Any
-from .icons import get_icon
 from .results import OpenSettingsResult, ReloadCacheResult, OpenLogFileResult
 from .server.core import run_app as start_webserver
 from .settings import RtfmSettings
-from .sphinx_object import SphinxObjectFileReader
+from .library import SphinxLibrary
 
 log = logging.getLogger("rtfm")
 
 
 class RtfmPlugin(Plugin[RtfmSettings]):
-    _rtfm_cache: dict[str, dict[str, str]]
+    _library_cache: dict[str, SphinxLibrary] | None = None
     session: aiohttp.ClientSession
-    icons: dict[str, str]
 
     def __init__(self) -> None:
         super().__init__(settings_no_update=True)
@@ -42,24 +36,18 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         await self.build_rtfm_lookup_tables()
 
     @property
-    def libraries(self):
-        """return {
-            'stable': 'https://discordpy.readthedocs.io/en/stable',
-            'stable-jp': 'https://discordpy.readthedocs.io/ja/stable',
-            'latest': 'https://discordpy.readthedocs.io/en/latest',
-            'latest-jp': 'https://discordpy.readthedocs.io/ja/latest',
-            'python': 'https://docs.python.org/3',
-            'python-jp': 'https://docs.python.org/ja/3',
-            'flogin': 'https://flogin.readthedocs.io/en/latest/',
-            "aiohttp": "https://docs.aiohttp.org/en/stable",
-        }"""
-        items = self.settings.libraries or {}
-        log.info(f"Libraries: {items!r}")
-        return items
+    def libraries(self) -> dict[str, SphinxLibrary]:
+        if self._library_cache is None:
+            items = self.settings.libraries or {}
+            self._library_cache = {lib: SphinxLibrary(lib, url, session=self.session) for lib, url in items.items()}
+
+        log.info(f"Libraries: {self._library_cache!r}")
+        return self._library_cache
 
     @libraries.setter
-    def libraries(self, new):
-        self.settings.libraries = new
+    def libraries(self, data: dict[str, str]):
+        self.settings.libraries = data
+        self._library_cache = {lib: SphinxLibrary(lib, url, session=self.session) for lib, url in data.items()}
 
     @property
     def keywords(self):
@@ -73,105 +61,26 @@ class RtfmPlugin(Plugin[RtfmSettings]):
     def main_kw(self, value: str) -> None:
         self.settings.main_kw = value
 
-    def parse_object_inv(
-        self, stream: SphinxObjectFileReader, url: str
-    ) -> dict[str, str]:
-        # key: URL
-        result: dict[str, str] = {}
-
-        # first line is version info
-        inv_version = stream.readline().rstrip()
-
-        if inv_version != "# Sphinx inventory version 2":
-            raise RuntimeError("Invalid objects.inv file version.")
-
-        # next line is "# Project: <name>"
-        # then after that is "# Version: <version>"
-        projname = stream.readline().rstrip()[11:]
-        version = stream.readline().rstrip()[11:]
-
-        # next line says if it's a zlib header
-        line = stream.readline()
-        if "zlib" not in line:
-            raise RuntimeError(
-                f"Invalid objects.inv file, not z-lib compatible. Line: {line}"
-            )
-
-        # This code mostly comes from the Sphinx repository.
-        entry_regex = re.compile(r"(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)")
-        for line in stream.read_compressed_lines():
-            match = entry_regex.match(line.rstrip())
-            if not match:
-                continue
-
-            name, directive, prio, location, dispname = match.groups()
-            domain, _, subdirective = directive.partition(":")
-            if directive == "py:module" and name in result:
-                # From the Sphinx Repository:
-                # due to a bug in 1.1 and below,
-                # two inventory entries are created
-                # for Python modules, and the first
-                # one is correct
-                continue
-
-            # Most documentation pages have a label
-            if directive == "std:doc":
-                subdirective = "label"
-
-            if location.endswith("$"):
-                location = location[:-1] + name
-
-            key = name if dispname == "-" else dispname
-            prefix = f"{subdirective}:" if domain == "std" else ""
-
-            result[f"{prefix}{key}"] = os.path.join(url, location)
-
-        return result
-    
     async def build_rtfm_lookup_tables(self):
         log.info("Starting to build cache...")
-        cache: dict[str, dict[str, str]] = {}
-        icons = {}
 
-        for key, page in self.libraries.items():
-            temp = await self.build_rtfm_lookup_table(key, page)
-            if temp is not None:
-                data, icon = temp
-                cache[key] = data
-                if icon is not None:
-                    icons[key] = icon
+        await asyncio.gather(
+            *(self.refresh_library_cache(lib) for lib in self.libraries.values())
+        )
         
         log.info(f"Done building cache.")
-        self._rtfm_cache = cache
-        self.icons = icons
 
-    async def build_rtfm_lookup_table(self, key: str, page: str) -> tuple[dict[str, Any], str | None] | None:
-        data = None
-        icon = None
-
+    async def refresh_library_cache(self, library: SphinxLibrary) -> bool:
         try:
-            stream = await SphinxObjectFileReader.from_url(page, session=self.session)
-        except ValueError as e:
-            log.warning(f"Sending could not be parsed notification: {e}")
-            return await self.api.show_error_message(
-                f"rtfm", f"Unable to cache {key!r} due to the following error: {e}"
+            await library.build_cache()
+        except Exception as e:
+            log.exception(f"Sending could not be parsed notification for {library!r}", exc_info=e)
+            await self.api.show_error_message(
+                f"rtfm", f"Unable to cache {library.name!r} due to the following error: {e}"
             )
-        try:
-            data = self.parse_object_inv(stream, page)
-        except RuntimeError as e:
-            log.warning(f"Sending could not be parsed notification: {e}")
-            return await self.api.show_error_message(
-                "Rtfm",
-                f"The {key!r} library could not be parsed, and is not being cached.",
-            )
-
-        if data:
-            icon = await asyncio.to_thread(get_icon, key, page)
-
-            if icon:
-                icon = str(icon)
-
-            return data, icon
+            return False
+        await library.fetch_icon()
+        return True
 
     async def start(self):
         async with aiohttp.ClientSession() as cs:

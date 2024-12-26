@@ -38,11 +38,12 @@ def url_to_bytes(url: str, format: str):
     return res.content
 
 
-def get_icon(key: str, url: str) -> str | None:
+def get_icon(key: str, url: str | yarl.URL) -> str | None:
     if wand_installed is False:
         log.info("Wand not installed, attempting to build google URL.")
-        u = yarl.URL(url)
-        domain = u.host
+        if isinstance(url, str):
+            url = yarl.URL(url)
+        domain = url.host
         if domain:
             return str(
                 yarl.URL.build(

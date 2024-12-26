@@ -49,7 +49,7 @@ async def run_app(
     @aiohttp_jinja2.template("template.html")
     async def index(request: web.Request):
         data = {
-            "libs": [(key, value) for key, value in plugin.libraries.items()],
+            "libs": [(key, value.url) for key, value in plugin.libraries.items()],
             "main_kw": plugin.main_kw,
         }
         log.info(f"Sending data: {data}")

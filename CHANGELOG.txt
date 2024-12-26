@@ -3,3 +3,6 @@ v0.0.3
 - Add an `Open Log File` result to context menus
 - Add an `Open Log File` result to settings handler's response
 - Support local documentation
+- Restructure Backend
+- If ImageMagick is installed and the library has no icon, use the plugin's icon instead.
+- Simultaneously cache libraries to speed up the caching process

@@ -62,3 +62,4 @@ class SphinxObjectFileReader:
             return cls(path.read_bytes())
         else:
             raise ValueError("Invalid URL")
+
