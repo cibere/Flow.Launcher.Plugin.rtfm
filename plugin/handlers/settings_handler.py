@@ -5,7 +5,7 @@ import logging
 from flogin import Query, SearchHandler
 
 from ..plugin import RtfmPlugin
-from ..results import OpenSettingsResult, ReloadCacheResult
+from ..results import OpenSettingsResult, ReloadCacheResult, OpenLogFileResult
 
 log = logging.getLogger(__name__)
 
@@ -23,4 +23,4 @@ class SettingsHandler(SearchHandler[RtfmPlugin]):
     async def callback(self, query: Query):
         assert self.plugin
 
-        return [OpenSettingsResult(), ReloadCacheResult()]
+        return [OpenSettingsResult(), ReloadCacheResult(), OpenLogFileResult()]

@@ -1,6 +1,4 @@
-v0.0.2
+v0.0.3
 
-- Fix bug where root lookup handlers did not trigger
-    - Fix root lookup handler result not having an icon
-- Fix bug where caching all libraries fails if a single one does not return a 200 status code
-- Fix bug where an invalid `objects.inv` file results in a normal notification being sent, not an error message. 
+- Add an `Open Log File` result to context menus
+- Add an `Open Log File` result to settings handler's response
