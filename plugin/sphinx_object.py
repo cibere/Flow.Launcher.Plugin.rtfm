@@ -8,7 +8,9 @@ from __future__ import annotations
 import io
 import zlib
 from typing import Generator
-
+from yarl import URL
+from aiohttp import ClientSession
+from pathlib import Path
 
 class SphinxObjectFileReader:
     # Inspired by Sphinx's InventoryFileReader
@@ -41,3 +43,22 @@ class SphinxObjectFileReader:
                 yield buf[:pos].decode("utf-8")
                 buf = buf[pos + 1 :]
                 pos = buf.find(b"\n")
+
+    @classmethod
+    async def from_url(cls: type[SphinxObjectFileReader], url: str | URL, *, session: ClientSession) -> SphinxObjectFileReader:
+        if isinstance(url, str):
+            url = URL(url)
+        
+        if url.scheme in ("http", "https"):
+            page = url.joinpath("objects.inv")
+            async with session.get(page) as resp:
+                if resp.status != 200:
+                    raise ValueError("Could not get objects.inv file")
+                return cls(await resp.read())
+        elif url.scheme == "file":
+            path = Path(url.path.strip("/")).joinpath("objects.inv")
+            if not path.exists():
+                raise ValueError(f"file does not exist: {path!r}")
+            return cls(path.read_bytes())
+        else:
+            raise ValueError("Invalid URL")

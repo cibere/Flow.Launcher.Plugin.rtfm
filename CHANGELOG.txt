@@ -2,3 +2,4 @@ v0.0.3
 
 - Add an `Open Log File` result to context menus
 - Add an `Open Log File` result to settings handler's response
+- Support local documentation
