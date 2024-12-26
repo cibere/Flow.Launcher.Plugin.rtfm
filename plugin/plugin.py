@@ -12,7 +12,7 @@ import re
 
 import aiohttp
 from flogin import Plugin, QueryResponse
-
+from typing import Any
 from .icons import get_icon
 from .results import OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
@@ -39,7 +39,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
 
     async def init(self):
         await self.ensure_keywords()
-        await self.build_rtfm_lookup_table()
+        await self.build_rtfm_lookup_tables()
 
     @property
     def libraries(self):
@@ -127,45 +127,56 @@ class RtfmPlugin(Plugin[RtfmSettings]):
             result[f"{prefix}{key}"] = os.path.join(url, location)
 
         return result
-
-    async def build_rtfm_lookup_table(self):
+    
+    async def build_rtfm_lookup_tables(self):
         log.info("Starting to build cache...")
         cache: dict[str, dict[str, str]] = {}
         icons = {}
 
         for key, page in self.libraries.items():
-            cache[key] = {}
-            try:
-                async with self.session.get(page + "/objects.inv") as resp:
-                    if resp.status != 200:
-                        raise RuntimeError(
-                            "Cannot build rtfm lookup table, try again later."
-                        )
-
-                    stream = SphinxObjectFileReader(await resp.read())
-                    # cache[key] = self.parse_object_inv(stream, page)
-                    try:
-                        cache[key] = self.parse_object_inv(stream, page)
-                    except RuntimeError as e:
-                        await self.api.show_notification(
-                            "Rtfm",
-                            f"The {key!r} library could not be parsed, and is not being cached.",
-                        )
-                        log.info(f"Sending could not be parsed notification: {e}")
-                        continue
-
-                icon = await asyncio.to_thread(get_icon, key, page)
-
-                if icon:
-                    icons[key] = str(icon)
-            except aiohttp.InvalidUrlClientError:
-                await self.api.show_error_message(
-                    f"rtfm", f"Unable to cache {key!r} due to an invalid URL: {page!r}"
-                )
-
+            temp = await self.build_rtfm_lookup_table(key, page)
+            if temp is not None:
+                data, icon = temp
+                cache[key] = data
+                if icon is not None:
+                    icons[key] = icon
+        
         log.info(f"Done building cache.")
         self._rtfm_cache = cache
         self.icons = icons
+
+    async def build_rtfm_lookup_table(self, key: str, page: str) -> tuple[dict[str, Any], str | None] | None:
+        data = None
+        icon = None
+
+        try:
+            async with self.session.get(page + "/objects.inv") as resp:
+                if resp.status != 200:
+                    await self.api.show_error_message("Rtfm", f"The {key!r} library could not be parsed, and is not being cached.",)
+
+                stream = SphinxObjectFileReader(await resp.read())
+                # cache[key] = self.parse_object_inv(stream, page)
+                try:
+                    data = self.parse_object_inv(stream, page)
+                except RuntimeError as e:
+                    await self.api.show_error_message(
+                        "Rtfm",
+                        f"The {key!r} library could not be parsed, and is not being cached.",
+                    )
+                    log.info(f"Sending could not be parsed notification: {e}")
+                    return
+
+            icon = await asyncio.to_thread(get_icon, key, page)
+
+            if icon:
+                icon = str(icon)
+        except aiohttp.InvalidUrlClientError:
+            await self.api.show_error_message(
+                f"rtfm", f"Unable to cache {key!r} due to an invalid URL: {page!r}"
+            )
+        
+        if data:
+            return data, icon
 
     async def start(self):
         async with aiohttp.ClientSession() as cs:

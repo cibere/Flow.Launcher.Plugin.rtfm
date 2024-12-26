@@ -18,7 +18,7 @@ class ReloadCacheResult(Result[RtfmPlugin]):
         assert self.plugin
 
         try:
-            await self.plugin.build_rtfm_lookup_table()
+            await self.plugin.build_rtfm_lookup_tables()
         except RuntimeError as e:
             await self.plugin.api.show_error_message("rtfm", str(e))
         else:

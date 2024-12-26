@@ -30,7 +30,7 @@ async def run_app(
         log.info(f"Writiting new settings: {content}")
         write_settings(content)
         log.info(f"Reloading cache")
-        await plugin.build_rtfm_lookup_table()
+        await plugin.build_rtfm_lookup_tables()
         log.info("Cache reloaded")
         return web.json_response({"success": True})
 
