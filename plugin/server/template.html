@@ -43,42 +43,63 @@
             .dash {
               width: 5%;
             }
+            code {
+              background-color: #eee;
+              border-radius: 3px;
+              padding: 0 3px;
+          }
+
             </style>
     </head>
     <body>
       <h1><a href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm">rtfm settings</a></h1>
-        <table id="table">
-            <tr id="table-header">
-              <th></th>
-              <th>Library Name</th>
-              <th>URL</th>
-            </tr>
-            {% for lib in libs %}
-                <tr class="row">
-                    <td class="dash"><button class="delete-btn" onclick="deleteRow(this)">-</button></td>
-                    <td class="content-td keyword"><textarea>{{ lib[0] }}</textarea></td>
-                    <td class="content-td url"><textarea>{{ lib[1] }}</textarea></td>
-                </tr>
-            {% endfor %}
-          </table>
-          <div>
-            <button onclick="addRow()">
-              Add Row
-            </button>
-            <button onclick="saveSettings()">
-              Save Settings & Reload Cache
-            </button>
-            <button onclick="reloadCache()">
-              Reload Cache
-            </button>
-          </div>
-          <hr>
-          <div>
-            <label>Settings Keyword <input type="text" id="settings-keyword" value="{{ main_kw }}"></label>
-            <button onclick="setSettingsKeyword()">
-              Save Settings Keyword
-            </button>
-          </div>
+      <p>
+        The URLs must be complete, including the schema.
+        <details>
+          <summary>Online Documentation Instructions</summary>
+          <p>
+            To use an online copy of a library's documentation, simply have the url point to the root of the version of the documentation that you want to use. ex: <code>https://docs.python.org/3/</code> or <code>https://flogin.readthedocs.io/en/latest/</code>
+          </p>
+        </details>
+        <details>
+          <summary>Offline Documentation Instructions</summary>
+          <p>
+            To use an offline copy of a library's documentation, simply take the path of the directory that the <code>objects.inv</code> file is in, and give it in the form of a <code>file</code> scheme. ex: if my <code>objects.in</code> file is in <code>C:/flogin/docs/_build/html</code>, then my url would be: <code>file:///C:/flogin/docs/_build/html</code>
+          </p>
+        </details>
+      </p>
+      <table id="table">
+          <tr id="table-header">
+            <th></th>
+            <th>Library Name</th>
+            <th>URL</th>
+          </tr>
+          {% for lib in libs %}
+              <tr class="row">
+                  <td class="dash"><button class="delete-btn" onclick="deleteRow(this)">-</button></td>
+                  <td class="content-td keyword"><textarea>{{ lib[0] }}</textarea></td>
+                  <td class="content-td url"><textarea>{{ lib[1] }}</textarea></td>
+              </tr>
+          {% endfor %}
+        </table>
+        <div>
+          <button onclick="addRow()">
+            Add Row
+          </button>
+          <button onclick="saveSettings()">
+            Save Settings & Reload Cache
+          </button>
+          <button onclick="reloadCache()">
+            Reload Cache
+          </button>
+        </div>
+        <hr>
+        <div>
+          <label>Settings Keyword <input type="text" id="settings-keyword" value="{{ main_kw }}"></label>
+          <button onclick="setSettingsKeyword()">
+            Save Settings Keyword
+          </button>
+        </div>
     </body>
     <script>
         function deleteRow(button) {
