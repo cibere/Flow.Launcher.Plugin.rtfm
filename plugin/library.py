@@ -5,6 +5,7 @@ from yarl import URL
 from aiohttp import ClientSession
 from .icons import get_icon as _get_icon
 import re
+from pathlib import Path
 from .sphinx_object import SphinxObjectFileReader
 
 class SphinxLibrary:
@@ -20,7 +21,12 @@ class SphinxLibrary:
         return f"<SphinxLibrary {self.name=} {self.url=} {self.icon=}>"
 
     async def fetch_icon(self) -> str | None:
-        self.icon = await asyncio.to_thread(_get_icon, self.name, self.url)
+        if self.url.scheme == "file":
+            loc = Path(self.url.path.strip("/")) / "index.html"
+        else:
+            loc = self.url
+
+        self.icon = await asyncio.to_thread(_get_icon, self.name, loc)
         if self.icon is None:
             self.icon = "assets/app.png"
         return self.icon
@@ -30,9 +36,7 @@ class SphinxLibrary:
         return self.file
     
     async def build_cache(self) -> None:
-        file = self.file
-        if file is None:
-            file = await self.fetch_file()
+        file = await self.fetch_file()
 
         # key: URL
         cache: dict[str, str] = {}
