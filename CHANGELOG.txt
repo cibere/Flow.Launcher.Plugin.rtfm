@@ -4,5 +4,7 @@ v0.0.3
 - Add an `Open Log File` result to settings handler's response
 - Support local documentation
 - Restructure Backend
-- If ImageMagick is installed and the library has no icon, use the plugin's icon instead.
 - Simultaneously cache libraries to speed up the caching process
+- Redo the way icons are fetched
+    - If ImageMagick is installed and the library has no icon, use the plugin's icon instead.
+    - If ImageMagick is not installed, image is still fetched. Google's API url is only used if the fetched image is an svg.
