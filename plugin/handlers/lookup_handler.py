@@ -26,10 +26,12 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
             return Result(
                 f"Library '{library.name}' not found in cache", icon="Images/error.png"
             )
-        
+
         if not text:
             return Result.create_with_partial(
-                partial(self.plugin.api.open_url, str(library.url)), title="Open documentation", icon=library.icon
+                partial(self.plugin.api.open_url, str(library.url)),
+                title="Open documentation",
+                icon=library.icon,
             )
 
         cache = list(library.cache.items())

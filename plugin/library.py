@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 from .sphinx_object import SphinxObjectFileReader
 
+
 class SphinxLibrary:
     def __init__(self, name: str, url: str | URL, *, session: ClientSession):
         self.name = name
@@ -30,11 +31,13 @@ class SphinxLibrary:
         if self.icon is None:
             self.icon = "assets/app.png"
         return self.icon
-    
+
     async def fetch_file(self) -> SphinxObjectFileReader:
-        self.file = await SphinxObjectFileReader.from_url(self.url, session=self.session)
+        self.file = await SphinxObjectFileReader.from_url(
+            self.url, session=self.session
+        )
         return self.file
-    
+
     async def build_cache(self) -> None:
         file = await self.fetch_file()
 

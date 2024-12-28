@@ -39,7 +39,10 @@ class RtfmPlugin(Plugin[RtfmSettings]):
     def libraries(self) -> dict[str, SphinxLibrary]:
         if self._library_cache is None:
             items = self.settings.libraries or {}
-            self._library_cache = {lib: SphinxLibrary(lib, url, session=self.session) for lib, url in items.items()}
+            self._library_cache = {
+                lib: SphinxLibrary(lib, url, session=self.session)
+                for lib, url in items.items()
+            }
 
         log.info(f"Libraries: {self._library_cache!r}")
         return self._library_cache
@@ -47,7 +50,10 @@ class RtfmPlugin(Plugin[RtfmSettings]):
     @libraries.setter
     def libraries(self, data: dict[str, str]):
         self.settings.libraries = data
-        self._library_cache = {lib: SphinxLibrary(lib, url, session=self.session) for lib, url in data.items()}
+        self._library_cache = {
+            lib: SphinxLibrary(lib, url, session=self.session)
+            for lib, url in data.items()
+        }
 
     @property
     def keywords(self):
@@ -67,16 +73,19 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         await asyncio.gather(
             *(self.refresh_library_cache(lib) for lib in self.libraries.values())
         )
-        
+
         log.info(f"Done building cache.")
 
     async def refresh_library_cache(self, library: SphinxLibrary) -> bool:
         try:
             await library.build_cache()
         except Exception as e:
-            log.exception(f"Sending could not be parsed notification for {library!r}", exc_info=e)
+            log.exception(
+                f"Sending could not be parsed notification for {library!r}", exc_info=e
+            )
             await self.api.show_error_message(
-                f"rtfm", f"Unable to cache {library.name!r} due to the following error: {e}"
+                f"rtfm",
+                f"Unable to cache {library.name!r} due to the following error: {e}",
             )
             return False
         await library.fetch_icon()

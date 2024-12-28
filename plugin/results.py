@@ -7,6 +7,7 @@ from flogin import ExecuteResponse, Result
 if TYPE_CHECKING:
     from .plugin import RtfmPlugin
 
+
 class ReloadCacheResult(Result["RtfmPlugin"]):
     def __init__(self) -> None:
         super().__init__("Reload cache", icon="assets/app.png")
@@ -36,6 +37,7 @@ class OpenSettingsResult(Result["RtfmPlugin"]):
 
         await self.plugin.api.open_url("http://localhost:2907/")
         return ExecuteResponse()
+
 
 class OpenLogFileResult(Result["RtfmPlugin"]):
     def __init__(self) -> None:
