@@ -1,3 +1,6 @@
-v0.1.1
+v0.1.2
 
-- Fix bug where the plugin doesn't properly handle the close request from flow
+- Implement a temperary solution to https://github.com/Flow-Launcher/Flow.Launcher/pull/3112
+- Add the ability to browse local docs through the settings webserver
+    - Use this when generating URLs to fix problem with url fragments
+- Update instructions on webserver
