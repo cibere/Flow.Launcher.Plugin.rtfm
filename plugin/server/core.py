@@ -55,6 +55,19 @@ async def run_app(
         log.info(f"Sending data: {data}")
         return data
 
+    @routes.get("/local-docs/{name}/{path:[^{}]+}")
+    async def get_local_doc_path(request: web.Request):
+        name = request.match_info["name"]
+        path = request.match_info["path"].strip("/") or "index.html"
+
+        try:
+            lib = plugin.libraries[name]
+        except KeyError:
+            return web.Response(body="Library not found")
+        page = os.path.join(lib.url.path.removeprefix("/"), path)
+        log.info(f"Returning file: {page!r}")
+        return web.FileResponse(page)
+
     app = web.Application()
 
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))

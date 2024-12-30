@@ -18,6 +18,10 @@ class SphinxLibrary:
         self.file: SphinxObjectFileReader | None = None
         self.cache: dict[str, str] | None = None
 
+    @property
+    def is_local(self) -> bool:
+        return self.url.scheme == "file"
+
     def __repr__(self) -> str:
         return f"<SphinxLibrary {self.name=} {self.url=} {self.icon=}>"
 
@@ -89,6 +93,16 @@ class SphinxLibrary:
             key = name if dispname == "-" else dispname
             prefix = f"{subdirective}:" if domain == "std" else ""
 
-            cache[f"{prefix}{key}"] = str(self.url.joinpath(location))
+            cache[f"{prefix}{key}"] = self._build_url(location)
 
         self.cache = cache
+
+    def _build_url(self, piece: str) -> str:
+        if self.is_local:
+            base_url = URL.build(
+                scheme="http", host="localhost", port=2907, path="/local-docs"
+            )
+            url = base_url / self.name / piece
+            return str(url)
+        else:
+            return str(self.url.joinpath(piece))

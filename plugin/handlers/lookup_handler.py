@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from functools import partial
-
+import logging
 from flogin import Query, Result, SearchHandler
 
 from ..fuzzy import finder as fuzzy_finder
 from ..plugin import RtfmPlugin
+from ..results import OpenRtfmResult
+
+log = logging.getLogger(__name__)
 
 
 class LookupHandler(SearchHandler[RtfmPlugin]):
@@ -28,10 +30,15 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
             )
 
         if not text:
-            return Result.create_with_partial(
-                partial(self.plugin.api.open_url, str(library.url)),
-                title="Open documentation",
-                icon=library.icon,
+            return OpenRtfmResult(
+                library=library,
+                text="Open documentation",
+                url=str(
+                    library._build_url("index.html")
+                    if library.is_local
+                    else library.url
+                ),
+                score=1,
             )
 
         cache = list(library.cache.items())
@@ -41,11 +48,11 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
             return Result("Could not find anything. Sorry.", icon=library.icon)
 
         return [
-            Result.create_with_partial(
-                partial(self.plugin.api.open_url, match[1]),
-                title=match[0],
+            OpenRtfmResult(
+                library=library,
+                url=match[1].replace("%23", "#"),
+                text=match[0],
                 score=100 - idx,
-                icon=library.icon,
             )
             for idx, match in enumerate(matches)
         ]
