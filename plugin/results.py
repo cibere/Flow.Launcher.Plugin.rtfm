@@ -1,11 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from flogin import ExecuteResponse, Result
+from typing import TYPE_CHECKING, TypedDict, NotRequired, Iterable
+import random, logging
+from flogin import ExecuteResponse, Result, Glyph, ProgressBar, ResultPreview
+from .library import SphinxLibrary
+import webbrowser, asyncio
 
 if TYPE_CHECKING:
     from .plugin import RtfmPlugin
+
+log = logging.getLogger(__name__)
+
 
 class ReloadCacheResult(Result["RtfmPlugin"]):
     def __init__(self) -> None:
@@ -37,6 +42,7 @@ class OpenSettingsResult(Result["RtfmPlugin"]):
         await self.plugin.api.open_url("http://localhost:2907/")
         return ExecuteResponse()
 
+
 class OpenLogFileResult(Result["RtfmPlugin"]):
     def __init__(self) -> None:
         super().__init__(
@@ -49,4 +55,31 @@ class OpenLogFileResult(Result["RtfmPlugin"]):
         await self.plugin.api.open_directory(
             self.plugin.metadata.directory, "flogin.log"
         )
+        return ExecuteResponse()
+
+
+class OpenRtfmResult(Result["RtfmPlugin"]):
+    def __init__(
+        self, *, library: SphinxLibrary, url: str, text: str, score: int
+    ) -> None:
+        self.library = library
+        self.url = url
+        self.text = text
+
+        super().__init__(
+            title=text,
+            auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm")),
+            score=score,
+            icon=library.icon,
+        )
+
+    async def callback(self) -> ExecuteResponse:
+        assert self.plugin
+
+        if self.library.is_local:
+            log.info(f"Opening URL: {self.url!r}")
+            await asyncio.to_thread(webbrowser.open, self.url)
+        else:
+            await self.plugin.api.open_url(self.url)
+
         return ExecuteResponse()
