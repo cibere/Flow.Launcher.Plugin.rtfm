@@ -33,21 +33,23 @@ def url_to_bytes(url: str, format: str) -> bytes | None:
 
     if format != "svg":
         return res.content
-    
+
     if wand_installed is False:
         return
-    
+
     with wand.image.Image() as image:
         with wand.color.Color("transparent") as background_color:
             wand_lib.MagickSetBackgroundColor(image.wand, background_color.resource)
         image.read(blob=res.content, format="svg", height=500, width=500)
         return image.make_blob("png32")
 
+
 def get_favicon(url: Path | URL) -> Iterable[favicon.Icon]:
     if isinstance(url, Path):
         return favicon.tags(str(url), url.read_bytes())
     else:
         return favicon.get(str(url))
+
 
 def build_google_favicon_url(domain: str) -> str:
     return str(
@@ -59,6 +61,7 @@ def build_google_favicon_url(domain: str) -> str:
         )
     )
 
+
 def get_local_icon(key: str, path: Path) -> str | None:
     raw_icons = favicon.tags(str(path), path.read_bytes())
     log.info(f"Found icons for {key} @ {path!r}: {raw_icons!r}")
@@ -68,6 +71,7 @@ def get_local_icon(key: str, path: Path) -> str | None:
         fp = path.parent / icon_url
         log.info(f"Chosen icon for {key} is {fp!r}")
         return str(fp)
+
 
 def get_online_icon(key: str, url: URL) -> str | None:
     raw_icons = get_favicon(url)
@@ -81,7 +85,7 @@ def get_online_icon(key: str, url: URL) -> str | None:
             domain = url.host
             if domain is None:
                 return
-            
+
             return build_google_favicon_url(domain)
         else:
             with tempfile.NamedTemporaryFile(
@@ -90,6 +94,7 @@ def get_online_icon(key: str, url: URL) -> str | None:
                 f.write(file)
                 log.info(f"Saved icon for {key} at {f.name}")
                 return f.name
+
 
 def get_icon(key: str, loc: URL | str | Path) -> str | None:
     if isinstance(loc, str):

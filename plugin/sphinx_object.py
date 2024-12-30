@@ -12,6 +12,7 @@ from yarl import URL
 from aiohttp import ClientSession
 from pathlib import Path
 
+
 class SphinxObjectFileReader:
     # Inspired by Sphinx's InventoryFileReader
     BUFSIZE = 16 * 1024
@@ -45,10 +46,12 @@ class SphinxObjectFileReader:
                 pos = buf.find(b"\n")
 
     @classmethod
-    async def from_url(cls: type[SphinxObjectFileReader], url: str | URL, *, session: ClientSession) -> SphinxObjectFileReader:
+    async def from_url(
+        cls: type[SphinxObjectFileReader], url: str | URL, *, session: ClientSession
+    ) -> SphinxObjectFileReader:
         if isinstance(url, str):
             url = URL(url)
-        
+
         if url.scheme in ("http", "https"):
             page = url.joinpath("objects.inv")
             async with session.get(page) as resp:
@@ -62,4 +65,3 @@ class SphinxObjectFileReader:
             return cls(path.read_bytes())
         else:
             raise ValueError("Invalid URL")
-
