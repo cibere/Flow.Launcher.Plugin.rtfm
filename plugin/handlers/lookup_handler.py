@@ -24,6 +24,14 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
                 f"Library '{keyword}' not found in settings", icon="Images/error.png"
             )
 
+        if not library.use_cache:
+            log.info(
+                f"Library {library.name!r} not set to use cache, rebuilding for request"
+            )
+            msg = await self.plugin.refresh_library_cache(library, send_noti=False)
+            if msg is not None:
+                return Result(msg, icon=library.icon)
+
         if library.cache is None:
             return Result(
                 f"Library '{library.name}' not found in cache", icon="Images/error.png"

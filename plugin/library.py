@@ -10,20 +10,21 @@ from .sphinx_object import SphinxObjectFileReader
 
 
 class SphinxLibrary:
-    def __init__(self, name: str, url: str | URL, *, session: ClientSession):
+    def __init__(self, name: str, url: str | URL, *, use_cache: bool):
         self.name = name
         self.url = url if isinstance(url, URL) else URL(url)
-        self.session = session
         self.icon: str | None = None
-        self.file: SphinxObjectFileReader | None = None
         self.cache: dict[str, str] | None = None
+        self.use_cache = use_cache
 
     @property
     def is_local(self) -> bool:
         return self.url.scheme == "file"
 
     def __repr__(self) -> str:
-        return f"<SphinxLibrary {self.name=} {self.url=} {self.icon=}>"
+        return (
+            f"<SphinxLibrary {self.name=} {self.url=} {self.icon=} {self.use_cache=}>"
+        )
 
     async def fetch_icon(self) -> str | None:
         if self.url.scheme == "file":
@@ -36,14 +37,11 @@ class SphinxLibrary:
             self.icon = "assets/app.png"
         return self.icon
 
-    async def fetch_file(self) -> SphinxObjectFileReader:
-        self.file = await SphinxObjectFileReader.from_url(
-            self.url, session=self.session
-        )
-        return self.file
+    async def fetch_file(self, session: ClientSession) -> SphinxObjectFileReader:
+        return await SphinxObjectFileReader.from_url(self.url, session=session)
 
-    async def build_cache(self) -> None:
-        file = await self.fetch_file()
+    async def build_cache(self, session: ClientSession) -> None:
+        file = await self.fetch_file(session)
 
         # key: URL
         cache: dict[str, str] = {}

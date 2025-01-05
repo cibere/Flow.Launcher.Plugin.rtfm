@@ -6,8 +6,9 @@ Credits to Danny/Rapptz for the original rtfm code
 from __future__ import annotations
 
 import asyncio
-import logging
+import logging, pickle, os
 import aiohttp
+from typing import Any
 from flogin import Plugin, QueryResponse
 from .results import OpenSettingsResult, ReloadCacheResult, OpenLogFileResult
 from .server.core import run_app as start_webserver
@@ -31,6 +32,27 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         self.register_event(self.on_context_menu)
         self.register_event(self.init, "on_initialization")
 
+    def load_libraries(self) -> dict[str, SphinxLibrary]:
+        fp = os.path.join(
+            "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"
+        )
+        if os.path.exists(fp):
+            with open(fp, "rb") as f:
+                self._library_cache = libs = pickle.load(f)
+        else:
+            self._library_cache = libs = {}
+
+        return libs
+
+    def dump_libraries(self) -> None:
+        libs = self.libraries
+
+        fp = os.path.join(
+            "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"
+        )
+        with open(fp, "wb") as f:
+            pickle.dump(libs, f)
+
     async def init(self):
         await self.ensure_keywords()
         await self.build_rtfm_lookup_tables()
@@ -38,22 +60,22 @@ class RtfmPlugin(Plugin[RtfmSettings]):
     @property
     def libraries(self) -> dict[str, SphinxLibrary]:
         if self._library_cache is None:
-            items = self.settings.libraries or {}
-            self._library_cache = {
-                lib: SphinxLibrary(lib, url, session=self.session)
-                for lib, url in items.items()
-            }
+            libs = self.load_libraries()
+        else:
+            libs = self._library_cache
 
-        log.info(f"Libraries: {self._library_cache!r}")
-        return self._library_cache
+        log.info(f"Libraries: {libs!r}")
+        return libs
 
     @libraries.setter
-    def libraries(self, data: dict[str, str]):
-        self.settings.libraries = data
+    def libraries(self, data: list[dict[str, Any]]):
         self._library_cache = {
-            lib: SphinxLibrary(lib, url, session=self.session)
-            for lib, url in data.items()
+            lib["name"]: SphinxLibrary(
+                lib["name"], lib["url"], use_cache=lib["use_cache"]
+            )
+            for lib in data
         }
+        self.dump_libraries()
 
     @property
     def keywords(self):
@@ -76,20 +98,20 @@ class RtfmPlugin(Plugin[RtfmSettings]):
 
         log.info(f"Done building cache.")
 
-    async def refresh_library_cache(self, library: SphinxLibrary) -> bool:
+    async def refresh_library_cache(
+        self, library: SphinxLibrary, *, send_noti: bool = True
+    ) -> str | None:
         try:
-            await library.build_cache()
+            await library.build_cache(self.session)
         except Exception as e:
             log.exception(
                 f"Sending could not be parsed notification for {library!r}", exc_info=e
             )
-            await self.api.show_error_message(
-                f"rtfm",
-                f"Unable to cache {library.name!r} due to the following error: {e}",
-            )
-            return False
+            txt = f"Unable to cache {library.name!r} due to the following error: {e}"
+            if send_noti:
+                await self.api.show_error_message(f"rtfm", txt)
+            return txt
         await library.fetch_icon()
-        return True
 
     async def start(self):
         async with aiohttp.ClientSession() as cs:
@@ -107,7 +129,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
 
     async def start_webserver(self):
         def write_libs(libs: list[dict[str, str]]):
-            self.libraries = {lib["name"]: lib["url"] for lib in libs}
+            self.libraries = libs
             log.info(f"--- {self.libraries=} ---")
             asyncio.create_task(self.ensure_keywords())
 

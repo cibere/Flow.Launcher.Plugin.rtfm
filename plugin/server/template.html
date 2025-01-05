@@ -64,19 +64,27 @@
         <details>
           <summary>Offline Documentation Instructions</summary>
           <p>
-            To use an offline copy of a library's documentation, simply take the path of the directory that includes the <code>objects.inv</code> file and all of the other files, and give it in the format of a <code>file://</code> protocol url.
+            To use an offline copy of a library's documentation, simply take the path of the directory that includes the <code>objects.inv</code> file and all of the other files, and give it in the format of a <code>file:///</code> protocol url.
           </p>
         </details>
       </p>
       <table id="table">
           <tr id="table-header">
             <th></th>
+            <th>Use Cache</th>
             <th>Library Name</th>
             <th>URL</th>
           </tr>
           {% for lib in libs %}
               <tr class="row">
                   <td class="dash"><button class="delete-btn" onclick="deleteRow(this)">-</button></td>
+                  <td class="dash">
+                    {% if lib.use_cache %}
+                      <input type="checkbox" checked>
+                    {% else %}
+                      <input type="checkbox">
+                    {% endif %}
+                  </td>
                   <td class="content-td keyword"><textarea>{{ lib[0] }}</textarea></td>
                   <td class="content-td url"><textarea>{{ lib[1] }}</textarea></td>
               </tr>
@@ -127,6 +135,14 @@
             firstTd.appendChild(button);
             row.appendChild(firstTd);
 
+            let cacheTd = document.createElement("td");
+            cacheTd.className = "dash";
+            let inp = document.createElement("input");
+            inp.type = "checkbox";
+            inp.checked = true;
+            cacheTd.appendChild(inp);
+            row.appendChild(cacheTd);
+
             let keywordTd = document.createElement("td");
             keywordTd.className = "content-td keyword";
             let keywordTextarea = document.createElement("textarea");
@@ -146,10 +162,11 @@
 
             let rows = document.getElementsByClassName("row");
             for (let row of rows){
-              console.log(row.children[1].children[0]);
+              console.log(row.children[2].children[0]);
                 row_data = {
-                    name: row.children[1].children[0].value,
-                    url: row.children[2].children[0].value
+                    name: row.children[2].children[0].value,
+                    url: row.children[3].children[0].value,
+                    use_cache: row.children[1].children[0].checked,
                 }
                 data.push(row_data)
             }
