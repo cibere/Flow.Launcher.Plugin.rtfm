@@ -9,4 +9,5 @@ sys.path.append(os.path.join(parent_folder_path, "venv", "lib", "site-packages")
 from plugin.plugin import RtfmPlugin
 
 if __name__ == "__main__":
+    os.remove("flogin.log")
     RtfmPlugin().run()
