@@ -61,7 +61,7 @@ class SphinxObjectFileReader:
         elif url.scheme == "file":
             path = Path(url.path.strip("/")).joinpath("objects.inv")
             if not path.exists():
-                raise ValueError(f"file does not exist: {path!r}")
+                raise ValueError(f"file does not exist: {path}")
             return cls(path.read_bytes())
         else:
             raise ValueError("Invalid URL")
