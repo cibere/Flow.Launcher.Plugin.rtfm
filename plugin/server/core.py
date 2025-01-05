@@ -49,7 +49,7 @@ async def run_app(
     @aiohttp_jinja2.template("template.html")
     async def index(request: web.Request):
         data = {
-            "libs": [(key, value.url) for key, value in plugin.libraries.items()],
+            "libs": plugin.libraries.values(),
             "main_kw": plugin.main_kw,
         }
         log.info(f"Sending data: {data}")
@@ -64,7 +64,8 @@ async def run_app(
             lib = plugin.libraries[name]
         except KeyError:
             return web.Response(body="Library not found")
-        page = os.path.join(lib.url.path.removeprefix("/"), path)
+        assert lib.path
+        page = os.path.join(lib.path, path)
         log.info(f"Returning file: {page!r}")
         return web.FileResponse(page)
 

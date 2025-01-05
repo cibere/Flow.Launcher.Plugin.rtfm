@@ -47,21 +47,19 @@ class SphinxObjectFileReader:
 
     @classmethod
     async def from_url(
-        cls: type[SphinxObjectFileReader], url: str | URL, *, session: ClientSession
+        cls: type[SphinxObjectFileReader], url: URL, *, session: ClientSession
     ) -> SphinxObjectFileReader:
-        if isinstance(url, str):
-            url = URL(url)
+        page = url.joinpath("objects.inv")
+        async with session.get(page) as resp:
+            if resp.status != 200:
+                raise ValueError("Could not get objects.inv file")
+            return cls(await resp.read())
 
-        if url.scheme in ("http", "https"):
-            page = url.joinpath("objects.inv")
-            async with session.get(page) as resp:
-                if resp.status != 200:
-                    raise ValueError("Could not get objects.inv file")
-                return cls(await resp.read())
-        elif url.scheme == "file":
-            path = Path(url.path.strip("/")).joinpath("objects.inv")
-            if not path.exists():
-                raise ValueError(f"file does not exist: {path}")
-            return cls(path.read_bytes())
-        else:
-            raise ValueError("Invalid URL")
+    @classmethod
+    def from_file(
+        cls: type[SphinxObjectFileReader], path: Path
+    ) -> SphinxObjectFileReader:
+        path = path / "objects.inv"
+        if not path.exists():
+            raise ValueError(f"file does not exist: {path}")
+        return cls(path.read_bytes())

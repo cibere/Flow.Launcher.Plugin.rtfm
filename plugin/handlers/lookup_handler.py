@@ -42,9 +42,7 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
                 library=library,
                 text="Open documentation",
                 url=str(
-                    library._build_url("index.html")
-                    if library.is_local
-                    else library.url
+                    library._build_url("index.html") if library.path else library.url
                 ),
                 score=1,
             )

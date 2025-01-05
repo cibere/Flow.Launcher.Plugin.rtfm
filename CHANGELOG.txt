@@ -1,6 +1,6 @@
 v0.2.0
 
-- fix typo in offline docs instructions
+- redo offline docs instructions
 - Add the ability to have "live" lookups (disable the usage of a cache for a library)
 - rewrite the settings code to store your libraries in a `libraries.pickle` file, away from the standard flow plugin setting.
 - make the file not found error to be more human readable

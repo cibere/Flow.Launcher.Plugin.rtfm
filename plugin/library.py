@@ -5,21 +5,26 @@ from yarl import URL
 from aiohttp import ClientSession
 from .icons import get_icon as _get_icon
 import re
+from typing import Self, Any
 from pathlib import Path
 from .sphinx_object import SphinxObjectFileReader
 
 
 class SphinxLibrary:
-    def __init__(self, name: str, url: str | URL, *, use_cache: bool):
+    def __init__(self, name: str, loc: URL | Path, *, use_cache: bool):
         self.name = name
-        self.url = url if isinstance(url, URL) else URL(url)
+        self.loc = loc
         self.icon: str | None = None
         self.cache: dict[str, str] | None = None
         self.use_cache = use_cache
 
     @property
-    def is_local(self) -> bool:
-        return self.url.scheme == "file"
+    def url(self) -> URL | None:
+        return self.loc if isinstance(self.loc, URL) else None
+
+    @property
+    def path(self) -> Path | None:
+        return self.loc if isinstance(self.loc, Path) else None
 
     def __repr__(self) -> str:
         return (
@@ -27,10 +32,10 @@ class SphinxLibrary:
         )
 
     async def fetch_icon(self) -> str | None:
-        if self.url.scheme == "file":
-            loc = Path(self.url.path.strip("/")) / "index.html"
+        if path := self.path:
+            loc = path / "index.html"
         else:
-            loc = self.url
+            loc = self.loc
 
         self.icon = await asyncio.to_thread(_get_icon, self.name, loc)
         if self.icon is None:
@@ -38,7 +43,14 @@ class SphinxLibrary:
         return self.icon
 
     async def fetch_file(self, session: ClientSession) -> SphinxObjectFileReader:
-        return await SphinxObjectFileReader.from_url(self.url, session=session)
+        if url := self.url:
+            return await SphinxObjectFileReader.from_url(url, session=session)
+        elif path := self.path:
+            return SphinxObjectFileReader.from_file(path)
+        else:
+            raise ValueError(
+                f"Expected location to be of type URL or Path, not {self.loc.__class__.__name__!r}"
+            )
 
     async def build_cache(self, session: ClientSession) -> None:
         file = await self.fetch_file(session)
@@ -96,11 +108,30 @@ class SphinxLibrary:
         self.cache = cache
 
     def _build_url(self, piece: str) -> str:
-        if self.is_local:
+        if self.path:
             base_url = URL.build(
                 scheme="http", host="localhost", port=2907, path="/local-docs"
             )
             url = base_url / self.name / piece
             return str(url)
+        elif url := self.url:
+            return str(url.joinpath(piece))
         else:
-            return str(self.url.joinpath(piece))
+            raise ValueError(
+                f"Expected location to be of type URL or Path, not {self.loc.__class__.__name__!r}"
+            )
+
+    @classmethod
+    def from_dict(cls: type[Self], data: dict[str, Any]) -> Self:
+        kwargs = {"name": data["name"], "use_cache": data["use_cache"]}
+
+        loc: str = data["loc"]
+
+        if loc.startswith(("http://", "https://")):
+            kwargs["loc"] = URL(loc)
+        elif loc.startswith("file:///"):
+            kwargs["loc"] = Path(URL(loc).path.strip("/"))
+        else:
+            kwargs["loc"] = Path(loc)
+
+        return cls(**kwargs)

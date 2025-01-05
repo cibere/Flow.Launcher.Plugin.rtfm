@@ -70,10 +70,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
     @libraries.setter
     def libraries(self, data: list[dict[str, Any]]):
         self._library_cache = {
-            lib["name"]: SphinxLibrary(
-                lib["name"], lib["url"], use_cache=lib["use_cache"]
-            )
-            for lib in data
+            lib["name"]: SphinxLibrary.from_dict(lib) for lib in data
         }
         self.dump_libraries()
 

@@ -3,7 +3,7 @@
         <style>
           a {
             text-decoration: none;
-            color: inherit;
+            color: rgb(72, 69, 254);
           }
           a:hover {
             text-decoration: underline;
@@ -40,21 +40,27 @@
             .url {
               width: 80%;
             }
-            .dash {
+            .center {
+              text-align: center;
+            }
+            .w2 {
+              width: 2%;
+            }
+            .w5 {
               width: 5%;
             }
             code {
               background-color: #eee;
               border-radius: 3px;
               padding: 0 3px;
-          }
+            }
 
             </style>
     </head>
     <body>
       <h1><a href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm">rtfm settings</a></h1>
+      See the <a href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm?tab=readme-ov-file#flowlauncherpluginrtfm">readme page</a> for more information about the plugin.
       <p>
-        The URLs must be complete, including the schema.
         <details>
           <summary>Online Documentation Instructions</summary>
           <p>
@@ -64,7 +70,7 @@
         <details>
           <summary>Offline Documentation Instructions</summary>
           <p>
-            To use an offline copy of a library's documentation, simply take the path of the directory that includes the <code>objects.inv</code> file and all of the other files, and give it in the format of a <code>file:///</code> protocol url.
+            To use an offline copy of a library's documentation, generate the <code>html</code> version of the documentation (see the <a href="https://www.sphinx-doc.org/en/master/tutorial/first-steps.html#building-your-html-documentation">sphinx docs for help</a>), and provide the path to the generated folder. For example, if I build the html docs from <code>C:\Users\default.MyPC\AppData\Roaming\FlowLauncher\Plugins\flogin\docs</code>, the last line that sphinx prints will look something like: <code>The HTML pages are in _build\html</code>. After concatenating those paths, this is the location of my documentation: <code>C:\Users\default.MyPC\AppData\Roaming\FlowLauncher\Plugins\flogin\docs\_build\html</code>
           </p>
         </details>
       </p>
@@ -73,20 +79,20 @@
             <th></th>
             <th>Use Cache</th>
             <th>Library Name</th>
-            <th>URL</th>
+            <th>Location</th>
           </tr>
           {% for lib in libs %}
               <tr class="row">
-                  <td class="dash"><button class="delete-btn" onclick="deleteRow(this)">-</button></td>
-                  <td class="dash">
+                  <td class="center w2"><button class="delete-btn" onclick="deleteRow(this)">-</button></td>
+                  <td class="center w5">
                     {% if lib.use_cache %}
                       <input type="checkbox" checked>
                     {% else %}
                       <input type="checkbox">
                     {% endif %}
                   </td>
-                  <td class="content-td keyword"><textarea>{{ lib[0] }}</textarea></td>
-                  <td class="content-td url"><textarea>{{ lib[1] }}</textarea></td>
+                  <td class="content-td keyword"><textarea>{{ lib.name }}</textarea></td>
+                  <td class="content-td loc"><textarea>{{ lib.loc }}</textarea></td>
               </tr>
           {% endfor %}
         </table>
@@ -127,7 +133,7 @@
             row.className = "row";
 
             let firstTd = document.createElement("td");
-            firstTd.className = "dash";
+            firstTd.className = "center w2";
             let button = document.createElement("button");
             button.className = "delete-btn";
             button.innerText = "-";
@@ -136,7 +142,7 @@
             row.appendChild(firstTd);
 
             let cacheTd = document.createElement("td");
-            cacheTd.className = "dash";
+            cacheTd.className = "center w5";
             let inp = document.createElement("input");
             inp.type = "checkbox";
             inp.checked = true;
@@ -150,7 +156,7 @@
             row.appendChild(keywordTd);
 
             let urlTd = document.createElement("td");
-            urlTd.className = "content-td url";
+            urlTd.className = "content-td loc";
             let urlTextarea = document.createElement("textarea");
             urlTd.appendChild(urlTextarea);
             row.appendChild(urlTd);
@@ -165,7 +171,7 @@
               console.log(row.children[2].children[0]);
                 row_data = {
                     name: row.children[2].children[0].value,
-                    url: row.children[3].children[0].value,
+                    loc: row.children[3].children[0].value,
                     use_cache: row.children[1].children[0].checked,
                 }
                 data.push(row_data)

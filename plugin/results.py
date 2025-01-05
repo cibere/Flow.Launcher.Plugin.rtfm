@@ -76,7 +76,7 @@ class OpenRtfmResult(Result["RtfmPlugin"]):
     async def callback(self) -> ExecuteResponse:
         assert self.plugin
 
-        if self.library.is_local:
+        if self.library.path:
             log.info(f"Opening URL: {self.url!r}")
             await asyncio.to_thread(webbrowser.open, self.url)
         else:
