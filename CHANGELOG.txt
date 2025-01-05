@@ -1,6 +1,6 @@
-v0.1.2
+v0.2.0
 
-- Implement a temperary solution to https://github.com/Flow-Launcher/Flow.Launcher/pull/3112
-- Add the ability to browse local docs through the settings webserver
-    - Use this when generating URLs to fix problem with url fragments
-- Update instructions on webserver
+- fix typo in offline docs instructions
+- Add the ability to have "live" lookups (disable the usage of a cache for a library)
+- rewrite the settings code to store your libraries in a `libraries.pickle` file, away from the standard flow plugin setting.
+- make the file not found error to be more human readable
