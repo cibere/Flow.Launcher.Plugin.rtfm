@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("webserver")
 
+
 def build_app(
     write_settings: Callable[[list[dict[str, str]]], None],
     plugin: RtfmPlugin,
@@ -79,8 +80,9 @@ async def start_runner(app: web.Application, host: str, port: int):
     site = web.TCPSite(runner, host, port)
     await site.start()
 
-    socket_info: tuple[str, int] = site._server.sockets[0].getsockname() # type: ignore
+    socket_info: tuple[str, int] = site._server.sockets[0].getsockname()  # type: ignore
     return socket_info[1]
+
 
 async def run_app(
     write_settings: Callable[[list[dict[str, str]]], None],
