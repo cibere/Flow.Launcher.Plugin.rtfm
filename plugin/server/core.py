@@ -13,8 +13,6 @@ if TYPE_CHECKING:
     from ..plugin import RtfmPlugin
 
 log = logging.getLogger("webserver")
-DEFAULT_PORT = 2908
-
 
 def build_app(
     write_settings: Callable[[list[dict[str, str]]], None],
@@ -74,27 +72,15 @@ def build_app(
     return app
 
 
-async def start_runner(app: web.Application, host: str, port: int) -> int:
+async def start_runner(app: web.Application, host: str, port: int):
     runner = web.AppRunner(app)
     await runner.setup()
 
     site = web.TCPSite(runner, host, port)
-    try:
-        await site.start()
-    except OSError as e:
-        # port already used
-        if e.errno == 10048:
-            new_port = port + 1
-            log.exception(
-                f"Could not start on port {port!r}, incremending port and trying again on {new_port!r}",
-                exc_info=e,
-            )
-            return await start_runner(app, host, new_port)
-        raise
-    else:
-        log.info(f"Started on port {port!r}")
-        return port
+    await site.start()
 
+    socket_info: tuple[str, int] = site._server.sockets[0].getsockname() # type: ignore
+    return socket_info[1]
 
 async def run_app(
     write_settings: Callable[[list[dict[str, str]]], None],
@@ -103,7 +89,7 @@ async def run_app(
     run_forever: bool = True,
 ):
     app = build_app(write_settings, plugin)
-    port = await start_runner(app, "localhost", DEFAULT_PORT)
+    port = await start_runner(app, "localhost", 0)
 
     plugin.webserver_port = port
 
