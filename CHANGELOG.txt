@@ -3,6 +3,7 @@ v0.2.0
 - redo offline docs instructions
 - Add the ability to have "live" lookups (disable the usage of a cache for a library)
 - rewrite the settings code to store your libraries in a `libraries.pickle` file, away from the standard flow plugin setting.
+    - on startup, check for libraries stored the pre-0.2.0 way, and if found, move them to the pickle file.
 - make the file not found error to be more human readable
 - Allow local docs without the need to use file protocol urls
     - Convert file protocol urls to normal paths for backward compatibility
