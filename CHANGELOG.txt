@@ -6,3 +6,4 @@ v0.2.0
 - make the file not found error to be more human readable
 - Allow local docs without the need to use file protocol urls
     - Convert file protocol urls to normal paths for backward compatibility
+- If the default port (2907) is taken, increment until an available one is found
