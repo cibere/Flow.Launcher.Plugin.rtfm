@@ -21,6 +21,7 @@ log = logging.getLogger("rtfm")
 class RtfmPlugin(Plugin[RtfmSettings]):
     _library_cache: dict[str, SphinxLibrary] | None = None
     session: aiohttp.ClientSession
+    webserver_port: int
 
     def __init__(self) -> None:
         super().__init__(settings_no_update=True)
@@ -56,6 +57,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
     async def init(self):
         await self.ensure_keywords()
         await self.build_rtfm_lookup_tables()
+        self.check_for_legacy_settings()
 
     @property
     def libraries(self) -> dict[str, SphinxLibrary]:
@@ -99,7 +101,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         self, library: SphinxLibrary, *, send_noti: bool = True
     ) -> str | None:
         try:
-            await library.build_cache(self.session)
+            await library.build_cache(self.session, self.webserver_port)
         except Exception as e:
             log.exception(
                 f"Sending could not be parsed notification for {library!r}", exc_info=e
@@ -145,3 +147,21 @@ class RtfmPlugin(Plugin[RtfmSettings]):
                     await plugin.remove_keyword(kw)
                 for kw in to_add:
                     await plugin.add_keyword(kw)
+
+    def check_for_legacy_settings(self):
+        libs = self.settings.libraries
+        if libs is None:
+            return log.info("No legacy lib settings found")
+        
+        log.info("Legacy library settings found, converting to current format")
+        self.libraries =[
+            {
+                "name": name,
+                "loc": loc,
+                "use_cache": True
+            }
+            for name, loc in libs.items()
+        ]
+        self.settings.libraries = None
+        
+        log.info("Done converting legacy library settings")

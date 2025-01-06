@@ -52,7 +52,7 @@ class SphinxLibrary:
                 f"Expected location to be of type URL or Path, not {self.loc.__class__.__name__!r}"
             )
 
-    async def build_cache(self, session: ClientSession) -> None:
+    async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
         file = await self.fetch_file(session)
 
         # key: URL
@@ -103,14 +103,14 @@ class SphinxLibrary:
             key = name if dispname == "-" else dispname
             prefix = f"{subdirective}:" if domain == "std" else ""
 
-            cache[f"{prefix}{key}"] = self._build_url(location)
+            cache[f"{prefix}{key}"] = self._build_url(location, webserver_port)
 
         self.cache = cache
 
-    def _build_url(self, piece: str) -> str:
+    def _build_url(self, piece: str, port: int) -> str:
         if self.path:
             base_url = URL.build(
-                scheme="http", host="localhost", port=2907, path="/local-docs"
+                scheme="http", host="localhost", port=port, path="/local-docs"
             )
             url = base_url / self.name / piece
             return str(url)

@@ -13,16 +13,13 @@ if TYPE_CHECKING:
     from ..plugin import RtfmPlugin
 
 log = logging.getLogger("webserver")
+DEFAULT_PORT = 2908
 
-
-async def run_app(
+def build_app(
     write_settings: Callable[[list[dict[str, str]]], None],
     plugin: RtfmPlugin,
-    *,
-    run_forever: bool = True,
-):
+) -> web.Application:
     routes = web.RouteTableDef()
-    is_alive = asyncio.Future()
 
     @routes.put("/api/save_settings")
     async def save_settings(request: web.Request):
@@ -70,16 +67,39 @@ async def run_app(
         return web.FileResponse(page)
 
     app = web.Application()
-
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
     app.add_routes(routes)
+    return app
 
+async def start_runner(app: web.Application, host: str, port: int) -> int:
     runner = web.AppRunner(app)
     await runner.setup()
 
-    site = web.TCPSite(runner, "localhost", 2907)
-    await site.start()
+    site = web.TCPSite(runner, host, port)
+    try:
+        await site.start()
+    except OSError as e:
+        # port already used
+        if e.errno == 10048:
+            new_port = port + 1
+            log.exception(f"Could not start on port {port!r}, incremending port and trying again on {new_port!r}", exc_info=e)
+            return await start_runner(app, host, new_port)
+        raise
+    else:
+        log.info(f"Started on port {port!r}")
+        return port
 
-    if run_forever:
-        await is_alive
+async def run_app(
+    write_settings: Callable[[list[dict[str, str]]], None],
+    plugin: RtfmPlugin,
+    *,
+    run_forever: bool = True,
+):
+    app = build_app(write_settings, plugin)
+    port = await start_runner(app, "localhost", DEFAULT_PORT)
+
+    plugin.webserver_port = port
+
+    while run_forever:
+        await asyncio.sleep(10000)

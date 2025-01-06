@@ -39,7 +39,7 @@ class OpenSettingsResult(Result["RtfmPlugin"]):
     async def callback(self):
         assert self.plugin
 
-        await self.plugin.api.open_url("http://localhost:2907/")
+        await self.plugin.api.open_url(f"http://localhost:{self.plugin.webserver_port}/")
         return ExecuteResponse()
 
 
