@@ -152,16 +152,11 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         libs = self.settings.libraries
         if libs is None:
             return log.info("No legacy lib settings found")
-        
+
         log.info("Legacy library settings found, converting to current format")
-        self.libraries =[
-            {
-                "name": name,
-                "loc": loc,
-                "use_cache": True
-            }
-            for name, loc in libs.items()
+        self.libraries = [
+            {"name": name, "loc": loc, "use_cache": True} for name, loc in libs.items()
         ]
         self.settings.libraries = None
-        
+
         log.info("Done converting legacy library settings")

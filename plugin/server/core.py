@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 log = logging.getLogger("webserver")
 DEFAULT_PORT = 2908
 
+
 def build_app(
     write_settings: Callable[[list[dict[str, str]]], None],
     plugin: RtfmPlugin,
@@ -72,6 +73,7 @@ def build_app(
     app.add_routes(routes)
     return app
 
+
 async def start_runner(app: web.Application, host: str, port: int) -> int:
     runner = web.AppRunner(app)
     await runner.setup()
@@ -83,12 +85,16 @@ async def start_runner(app: web.Application, host: str, port: int) -> int:
         # port already used
         if e.errno == 10048:
             new_port = port + 1
-            log.exception(f"Could not start on port {port!r}, incremending port and trying again on {new_port!r}", exc_info=e)
+            log.exception(
+                f"Could not start on port {port!r}, incremending port and trying again on {new_port!r}",
+                exc_info=e,
+            )
             return await start_runner(app, host, new_port)
         raise
     else:
         log.info(f"Started on port {port!r}")
         return port
+
 
 async def run_app(
     write_settings: Callable[[list[dict[str, str]]], None],
