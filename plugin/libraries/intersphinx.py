@@ -10,7 +10,7 @@ import re
 import zlib
 from typing import TYPE_CHECKING
 
-from .library import Library
+from ..library import Library
 
 if TYPE_CHECKING:
     from collections.abc import Generator
