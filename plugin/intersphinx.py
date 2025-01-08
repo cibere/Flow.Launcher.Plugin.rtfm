@@ -5,26 +5,26 @@ Credits to Danny/Rapptz for the original intersphinx parsing code
 
 from __future__ import annotations
 
-import asyncio
-from yarl import URL
-from aiohttp import ClientSession
-from .icons import get_icon as _get_icon
-import re
-from typing import Self, Any
-from pathlib import Path
-
 import io
+import re
 import zlib
-from typing import Generator
-from yarl import URL
-from aiohttp import ClientSession
-from pathlib import Path
+from typing import TYPE_CHECKING
+
 from .library import Library
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+    from pathlib import Path
+
+    from aiohttp import ClientSession
+    from yarl import URL
+
+
 class SphinxObjectFileReader:
     # Inspired by Sphinx's InventoryFileReader
     BUFSIZE = 16 * 1024
 
-    def __init__(self, buffer: bytes):
+    def __init__(self, buffer: bytes) -> None:
         self.stream = io.BytesIO(buffer)
 
     def readline(self) -> str:
@@ -76,12 +76,11 @@ class SphinxLibrary(Library):
     async def fetch_file(self, session: ClientSession) -> SphinxObjectFileReader:
         if url := self.url:
             return await SphinxObjectFileReader.from_url(url, session=session)
-        elif path := self.path:
+        if path := self.path:
             return SphinxObjectFileReader.from_file(path)
-        else:
-            raise ValueError(
-                f"Expected location to be of type URL or Path, not {self.loc.__class__.__name__!r}"
-            )
+        raise ValueError(
+            f"Expected location to be of type URL or Path, not {self.loc.__class__.__name__!r}"
+        )
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
         file = await self.fetch_file(session)
@@ -97,8 +96,8 @@ class SphinxLibrary(Library):
 
         # next line is "# Project: <name>"
         # then after that is "# Version: <version>"
-        projname = file.readline().rstrip()[11:]
-        version = file.readline().rstrip()[11:]
+        file.readline().rstrip()[11:]
+        file.readline().rstrip()[11:]
 
         # next line says if it's a zlib header
         line = file.readline()

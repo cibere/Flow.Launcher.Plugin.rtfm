@@ -1,26 +1,21 @@
 from __future__ import annotations
 
-import asyncio
-from yarl import URL
-from aiohttp import ClientSession
-from ..icons import get_icon as _get_icon
-import re
-from typing import Self, Any, ClassVar
-from pathlib import Path
+import json
+from typing import TYPE_CHECKING, ClassVar
 
-import io
-import zlib, json
-from typing import Generator
 from yarl import URL
-from aiohttp import ClientSession
-from pathlib import Path
+
 from ..library import Library
+
+if TYPE_CHECKING:
+    from aiohttp import ClientSession
+
 
 class AutoHotkeyDocs(Library):
     autohotkey_version: ClassVar[int]
     inventory_url: ClassVar[str]
 
-    def __init__(self, name: str, *, use_cache: bool):
+    def __init__(self, name: str, *, use_cache: bool) -> None:
         super().__init__(name, URL(f"https://autohotkey.com/docs/v{self.autohotkey_version}"), use_cache=use_cache)
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:

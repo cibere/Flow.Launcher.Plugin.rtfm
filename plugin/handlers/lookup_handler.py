@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+
 from flogin import Query, Result, SearchHandler
 
 from ..fuzzy import finder as fuzzy_finder

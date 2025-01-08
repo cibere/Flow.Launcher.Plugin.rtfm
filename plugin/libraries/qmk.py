@@ -1,29 +1,23 @@
 from __future__ import annotations
 
-import asyncio
-from yarl import URL
-from aiohttp import ClientSession
-from ..icons import get_icon as _get_icon
-import re
-from typing import Self, Any, ClassVar, TypedDict
-from pathlib import Path
+from typing import TYPE_CHECKING, ClassVar
 
-import io
-import zlib
-from typing import NotRequired
-from yarl import URL
-from aiohttp import ClientSession
-from pathlib import Path
-from ..library import Library
 import msgspec
 from msgspec import json
+from yarl import URL
+
+from ..library import BuilderType, Library
+
+if TYPE_CHECKING:
+    from aiohttp import ClientSession
+
 
 class QmkInvEntry(msgspec.Struct):
     text: str
     items: list[QmkInvEntry] | None = None
     link: str | None = None
 
-    def parse_self(self, webserver_port: int, builder) -> dict[str, str]:
+    def parse_self(self, webserver_port: int, builder: BuilderType) -> dict[str, str]:
         cache: dict[str, str] = {}
 
         if self.items is not None:
@@ -36,13 +30,13 @@ class QmkInvEntry(msgspec.Struct):
 class QmkDocs(Library):
     inventory_url: ClassVar[str] = "https://raw.githubusercontent.com/qmk/qmk_firmware/refs/heads/master/docs/_sidebar.json"
 
-    def __init__(self, name: str, *, use_cache: bool):
-        super().__init__(name, URL(f"https://docs.qmk.fm/"), use_cache=use_cache)
+    def __init__(self, name: str, *, use_cache: bool) -> None:
+        super().__init__(name, URL("https://docs.qmk.fm/"), use_cache=use_cache)
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
         async with session.get(self.inventory_url) as res:
             raw_content: bytes = await res.content.read()
-        
+
         data = json.decode(raw_content, type=list[QmkInvEntry])
 
         cache = {}

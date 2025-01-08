@@ -26,7 +26,7 @@ def build_app(
         content = await request.json()
         log.info(f"Writiting new settings: {content}")
         write_settings(content)
-        log.info(f"Reloading cache")
+        log.info("Reloading cache")
         await plugin.build_rtfm_lookup_tables()
         log.info("Cache reloaded")
         return web.json_response({"success": True})
@@ -89,7 +89,7 @@ async def run_app(
     plugin: RtfmPlugin,
     *,
     run_forever: bool = True,
-):
+) -> None:
     app = build_app(write_settings, plugin)
     port = await start_runner(app, "localhost", 0)
 

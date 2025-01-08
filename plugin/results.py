@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import asyncio
+import logging
+import random
+import webbrowser
 from typing import TYPE_CHECKING
-import random, logging
+
 from flogin import ExecuteResponse, Result
-from .library import Library
-import webbrowser, asyncio
 
 if TYPE_CHECKING:
-    from .plugin import RtfmPlugin
+    from .library import Library
+    from .plugin import RtfmPlugin  # noqa: F401
 
 log = logging.getLogger(__name__)
 

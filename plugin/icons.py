@@ -1,11 +1,12 @@
 import logging
 import tempfile
-from typing import TYPE_CHECKING, Any, Iterable
-
-from favicon import favicon
-import requests
-from yarl import URL
+from collections.abc import Iterable
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+import requests
+from favicon import favicon
+from yarl import URL
 
 if TYPE_CHECKING:
     import wand.color
@@ -47,8 +48,7 @@ def url_to_bytes(url: str, format: str) -> bytes | None:
 def get_favicon(url: Path | URL) -> Iterable[favicon.Icon]:
     if isinstance(url, Path):
         return favicon.tags(str(url), url.read_bytes())
-    else:
-        return favicon.get(str(url))
+    return favicon.get(str(url))
 
 
 def build_google_favicon_url(domain: str) -> str:
@@ -87,13 +87,12 @@ def get_online_icon(key: str, url: URL) -> str | None:
                 return
 
             return build_google_favicon_url(domain)
-        else:
-            with tempfile.NamedTemporaryFile(
-                suffix=".png", delete=False
-            ) as f:
-                f.write(file)
-                log.info(f"Saved icon for {key} at {f.name}")
-                return f.name
+        with tempfile.NamedTemporaryFile(
+            suffix=".png", delete=False
+        ) as f:
+            f.write(file)
+            log.info(f"Saved icon for {key} at {f.name}")
+            return f.name
 
 
 def get_icon(key: str, loc: URL | str | Path) -> str | None:
@@ -101,7 +100,6 @@ def get_icon(key: str, loc: URL | str | Path) -> str | None:
         loc = URL(loc)
     if isinstance(loc, URL):
         return get_online_icon(key, loc)
-    elif isinstance(loc, Path):
+    if isinstance(loc, Path):
         return get_local_icon(key, loc)
-    else:
-        raise ValueError(f"Unknown loc type {type(loc)!r}")
+    raise ValueError(f"Unknown loc type {type(loc)!r}")
