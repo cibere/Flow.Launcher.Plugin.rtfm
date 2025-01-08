@@ -42,6 +42,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
 
     def load_libraries(self) -> dict[str, Library]:
         from .libraries.autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
+        from .libraries.mdn import MdnDocs
         from .libraries.mkdocs import Mkdocs
         from .libraries.qmk import QmkDocs
 
@@ -53,6 +54,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
             "ruff": Mkdocs(
                 "mkdocs", URL("https://docs.astral.sh/ruff/"), use_cache=True
             ),
+            "mdn": MdnDocs("mdn", use_cache=True),
         }
         fp = os.path.join(
             "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"
