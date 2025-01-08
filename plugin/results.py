@@ -17,7 +17,11 @@ log = logging.getLogger(__name__)
 
 class ReloadCacheResult(Result["RtfmPlugin"]):
     def __init__(self) -> None:
-        super().__init__("Reload cache", icon="assets/app.png", auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm")))
+        super().__init__(
+            "Reload cache",
+            icon="assets/app.png",
+            auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm")),
+        )
 
     async def callback(self):
         assert self.plugin
@@ -36,7 +40,10 @@ class ReloadCacheResult(Result["RtfmPlugin"]):
 class OpenSettingsResult(Result["RtfmPlugin"]):
     def __init__(self) -> None:
         super().__init__(
-            "Open Settings", icon="assets/app.png", sub="Open the settings webserver",auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm"))
+            "Open Settings",
+            icon="assets/app.png",
+            sub="Open the settings webserver",
+            auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm")),
         )
 
     async def callback(self):
@@ -51,7 +58,10 @@ class OpenSettingsResult(Result["RtfmPlugin"]):
 class OpenLogFileResult(Result["RtfmPlugin"]):
     def __init__(self) -> None:
         super().__init__(
-            "Open Log File", icon="assets/app.png", sub="Opens up the flogin log file",auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm"))
+            "Open Log File",
+            icon="assets/app.png",
+            sub="Opens up the flogin log file",
+            auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm")),
         )
 
     async def callback(self):
@@ -64,9 +74,7 @@ class OpenLogFileResult(Result["RtfmPlugin"]):
 
 
 class OpenRtfmResult(Result["RtfmPlugin"]):
-    def __init__(
-        self, *, library: Library, url: str, text: str, score: int
-    ) -> None:
+    def __init__(self, *, library: Library, url: str, text: str, score: int) -> None:
         self.library = library
         self.url = url
         self.text = text

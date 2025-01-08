@@ -1,3 +1,11 @@
+import requests
+u = "https://docs.astral.sh/ruff/search/search_index.json"
+r = requests.get(u)
+with open("data.json", "w") as f:
+    import json
+    json.dump(r.json(), f, indent=4)
+quit()
+
 import aiohttp
 
 from plugin.libraries.qmk import QmkDocs

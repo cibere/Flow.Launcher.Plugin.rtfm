@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, NoReturn
 
 import aiohttp
 from flogin import Plugin, QueryResponse
+from yarl import URL
 
 from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
@@ -41,12 +42,17 @@ class RtfmPlugin(Plugin[RtfmSettings]):
 
     def load_libraries(self) -> dict[str, Library]:
         from .libraries.autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
+        from .libraries.mkdocs import Mkdocs
         from .libraries.qmk import QmkDocs
+
         log.info("Loading a set new of libraries")
         return {
             "ahk1": AutoHotkeyDocsV1("ahk1", use_cache=True),
             "ahk2": AutoHotkeyDocsV2("ahk2", use_cache=True),
-            "qmk": QmkDocs("qmk", use_cache=True)
+            "qmk": QmkDocs("qmk", use_cache=True),
+            "ruff": Mkdocs(
+                "mkdocs", URL("https://docs.astral.sh/ruff/"), use_cache=True
+            ),
         }
         fp = os.path.join(
             "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"

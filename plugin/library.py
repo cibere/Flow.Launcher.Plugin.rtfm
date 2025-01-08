@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 BuilderType = Callable[[str, int], str]
 
+
 class Library:
     def __init__(self, name: str, loc: URL | Path, *, use_cache: bool) -> None:
         self.name = name
@@ -30,9 +31,7 @@ class Library:
         return self.loc if isinstance(self.loc, Path) else None
 
     def __repr__(self) -> str:
-        return (
-            f"<{self.__class__.__name__} {self.name=} {self.url=} {self.icon=} {self.use_cache=}>"
-        )
+        return f"<{self.__class__.__name__} {self.name=} {self.url=} {self.icon=} {self.use_cache=}>"
 
     async def fetch_icon(self) -> str | None:
         loc = path / "index.html" if (path := self.path) else self.loc

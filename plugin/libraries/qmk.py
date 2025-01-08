@@ -27,8 +27,11 @@ class QmkInvEntry(msgspec.Struct):
             cache[self.text] = builder(self.link, webserver_port)
         return cache
 
+
 class QmkDocs(Library):
-    inventory_url: ClassVar[str] = "https://raw.githubusercontent.com/qmk/qmk_firmware/refs/heads/master/docs/_sidebar.json"
+    inventory_url: ClassVar[str] = (
+        "https://raw.githubusercontent.com/qmk/qmk_firmware/refs/heads/master/docs/_sidebar.json"
+    )
 
     def __init__(self, name: str, *, use_cache: bool) -> None:
         super().__init__(name, URL("https://docs.qmk.fm/"), use_cache=use_cache)
