@@ -13,13 +13,13 @@ from flogin import Plugin, QueryResponse
 from .results import OpenSettingsResult, ReloadCacheResult, OpenLogFileResult
 from .server.core import run_app as start_webserver
 from .settings import RtfmSettings
-from .library import SphinxLibrary
+from .library import Library
 
 log = logging.getLogger("rtfm")
 
 
 class RtfmPlugin(Plugin[RtfmSettings]):
-    _library_cache: dict[str, SphinxLibrary] | None = None
+    _library_cache: dict[str, Library] | None = None
     session: aiohttp.ClientSession
     webserver_port: int
 
@@ -33,7 +33,15 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         self.register_event(self.on_context_menu)
         self.register_event(self.init, "on_initialization")
 
-    def load_libraries(self) -> dict[str, SphinxLibrary]:
+    def load_libraries(self) -> dict[str, Library]:
+        from .libraries.autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
+        from .libraries.qmk import QmkDocs
+        log.info("Loading a set new of libraries")
+        return {
+            "ahk1": AutoHotkeyDocsV1("ahk1", use_cache=True),
+            "ahk2": AutoHotkeyDocsV2("ahk2", use_cache=True),
+            "qmk": QmkDocs("qmk", use_cache=True)
+        }
         fp = os.path.join(
             "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"
         )
@@ -60,9 +68,9 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         self.check_for_legacy_settings()
 
     @property
-    def libraries(self) -> dict[str, SphinxLibrary]:
+    def libraries(self) -> dict[str, Library]:
         if self._library_cache is None:
-            libs = self.load_libraries()
+            self._library_cache = libs = self.load_libraries()
         else:
             libs = self._library_cache
 
@@ -71,6 +79,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
 
     @libraries.setter
     def libraries(self, data: list[dict[str, Any]]):
+        raise RuntimeError("not implimented yet")
         self._library_cache = {
             lib["name"]: SphinxLibrary.from_dict(lib) for lib in data
         }
@@ -98,8 +107,10 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         log.info(f"Done building cache.")
 
     async def refresh_library_cache(
-        self, library: SphinxLibrary, *, send_noti: bool = True
+        self, library: Library, *, send_noti: bool = True
     ) -> str | None:
+        log.info(f"Building cache for {library!r}")
+
         try:
             await library.build_cache(self.session, self.webserver_port)
         except Exception as e:

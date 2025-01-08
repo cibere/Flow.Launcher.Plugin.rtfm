@@ -89,7 +89,7 @@ def get_online_icon(key: str, url: URL) -> str | None:
             return build_google_favicon_url(domain)
         else:
             with tempfile.NamedTemporaryFile(
-                delete_on_close=False, suffix=".png", delete=False
+                suffix=".png", delete=False
             ) as f:
                 f.write(file)
                 log.info(f"Saved icon for {key} at {f.name}")
