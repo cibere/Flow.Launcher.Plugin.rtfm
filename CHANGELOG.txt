@@ -1,3 +1,6 @@
-v0.2.1
+v2.0.0
 
-- Request unused port for the webserver instead of hardcoding a default and iterating until an unused port is found
+- Query on root searches
+- Add support for libraries built with mkdocs
+- rewrite webserver
+- add doc presets for autohotkey, discord.dev, discord.sex, flowlauncher.com, lua, mdn, and qmk.
