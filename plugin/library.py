@@ -18,6 +18,7 @@ class Library:
     classname: ClassVar[str]
     is_preset: ClassVar[bool]
     favicon_url: ClassVar[str] | None = None
+    is_api: ClassVar[bool] = False
 
     def __init__(self, name: str, loc: URL | Path, *, use_cache: bool) -> None:
         self.name = name
@@ -47,6 +48,9 @@ class Library:
         if self.icon is None:
             self.icon = "assets/app.png"
         return self.icon
+
+    async def make_request(self, session: ClientSession, query: str) -> None:
+        raise NotImplementedError
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
         raise NotImplementedError
@@ -86,4 +90,5 @@ class Library:
             "type": self.classname,
             "loc": None if self.is_preset else str(self.loc),
             "name": self.name,
+            "is_api": self.is_api,
         }

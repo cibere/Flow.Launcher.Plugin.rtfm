@@ -197,7 +197,7 @@ function _createTextareaInput(label, def, id, disabled=false){
     return textarea;
 }
 
-function _createCheckboxInput(label, def, id){
+function _createCheckboxInput(label, def, id, disabled){
     let container = document.createElement("div");
 
     let labelEl = document.createElement("label");
@@ -210,6 +210,16 @@ function _createCheckboxInput(label, def, id){
     inp.id = id;
     inp.checked = def;
     container.appendChild(inp);
+
+    if (disabled === true){
+        inp.disabled = disabled;
+        inp.className = "disabled";
+        let infoBox = document.createElement("span");
+        infoBox.innerText = "This preset is marked as an API, so the useage of a cache isn't allowed.";
+        infoBox.className = "small-font";
+        container.appendChild(document.createElement("br"));
+        container.appendChild(infoBox);
+    }
 
     return inp;
 }
@@ -232,7 +242,7 @@ function editLibraryModal(library){
     let locEl = _createTextareaInput("Location: ", opts[0], "modal-lib-loc-input", opts[1])
     modal.appendChild(locEl.parentNode);
 
-    let cacheEl = _createCheckboxInput("Use Cache: ", library['use_cache'], "modal-lib-cache-input")
+    let cacheEl = _createCheckboxInput("Use Cache: ", library['use_cache'], "modal-lib-cache-input", library['is_api'])
     modal.appendChild(cacheEl.parentNode);
 
     let hr = document.createElement("hr");

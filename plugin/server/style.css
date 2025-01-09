@@ -83,6 +83,9 @@ code {
 .button>span {
     margin: 10px;
 }
+.small-font {
+    font-size: small;
+}
 
 /* Modal */
 .modal {

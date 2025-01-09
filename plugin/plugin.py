@@ -129,12 +129,19 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         log.info("Done building cache.")
 
     async def refresh_library_cache(
-        self, library: Library, *, send_noti: bool = True
+        self, library: Library, *, send_noti: bool = True, txt: str | None = None
     ) -> str | None:
         log.info(f"Building cache for {library!r}")
 
+        if library.is_api is True:
+            if txt is None:
+                return await library.fetch_icon()
+            coro = library.make_request(self.session, txt)
+        else:
+            coro = library.build_cache(self.session, self.webserver_port)
+
         try:
-            await library.build_cache(self.session, self.webserver_port)
+            await coro
         except Exception as e:
             log.exception(
                 f"Sending could not be parsed notification for {library!r}", exc_info=e
