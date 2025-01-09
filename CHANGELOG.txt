@@ -1,4 +1,4 @@
-v2.0.0
+v1.0.0
 
 - Query on root searches
 - Add support for libraries built with mkdocs
