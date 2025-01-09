@@ -10,13 +10,13 @@ from .qmk import QmkDocs
 
 DocType = SphinxLibrary | Mkdocs
 
-doc_types: Iterable[DocType] = DocType.__args__
+doc_types: Iterable[type[DocType]] = DocType.__args__
 
 PresetDocs = (
     AutoHotkeyDocsV1 | AutoHotkeyDocsV2 | MdnDocs | QmkDocs | FlowLauncherDocs | Lua54
 )
 
-preset_docs: Iterable[PresetDocs] = PresetDocs.__args__
+preset_docs: Iterable[type[PresetDocs]] = PresetDocs.__args__
 
 
 def library_from_dict(lib: dict[str, str | bool]) -> DocType | PresetDocs:
