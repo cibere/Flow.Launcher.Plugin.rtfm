@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any
 import aiohttp
 from flogin import Plugin, QueryResponse
 
-from .libraries import library_from_dict
+from .libraries import DocType, doc_types, library_from_dict
 from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
 from .settings import RtfmBetterSettings
@@ -97,11 +97,6 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         log.info(f"Libraries: {libs!r}")
         return libs
 
-    @libraries.setter
-    def libraries(self, data: list[dict[str, Any]]) -> None:
-        self._library_cache = {lib["name"]: library_from_dict(lib) for lib in data}
-        self.dump_libraries()
-
     @property
     def keywords(self):
         return [*list(self.libraries.keys()), self.main_kw]
@@ -167,8 +162,21 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     async def start_webserver(self) -> None:
         self.webserver_ready_future = asyncio.Future()
 
-        def write_libs(libs: list[dict[str, str]]) -> None:
-            self.libraries = libs
+        async def write_libs(libs: list[dict[str, Any]]) -> None:
+            cache = {}
+            for lib in libs:
+                if lib["type"] == "auto":
+                    obj = await self.handle_auto_doctype(lib)
+                    if obj is None:
+                        await self.api.show_error_message(
+                            "rtfm", f"Could not figure out how to parse {lib['name']!r}"
+                        )
+                    else:
+                        cache[lib["name"]] = obj
+                else:
+                    cache[lib["name"]] = library_from_dict(lib)
+            self._library_cache = cache
+            self.dump_libraries()
             log.info(f"--- {self.libraries=} ---")
             asyncio.create_task(self.ensure_keywords())
 
@@ -187,3 +195,13 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
                     await plugin.remove_keyword(kw)
                 for kw in to_add:
                     await plugin.add_keyword(kw)
+
+    async def handle_auto_doctype(self, data: dict[str, str | bool]) -> DocType | None:
+        for cls in doc_types:
+            lib = cls.from_dict(data)
+            try:
+                await lib.build_cache(self.session, self.webserver_port)
+            except:  # noqa: E722
+                pass
+            else:
+                return lib

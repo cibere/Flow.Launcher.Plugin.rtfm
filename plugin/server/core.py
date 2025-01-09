@@ -13,6 +13,8 @@ from aiohttp import web
 from ..libraries import doc_types, preset_docs
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable
+
     from ..plugin import RtfmPlugin
 
 log = logging.getLogger("webserver")
@@ -31,7 +33,7 @@ no_cache_headers = {
 
 
 def build_app(
-    write_settings: Callable[[list[dict[str, str]]], None],
+    write_settings: Callable[[list[dict[str, str]]], Awaitable[None]],
     plugin: RtfmPlugin,
 ) -> web.Application:
     routes = web.RouteTableDef()
@@ -40,7 +42,7 @@ def build_app(
     async def save_settings(request: web.Request):
         content = await request.json()
         log.info(f"Writiting new settings: {content}")
-        write_settings(content)
+        await write_settings(content)
         asyncio.create_task(plugin.build_rtfm_lookup_tables())
         return web.json_response({"success": True})
 
@@ -93,7 +95,7 @@ def build_app(
     @routes.get("/data.js")
     async def get_data(request: web.Request):
         presets = [pre.classname for pre in preset_docs]
-        doctypes = [typ.classname for typ in doc_types]
+        doctypes = [typ.classname for typ in doc_types] + ["auto"]
         libs = [lib.to_dict() for lib in plugin.libraries.values()]
 
         return web.Response(
@@ -146,7 +148,7 @@ async def start_runner(app: web.Application, host: str, port: int):
 
 
 async def run_app(
-    write_settings: Callable[[list[dict[str, str]]], None],
+    write_settings: Callable[[list[dict[str, str]]], Awaitable[None]],
     plugin: RtfmPlugin,
     *,
     run_forever: bool = True,
