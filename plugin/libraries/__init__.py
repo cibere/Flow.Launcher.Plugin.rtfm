@@ -2,6 +2,7 @@ from collections.abc import Iterable
 
 from .autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
 from .discord import Discord
+from .discordsex import DiscordSex
 from .flowlauncher import FlowLauncherDocs
 from .intersphinx import SphinxLibrary
 from .lua import Lua54
@@ -21,6 +22,7 @@ PresetDocs = (
     | FlowLauncherDocs
     | Lua54
     | Discord
+    | DiscordSex
 )
 
 preset_docs: Iterable[type[PresetDocs]] = PresetDocs.__args__
