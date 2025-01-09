@@ -95,7 +95,7 @@ def build_app(
     @routes.get("/data.js")
     async def get_data(request: web.Request):
         presets = [pre.classname for pre in preset_docs]
-        doctypes = [typ.classname for typ in doc_types] + ["auto"]
+        doctypes = ["auto"] + [typ.classname for typ in doc_types]
         libs = [lib.to_dict() for lib in plugin.libraries.values()]
 
         return web.Response(
