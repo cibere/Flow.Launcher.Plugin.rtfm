@@ -1,17 +1,20 @@
 from collections.abc import Iterable
 
 from .autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
+from .flowlauncher import FlowLauncherDocs
 from .intersphinx import SphinxLibrary
+from .lua import Lua54
 from .mdn import MdnDocs
 from .mkdocs import Mkdocs
 from .qmk import QmkDocs
-from .flowlauncher import FlowLauncherDocs
 
 DocType = SphinxLibrary | Mkdocs
 
 doc_types: Iterable[DocType] = DocType.__args__
 
-PresetDocs = AutoHotkeyDocsV1 | AutoHotkeyDocsV2 | MdnDocs | QmkDocs | FlowLauncherDocs
+PresetDocs = (
+    AutoHotkeyDocsV1 | AutoHotkeyDocsV2 | MdnDocs | QmkDocs | FlowLauncherDocs | Lua54
+)
 
 preset_docs: Iterable[PresetDocs] = PresetDocs.__args__
 
