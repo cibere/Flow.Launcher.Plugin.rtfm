@@ -22,12 +22,9 @@ class LuaManualParser:
 
     def parse_atags(self, tags: list[bs4.Tag]) -> None:
         for tag in tags:
-            try:
-                self.cache[tag.get_text()] = self.url_builder(
-                    tag.attrs["href"]
-                ).replace("%23", "#")
-            except KeyError:
-                pass
+            href = tag.attrs.get("href")
+            if href:
+                self.cache[tag.get_text()] = self.url_builder(href).replace("%23", "#")
 
     def parse_nav(self) -> None:
         container: bs4.Tag = self.soup.find_all("ul", class_="contents menubar")[0]
