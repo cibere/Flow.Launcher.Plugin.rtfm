@@ -66,9 +66,6 @@ class Library:
 
     @classmethod
     def from_dict(cls: type[Self], data: dict[str, Any]) -> Self:
-        if data["type"] != cls.classname:
-            raise RuntimeError("Invalid Type")
-
         kwargs = {"name": data["name"], "use_cache": data["use_cache"]}
 
         if data.get("loc") is not None:
