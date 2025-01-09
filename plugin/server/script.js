@@ -4,7 +4,17 @@ function removeItemFromArray(arr, value) {
       arr.splice(index, 1);
     }
     return arr;
-  }
+}
+function containsObject(obj, list) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+        if (list[i] === obj) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 // region Library Table
 
@@ -50,7 +60,7 @@ function addLibrary(library) {
     // Type Column
 
     let typeTd = document.createElement("td");
-    typeTd.className = "content-td w10";
+    typeTd.className = "content-td w15";
     typeTd.innerText = type;
     row.appendChild(typeTd);
 
@@ -132,7 +142,7 @@ function _makePresetInput(){
     return makeSelectInput("Select a preset: ", presetOptions, "modal-select-preset-docs", function(value){
         libraries.push(
             {
-                name:value,
+                name:prompt("What should the name be? This will be used as the keyword you will use to access the documentation."),
                 type:`${value}`,
                 loc:null,
                 use_cache:true
@@ -144,15 +154,13 @@ function _makePresetInput(){
 
 function _makeTypeInput(){
     return makeSelectInput("Select a doctype: ", docTypes, "modal-select-doctype", function(value){
-        libraries.push(
-            {
-                name:"new library",
-                type:value,
-                loc:"",
-                use_cache:true
-            }
-        );
-        refreshTable();
+        let lib = {
+            name:"",
+            type:value,
+            loc:"",
+            use_cache:true
+        }
+        editLibraryModal(lib);
     })
 }
 
@@ -242,6 +250,9 @@ function editLibraryModal(library){
             library['loc'] = locEl.value;
         }
         library['use_cache'] = cacheEl.checked;
+        if (!containsObject(library, libraries)){
+            libraries.push(library);
+        }
         refreshTable();
         modal.parentNode.remove();
     }
