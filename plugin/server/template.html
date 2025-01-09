@@ -1,110 +1,23 @@
 <html>
     <head>
-        <style>
-          a {
-            text-decoration: none;
-            color: rgb(72, 69, 254);
-          }
-          a:hover {
-            text-decoration: underline;
-          }
-            table {
-              border-collapse: collapse;
-              width: 100%;
-            }
-            
-            .content-td, th {
-              border: 1px solid #dddddd;
-              text-align: left;
-              padding: 8px;
-            }
-            
-            tr:nth-child(even) {
-              background-color: #dddddd;
-            }
-
-            .delete-btn {
-              color: red;
-            }
-
-            textarea {
-              border: none;
-              background: none;
-              width: 100%;
-              height: 20px;
-            }
-
-            .keyword {
-              width: 15%;
-            }
-            .url {
-              width: 80%;
-            }
-            .center {
-              text-align: center;
-            }
-            .w2 {
-              width: 2%;
-            }
-            .w5 {
-              width: 5%;
-            }
-            code {
-              background-color: #eee;
-              border-radius: 3px;
-              padding: 0 3px;
-            }
-
-            </style>
-    </head>
+      <link rel="stylesheet" href="style.css">
     <body>
-      <h1><a href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm">rtfm settings</a></h1>
-      See the <a href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm?tab=readme-ov-file#flowlauncherpluginrtfm">readme page</a> for more information about the plugin.
-      <p>
-        <details>
-          <summary>Online Documentation Instructions</summary>
-          <p>
-            To use an online copy of a library's documentation, simply have the url point to the root of the version of the documentation that you want to use. ex: <code>https://docs.python.org/3/</code> or <code>https://flogin.readthedocs.io/en/latest/</code>
-          </p>
-        </details>
-        <details>
-          <summary>Offline Documentation Instructions</summary>
-          <p>
-            To use an offline copy of a library's documentation, generate the <code>html</code> version of the documentation (see the <a href="https://www.sphinx-doc.org/en/master/tutorial/first-steps.html#building-your-html-documentation">sphinx docs for help</a>), and provide the path to the generated folder. For example, if I build the html docs from <code>C:\Users\default.MyPC\AppData\Roaming\FlowLauncher\Plugins\flogin\docs</code>, the last line that sphinx prints will look something like: <code>The HTML pages are in _build\html</code>. After concatenating those paths, this is the location of my documentation: <code>C:\Users\default.MyPC\AppData\Roaming\FlowLauncher\Plugins\flogin\docs\_build\html</code>
-          </p>
-        </details>
-      </p>
+
+
       <table id="table">
           <tr id="table-header">
             <th></th>
-            <th>Use Cache</th>
-            <th>Library Name</th>
+            <th>Name</th>
+            <th>Type</th>
             <th>Location</th>
           </tr>
-          {% for lib in libs %}
-              <tr class="row">
-                  <td class="center w2"><button class="delete-btn" onclick="deleteRow(this)">-</button></td>
-                  <td class="center w5">
-                    {% if lib.use_cache %}
-                      <input type="checkbox" checked>
-                    {% else %}
-                      <input type="checkbox">
-                    {% endif %}
-                  </td>
-                  <td class="content-td keyword"><textarea>{{ lib.name }}</textarea></td>
-                  <td class="content-td loc"><textarea>{{ lib.loc }}</textarea></td>
-              </tr>
-          {% endfor %}
         </table>
         <div>
-          <button onclick="addRow()">
-            Add Row
+          <button onclick="createLibraryModal()">
+            Add Library
           </button>
           <button onclick="saveSettings()">
             Save Settings & Reload Cache
-          </button>
-          <button onclick="reloadCache()">
-            Reload Cache
           </button>
         </div>
         <hr>
@@ -115,95 +28,13 @@
           </button>
         </div>
     </body>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <!--
     <script>
-        function deleteRow(button) {
-          console.log(button)
-          console.log(button.onclick)
-          let td = button.parentNode;
-          console.log("td", td)
-          let row = td.parentNode;
-          console.log("row", row)
-          row.remove();
-        }
-
-        function addRow() {
-            let table_parent = document.getElementById("table");
-            let table = table_parent.children[0];
-            let row = document.createElement("tr");
-            row.className = "row";
-
-            let firstTd = document.createElement("td");
-            firstTd.className = "center w2";
-            let button = document.createElement("button");
-            button.className = "delete-btn";
-            button.innerText = "-";
-            button.onclick = function() {deleteRow(this)};
-            firstTd.appendChild(button);
-            row.appendChild(firstTd);
-
-            let cacheTd = document.createElement("td");
-            cacheTd.className = "center w5";
-            let inp = document.createElement("input");
-            inp.type = "checkbox";
-            inp.checked = true;
-            cacheTd.appendChild(inp);
-            row.appendChild(cacheTd);
-
-            let keywordTd = document.createElement("td");
-            keywordTd.className = "content-td keyword";
-            let keywordTextarea = document.createElement("textarea");
-            keywordTd.appendChild(keywordTextarea);
-            row.appendChild(keywordTd);
-
-            let urlTd = document.createElement("td");
-            urlTd.className = "content-td loc";
-            let urlTextarea = document.createElement("textarea");
-            urlTd.appendChild(urlTextarea);
-            row.appendChild(urlTd);
-
-            table.appendChild(row);
-        }
-        async function saveSettings() {
-            let data = []
-
-            let rows = document.getElementsByClassName("row");
-            for (let row of rows){
-              console.log(row.children[2].children[0]);
-                row_data = {
-                    name: row.children[2].children[0].value,
-                    loc: row.children[3].children[0].value,
-                    use_cache: row.children[1].children[0].checked,
-                }
-                data.push(row_data)
-            }
-
-            console.log("Data for new settings", data)
-
-            let resp = await fetch("/api/save_settings", {
-                method: "PUT",
-                body: JSON.stringify(data)
-            }).then(response => response.json())
-            console.log("Saved settings response", resp);
-            alert("Settings successfully saved")
-        }
-        async function reloadCache() {
-            let resp = await fetch("/api/reload_cache", {
-                method: "POST",
-            }).then(response => response.json())
-            console.log("Cache Reloaded", resp);
-            alert("Cache successfully reloaded")
-        }
-        async function setSettingsKeyword() {
-            let el = document.getElementById("settings-keyword");
-            let data = {
-              keyword: el.value
-            }
-            let resp = await fetch("/api/set_main_kw", {
-                method: "PUT",
-                body: JSON.stringify(data)
-            }).then(response => response.json())
-            console.log("Settings Keyword Saved", resp);
-            alert("Settings Keyword Successfully Updated")
-        }
+      const presetOptions = ["mdn", "mkl"];
+      const docTypes = ["intersphinx", "mkdocs", "auto"];
+      const libraries = []
     </script>
+    -->
 </html>

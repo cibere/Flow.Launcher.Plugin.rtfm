@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import msgspec
 from msgspec import json
@@ -23,6 +23,9 @@ class SearchIndexFile(msgspec.Struct):
 
 
 class Mkdocs(Library):
+    classname: ClassVar[str] = "Mkdocs"
+    is_preset: ClassVar[bool] = False
+
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
         url = self.url
         if url is None:

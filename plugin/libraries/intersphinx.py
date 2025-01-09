@@ -1,6 +1,6 @@
 """
-From https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/api.py
 Credits to Danny/Rapptz for the original intersphinx parsing code
+https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/api.py
 """
 
 from __future__ import annotations
@@ -8,7 +8,7 @@ from __future__ import annotations
 import io
 import re
 import zlib
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from ..library import Library
 
@@ -73,6 +73,9 @@ class SphinxObjectFileReader:
 
 
 class SphinxLibrary(Library):
+    classname: ClassVar[str] = "Intersphinx"
+    is_preset: ClassVar[bool] = False
+
     async def fetch_file(self, session: ClientSession) -> SphinxObjectFileReader:
         if url := self.url:
             return await SphinxObjectFileReader.from_url(url, session=session)

@@ -32,6 +32,8 @@ class QmkDocs(Library):
     inventory_url: ClassVar[str] = (
         "https://raw.githubusercontent.com/qmk/qmk_firmware/refs/heads/master/docs/_sidebar.json"
     )
+    classname: ClassVar[str] = "docs.qmk.fm"
+    is_preset: ClassVar[bool] = True
 
     def __init__(self, name: str, *, use_cache: bool) -> None:
         super().__init__(name, URL("https://docs.qmk.fm/"), use_cache=use_cache)

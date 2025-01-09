@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import msgspec
 from msgspec import json
@@ -18,6 +18,9 @@ class DocEntry(msgspec.Struct):
 
 
 class MdnDocs(Library):
+    classname: ClassVar[str] = "developer.mozilla.org"
+    is_preset: ClassVar[bool] = True
+
     def __init__(self, name: str, *, use_cache: bool) -> None:
         super().__init__(
             name, URL("https://developer.mozilla.org/en-US"), use_cache=use_cache

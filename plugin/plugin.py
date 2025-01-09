@@ -9,12 +9,13 @@ import asyncio
 import logging
 import os
 import pickle
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 from flogin import Plugin, QueryResponse
 from yarl import URL
 
+from .libraries import library_from_dict
 from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
 from .settings import RtfmSettings
@@ -41,7 +42,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         self.register_event(self.init, "on_initialization")
 
     def load_libraries(self) -> dict[str, Library]:
-        from .libraries.autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
+        """from .libraries.autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
         from .libraries.mdn import MdnDocs
         from .libraries.mkdocs import Mkdocs
         from .libraries.qmk import QmkDocs
@@ -55,7 +56,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
                 "mkdocs", URL("https://docs.astral.sh/ruff/"), use_cache=True
             ),
             "mdn": MdnDocs("mdn", use_cache=True),
-        }
+        }"""
         fp = os.path.join(
             "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"
         )
@@ -92,12 +93,9 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         return libs
 
     @libraries.setter
-    def libraries(self, data: list[dict[str, Any]]) -> NoReturn:
-        raise RuntimeError("not implimented yet")
-        # self._library_cache = {
-        #     lib["name"]: SphinxLibrary.from_dict(lib) for lib in data
-        # }
-        # self.dump_libraries()
+    def libraries(self, data: list[dict[str, Any]]) -> None:
+        self._library_cache = {lib["name"]: library_from_dict(lib) for lib in data}
+        self.dump_libraries()
 
     @property
     def keywords(self):

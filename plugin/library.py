@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Self
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Self
 
 from yarl import URL
 
@@ -15,6 +15,9 @@ BuilderType = Callable[[str, int], str]
 
 
 class Library:
+    classname: ClassVar[str]
+    is_preset: ClassVar[bool]
+
     def __init__(self, name: str, loc: URL | Path, *, use_cache: bool) -> None:
         self.name = name
         self.loc = loc
@@ -59,15 +62,27 @@ class Library:
 
     @classmethod
     def from_dict(cls: type[Self], data: dict[str, Any]) -> Self:
+        if data['type'] != cls.classname:
+            raise RuntimeError("Invalid Type")
+        
         kwargs = {"name": data["name"], "use_cache": data["use_cache"]}
 
-        loc: str = data["loc"]
+        if data.get("loc") is not None:
+            loc: str = data["loc"]
 
-        if loc.startswith(("http://", "https://")):
-            kwargs["loc"] = URL(loc)
-        elif loc.startswith("file:///"):
-            kwargs["loc"] = Path(URL(loc).path.strip("/"))
-        else:
-            kwargs["loc"] = Path(loc)
+            if loc.startswith(("http://", "https://")):
+                kwargs["loc"] = URL(loc)
+            elif loc.startswith("file:///"):
+                kwargs["loc"] = Path(URL(loc).path.strip("/"))
+            else:
+                kwargs["loc"] = Path(loc)
 
         return cls(**kwargs)
+
+    def to_dict(self) -> dict[str, str | bool | None]:
+        return {
+            "use_cache": self.use_cache,
+            "type": self.classname,
+            "loc": None if self.is_preset else str(self.loc),
+            "name": self.name,
+        }

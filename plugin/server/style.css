@@ -1,0 +1,131 @@
+body {
+    font-family: Calibri;
+}
+a {
+text-decoration: none;
+color: rgb(72, 69, 254);
+}
+a:hover {
+text-decoration: underline;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.content-td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.delete-btn {
+    color: red;
+}
+
+textarea {
+    border: none;
+    background: none;
+    width: 100%;
+    height: 20px;
+}
+
+.w15 {
+    width: 15%;
+}
+.w10 {
+    width: 10%;
+}
+
+.center {
+    text-align: center;
+}
+.w2 {
+    width: 2%;
+}
+.w5 {
+    width: 5%;
+}
+code {
+    background-color: #eee;
+    border-radius: 3px;
+    padding: 0 3px;
+}
+.disabled {
+    cursor:not-allowed;
+}
+.delBtn {
+    background-color: rgb(135, 0, 0);
+    color: white;
+}
+.delBtn:hover {
+    background-color: rgb(212, 0, 0);
+}
+.saveBtn {
+    background-color: rgb(0, 135, 0);
+    color: white;
+}
+.saveBtn:hover {
+    background-color: rgb(0, 212, 0);
+}
+.button {
+    border-radius: 5px;
+    border-color: black;
+    border-style: solid;
+}
+.button:hover {
+    cursor: pointer;
+}
+.button>span {
+    margin: 10px;
+}
+
+/* Modal */
+.modal {
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #000000;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: #ff0000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .modal-content>div>textarea {
+    border-color: black;
+    border-width: 1px;
+    border-style:solid;
+  }
+  .modal-content>button.delBtn {
+    margin-left: 5px;
+  }

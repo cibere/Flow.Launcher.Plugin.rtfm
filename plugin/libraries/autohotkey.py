@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 class AutoHotkeyDocs(Library):
     autohotkey_version: ClassVar[int]
     inventory_url: ClassVar[str]
+    is_preset: ClassVar[bool] = True
 
     def __init__(self, name: str, *, use_cache: bool) -> None:
         super().__init__(
@@ -43,6 +44,7 @@ class AutoHotkeyDocsV2(AutoHotkeyDocs):
         "https://raw.githubusercontent.com/AutoHotkey/AutoHotkeyDocs/refs/heads/v2/docs/static/source/data_index.js"
     )
     autohotkey_version: ClassVar[int] = 2
+    classname: ClassVar[str] = "Auto Hotkey V2"
 
 
 class AutoHotkeyDocsV1(AutoHotkeyDocs):
@@ -50,3 +52,4 @@ class AutoHotkeyDocsV1(AutoHotkeyDocs):
         "https://raw.githubusercontent.com/AutoHotkey/AutoHotkeyDocs/refs/heads/v1/docs/static/source/data_index.js"
     )
     autohotkey_version: ClassVar[int] = 1
+    classname: ClassVar[str] = "Auto Hotkey V1"

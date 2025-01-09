@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import os
 from typing import TYPE_CHECKING, Callable
@@ -9,11 +10,24 @@ import aiohttp_jinja2
 import jinja2
 from aiohttp import web
 
+from ..libraries import doc_types, preset_docs
+
 if TYPE_CHECKING:
     from ..plugin import RtfmPlugin
 
 log = logging.getLogger("webserver")
 
+DATA_JS_TEMPLATE = """
+const presetOptions = {presets};
+const docTypes = {doctypes};
+const libraries = {libraries}
+"""
+
+no_cache_headers = {
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Expires": "0",
+    "Pragma": "no-cache"
+}
 
 def build_app(
     write_settings: Callable[[list[dict[str, str]]], None],
@@ -26,9 +40,7 @@ def build_app(
         content = await request.json()
         log.info(f"Writiting new settings: {content}")
         write_settings(content)
-        log.info("Reloading cache")
-        await plugin.build_rtfm_lookup_tables()
-        log.info("Cache reloaded")
+        asyncio.create_task(plugin.build_rtfm_lookup_tables())
         return web.json_response({"success": True})
 
     @routes.put("/api/set_main_kw")
@@ -51,6 +63,26 @@ def build_app(
         }
         log.info(f"Sending data: {data}")
         return data
+
+    @routes.get("/style.css")
+    async def style(request: web.Request):
+        return web.FileResponse(os.path.join(os.path.dirname(__file__), "style.css"), headers=no_cache_headers)
+
+    @routes.get("/script.js")
+    async def script(request: web.Request):
+        return web.FileResponse(os.path.join(os.path.dirname(__file__), "script.js"), headers=no_cache_headers)
+
+    @routes.get("/data.js")
+    async def get_data(request: web.Request):
+        presets = [pre.classname for pre in preset_docs]
+        doctypes = [typ.classname for typ in doc_types]
+        libs = [lib.to_dict() for lib in plugin.libraries.values()]
+
+        return web.Response(
+            body=DATA_JS_TEMPLATE.format(
+                presets=presets, doctypes=doctypes, libraries=json.dumps(libs)
+            ), headers=no_cache_headers
+        )
 
     @routes.get("/local-docs/{name}/{path:[^{}]+}")
     async def get_local_doc_path(request: web.Request):
