@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING, Any
 
 import aiohttp
 from flogin import Plugin, QueryResponse
-from yarl import URL
 
 from .libraries import library_from_dict
 from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult

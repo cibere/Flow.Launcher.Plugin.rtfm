@@ -26,8 +26,9 @@ const libraries = {libraries}
 no_cache_headers = {
     "Cache-Control": "no-cache, no-store, must-revalidate",
     "Expires": "0",
-    "Pragma": "no-cache"
+    "Pragma": "no-cache",
 }
+
 
 def build_app(
     write_settings: Callable[[list[dict[str, str]]], None],
@@ -66,11 +67,17 @@ def build_app(
 
     @routes.get("/style.css")
     async def style(request: web.Request):
-        return web.FileResponse(os.path.join(os.path.dirname(__file__), "style.css"), headers=no_cache_headers)
+        return web.FileResponse(
+            os.path.join(os.path.dirname(__file__), "style.css"),
+            headers=no_cache_headers,
+        )
 
     @routes.get("/script.js")
     async def script(request: web.Request):
-        return web.FileResponse(os.path.join(os.path.dirname(__file__), "script.js"), headers=no_cache_headers)
+        return web.FileResponse(
+            os.path.join(os.path.dirname(__file__), "script.js"),
+            headers=no_cache_headers,
+        )
 
     @routes.get("/data.js")
     async def get_data(request: web.Request):
@@ -81,7 +88,8 @@ def build_app(
         return web.Response(
             body=DATA_JS_TEMPLATE.format(
                 presets=presets, doctypes=doctypes, libraries=json.dumps(libs)
-            ), headers=no_cache_headers
+            ),
+            headers=no_cache_headers,
         )
 
     @routes.get("/local-docs/{name}/{path:[^{}]+}")

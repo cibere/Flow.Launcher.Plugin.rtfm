@@ -17,6 +17,7 @@ BuilderType = Callable[[str, int], str]
 class Library:
     classname: ClassVar[str]
     is_preset: ClassVar[bool]
+    favicon_url: ClassVar[str] | None = None
 
     def __init__(self, name: str, loc: URL | Path, *, use_cache: bool) -> None:
         self.name = name
@@ -37,7 +38,10 @@ class Library:
         return f"<{self.__class__.__name__} {self.name=} {self.url=} {self.icon=} {self.use_cache=}>"
 
     async def fetch_icon(self) -> str | None:
-        loc = path / "index.html" if (path := self.path) else self.loc
+        if self.favicon_url is None:
+            loc = path / "index.html" if (path := self.path) else self.loc
+        else:
+            loc = URL(self.favicon_url)
 
         self.icon = await asyncio.to_thread(_get_icon, self.name, loc)
         if self.icon is None:
@@ -62,9 +66,9 @@ class Library:
 
     @classmethod
     def from_dict(cls: type[Self], data: dict[str, Any]) -> Self:
-        if data['type'] != cls.classname:
+        if data["type"] != cls.classname:
             raise RuntimeError("Invalid Type")
-        
+
         kwargs = {"name": data["name"], "use_cache": data["use_cache"]}
 
         if data.get("loc") is not None:

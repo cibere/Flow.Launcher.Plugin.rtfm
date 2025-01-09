@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, ClassVar
 
-from msgspec import json
 from yarl import URL
 
 from ..library import Library
@@ -10,15 +9,16 @@ from ..library import Library
 if TYPE_CHECKING:
     from aiohttp import ClientSession
 
+
 class FlowLauncherDocs(Library):
-    inventory_url: ClassVar[str] = (
-        "https://www.flowlauncher.com/docs/_sidebar.md"
-    )
+    inventory_url: ClassVar[str] = "https://www.flowlauncher.com/docs/_sidebar.md"
     classname: ClassVar[str] = "flowlauncher.com"
     is_preset: ClassVar[bool] = True
 
     def __init__(self, name: str, *, use_cache: bool) -> None:
-        super().__init__(name, URL("https://www.flowlauncher.com/docs/"), use_cache=use_cache)
+        super().__init__(
+            name, URL("https://www.flowlauncher.com/docs/"), use_cache=use_cache
+        )
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
         async with session.get(self.inventory_url) as res:
