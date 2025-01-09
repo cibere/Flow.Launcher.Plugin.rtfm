@@ -25,18 +25,6 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
                 f"Library '{keyword}' not found in settings", icon="Images/error.png"
             )
 
-        if not text:
-            return OpenRtfmResult(
-                library=library,
-                text="Open documentation",
-                url=str(
-                    library._build_url("index.html", self.plugin.webserver_port)
-                    if library.path
-                    else library.url
-                ),
-                score=1,
-            )
-
         if not library.use_cache:
             log.info(
                 f"Library {library.name!r} not set to use cache, rebuilding for request"
