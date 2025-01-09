@@ -70,6 +70,8 @@ class Discord(Library):
         )
 
     async def make_request(self, session: ClientSession, query: str) -> None:
+        # replicate the way discord.dev's search engine makes the requests
+
         url = "https://7tyoyf10z2-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia for JavaScript (4.23.3); Browser (lite); docsearch (3.3.1); docsearch-react (3.3.1)&x-algolia-api-key=786517d17e19e9d306758dd276bc6574&x-algolia-application-id=7TYOYF10Z2"
         payload = {
             "requests": [
