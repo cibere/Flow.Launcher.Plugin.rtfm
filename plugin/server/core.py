@@ -55,12 +55,23 @@ def build_app(
             return web.json_response({"success": True})
         return web.json_response({"success": False})
 
+    @routes.put("/api/set_static_port")
+    async def set_static_port(request: web.Request):
+        content = await request.json()
+        log.info(f"Writiting new static port: {content}")
+        port = content.get("port")
+        if port:
+            plugin.static_port = port
+            return web.json_response({"success": True})
+        return web.json_response({"success": False})
+
     @routes.get("/")
     @aiohttp_jinja2.template("template.html")
     async def index(request: web.Request):
         data = {
             "libs": plugin.libraries.values(),
             "main_kw": plugin.main_kw,
+            "static_port": plugin.static_port,
         }
         log.info(f"Sending data: {data}")
         return data
@@ -118,7 +129,17 @@ async def start_runner(app: web.Application, host: str, port: int):
     await runner.setup()
 
     site = web.TCPSite(runner, host, port)
-    await site.start()
+
+    try:
+        await site.start()
+    except OSError as e:
+        # check port/host is already in use and if port is a custom static port
+        if e.errno == 10048 and port != 0:
+            log.warning(
+                "Static port is taken, restarting webserver with port 0", exc_info=e
+            )
+            return await start_runner(app, host, 0)
+        raise
 
     socket_info: tuple[str, int] = site._server.sockets[0].getsockname()  # type: ignore
     return socket_info[1]
@@ -131,9 +152,18 @@ async def run_app(
     run_forever: bool = True,
 ) -> None:
     app = build_app(write_settings, plugin)
-    port = await start_runner(app, "localhost", 0)
+    port = await start_runner(app, "localhost", plugin.static_port)
+
+    if plugin.static_port != 0 and port != plugin.static_port:
+        await plugin.api.show_notification(
+            "rtfm",
+            f"Your chosen static port ({plugin.static_port}) was already in use so webserver started on port {port}",
+        )
 
     plugin.webserver_port = port
+    plugin.webserver_ready_future.set_result(None)
+
+    log.info(f"Started webserver on port {port}")
 
     while run_forever:
         await asyncio.sleep(10000)

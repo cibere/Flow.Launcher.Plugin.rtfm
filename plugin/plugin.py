@@ -17,7 +17,7 @@ from flogin import Plugin, QueryResponse
 from .libraries import library_from_dict
 from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
-from .settings import RtfmSettings
+from .settings import RtfmBetterSettings
 
 if TYPE_CHECKING:
     from .library import Library
@@ -25,10 +25,12 @@ if TYPE_CHECKING:
 log = logging.getLogger("rtfm")
 
 
-class RtfmPlugin(Plugin[RtfmSettings]):
+class RtfmPlugin(Plugin[None]):  # type: ignore
     _library_cache: dict[str, Library] | None = None
     session: aiohttp.ClientSession
     webserver_port: int
+    webserver_ready_future: asyncio.Future
+    better_settings: RtfmBetterSettings
 
     def __init__(self) -> None:
         super().__init__(settings_no_update=True)
@@ -39,23 +41,27 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         self.register_search_handlers(SettingsHandler(), LookupHandler())
         self.register_event(self.on_context_menu)
         self.register_event(self.init, "on_initialization")
+        self.load_settings()
+
+    def load_settings(self):
+        fp = os.path.join(
+            "..", "..", "Settings", "Plugins", "rtfm", "better_settings.json"
+        )
+        try:
+            with open(fp) as f:
+                data = f.read()
+        except FileNotFoundError:
+            data = "{}"
+        self.better_settings = RtfmBetterSettings.decode(data)
+
+    def dump_settings(self):
+        fp = os.path.join(
+            "..", "..", "Settings", "Plugins", "rtfm", "better_settings.json"
+        )
+        with open(fp, "wb") as f:
+            f.write(self.better_settings.encode())
 
     def load_libraries(self) -> dict[str, Library]:
-        """from .libraries.autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
-        from .libraries.mdn import MdnDocs
-        from .libraries.mkdocs import Mkdocs
-        from .libraries.qmk import QmkDocs
-
-        log.info("Loading a set new of libraries")
-        return {
-            "ahk1": AutoHotkeyDocsV1("ahk1", use_cache=True),
-            "ahk2": AutoHotkeyDocsV2("ahk2", use_cache=True),
-            "qmk": QmkDocs("qmk", use_cache=True),
-            "ruff": Mkdocs(
-                "mkdocs", URL("https://docs.astral.sh/ruff/"), use_cache=True
-            ),
-            "mdn": MdnDocs("mdn", use_cache=True),
-        }"""
         fp = os.path.join(
             "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"
         )
@@ -77,9 +83,9 @@ class RtfmPlugin(Plugin[RtfmSettings]):
             pickle.dump(libs, f)
 
     async def init(self) -> None:
+        await self.webserver_ready_future
         await self.ensure_keywords()
         await self.build_rtfm_lookup_tables()
-        self.check_for_legacy_settings()
 
     @property
     def libraries(self) -> dict[str, Library]:
@@ -102,11 +108,21 @@ class RtfmPlugin(Plugin[RtfmSettings]):
 
     @property
     def main_kw(self) -> str:
-        return self.settings.main_kw or "rtfm"
+        return self.better_settings.main_kw
 
     @main_kw.setter
     def main_kw(self, value: str) -> None:
-        self.settings.main_kw = value
+        self.better_settings.main_kw = value
+        self.dump_settings()
+
+    @property
+    def static_port(self) -> int:
+        return self.better_settings.static_port
+
+    @static_port.setter
+    def static_port(self, value: int) -> None:
+        self.better_settings.static_port = value
+        self.dump_settings()
 
     async def build_rtfm_lookup_tables(self) -> None:
         log.info("Starting to build cache...")
@@ -137,7 +153,7 @@ class RtfmPlugin(Plugin[RtfmSettings]):
     async def start(self) -> None:
         async with aiohttp.ClientSession() as cs:
             self.session = cs
-            await self.start_webserver()
+            asyncio.create_task(self.start_webserver())
             await super().start()
 
     async def on_context_menu(self, data: list[str]):
@@ -149,6 +165,8 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         return resp
 
     async def start_webserver(self) -> None:
+        self.webserver_ready_future = asyncio.Future()
+
         def write_libs(libs: list[dict[str, str]]) -> None:
             self.libraries = libs
             log.info(f"--- {self.libraries=} ---")
@@ -169,16 +187,3 @@ class RtfmPlugin(Plugin[RtfmSettings]):
                     await plugin.remove_keyword(kw)
                 for kw in to_add:
                     await plugin.add_keyword(kw)
-
-    def check_for_legacy_settings(self):
-        libs = self.settings.libraries
-        if libs is None:
-            return log.info("No legacy lib settings found")
-
-        log.info("Legacy library settings found, converting to current format")
-        self.libraries = [
-            {"name": name, "loc": loc, "use_cache": True} for name, loc in libs.items()
-        ]
-        self.settings.libraries = None
-
-        log.info("Done converting legacy library settings")

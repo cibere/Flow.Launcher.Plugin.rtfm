@@ -303,3 +303,16 @@ async function setSettingsKeyword() {
     console.log("Settings Keyword Saved", resp);
     alert("Settings Keyword Successfully Updated")
 }
+async function saveStaticPort() {
+    let el = document.getElementById("static-port");
+    let data = {
+    port: Number(el.value)
+    }
+    let resp = await fetch("/api/set_static_port", {
+        method: "PUT",
+        body: JSON.stringify(data)
+    }).then(response => response.json())
+    
+    console.log("Static Port Saved", resp);
+    alert("Static Port Updated. Restart flow for it to take affect.");
+}

@@ -27,14 +27,15 @@
             Save Settings Keyword
           </button>
         </div>
+        <div style="margin-top: 5px;">
+          <label>Webserver Port <input type="text" id="static-port" value="{{ static_port }}"></label>
+          <button onclick="saveStaticPort()">
+            Save Port
+          </button>
+          <br>
+          <span style="font-size: small;">Setting this to 0 will let your system choose the port each time the plugin starts.</span>
+        </div>
     </body>
     <script src="data.js"></script>
     <script src="script.js"></script>
-    <!--
-    <script>
-      const presetOptions = ["mdn", "mkl"];
-      const docTypes = ["intersphinx", "mkdocs", "auto"];
-      const libraries = []
-    </script>
-    -->
 </html>
