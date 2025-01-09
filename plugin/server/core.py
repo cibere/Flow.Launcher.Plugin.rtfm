@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 import logging
 import os
@@ -8,6 +9,7 @@ from typing import TYPE_CHECKING, Callable
 
 import aiohttp_jinja2
 import jinja2
+import msgspec
 from aiohttp import web
 
 from ..libraries import doc_types, preset_docs
@@ -30,6 +32,27 @@ no_cache_headers = {
     "Expires": "0",
     "Pragma": "no-cache",
 }
+
+
+class PartialLibrary(msgspec.Struct):
+    name: str
+    type: str
+    loc: str | None
+    use_cache: bool
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "type": self.type,
+            "loc": self.loc,
+            "use_cache": self.use_cache,
+        }
+
+
+class ImportExportSettings(msgspec.Struct):
+    port: int
+    keyword: str
+    libraries: list[PartialLibrary]
 
 
 def build_app(
@@ -66,6 +89,41 @@ def build_app(
             plugin.static_port = port
             return web.json_response({"success": True})
         return web.json_response({"success": False})
+
+    @routes.get("/api/export_settings")
+    async def export_settings(request: web.Request):
+        obj = ImportExportSettings(
+            plugin.static_port,
+            plugin.main_kw,
+            [
+                PartialLibrary(
+                    lib.name,
+                    lib.classname,
+                    None if lib.is_preset else str(lib.loc),
+                    lib.use_cache,
+                )
+                for lib in plugin.libraries.values()
+            ],
+        )
+        return web.json_response(
+            {
+                "success": True,
+                "data": base64.b64encode(msgspec.json.encode(obj)).decode(),
+            }
+        )
+
+    @routes.post("/api/import_settings")
+    async def import_settings(request: web.Request):
+        raw = await request.content.read()
+        try:
+            data = msgspec.json.decode(base64.b64decode(raw), type=ImportExportSettings)
+        except msgspec.DecodeError:
+            return web.json_response({"success": False})
+
+        await write_settings([lib.to_dict() for lib in data.libraries])
+        plugin.main_kw = data.keyword
+        plugin.static_port = data.port
+        return web.json_response({"success": True})
 
     @routes.get("/")
     @aiohttp_jinja2.template("template.html")

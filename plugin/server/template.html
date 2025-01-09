@@ -35,6 +35,11 @@
           <br>
           <span style="font-size: small;">Setting this to 0 will let your system choose the port each time the plugin starts.</span>
         </div>
+        <hr>
+        <div>
+          <button class="button" onclick="importSettings(prompt('Code from export: '))">Import Settings</button>
+          <button class="button" onclick="exportSettings()">Export Settings</button>
+        </div>
     </body>
     <script src="data.js"></script>
     <script src="script.js"></script>

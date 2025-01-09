@@ -326,3 +326,25 @@ async function saveStaticPort() {
     console.log("Static Port Saved", resp);
     alert("Static Port Updated. Restart flow for it to take affect.");
 }
+async function importSettings(data) {
+    let resp = await fetch("/api/import_settings", {
+        method: "POST",
+        body: data
+    }).then(response => response.json())
+    if (resp['success'] === true){
+        console.log("Settings Imported", resp);
+        alert("Settings have been imported.");
+    } else {
+        console.log("Data was malformed and settings were not imported successfully.", resp);
+        alert("Data was malformed and settings were not imported successfully. Restart flow launcher for port setting to take affect.");
+    }
+    
+}
+async function exportSettings() {
+    let resp = await fetch("/api/export_settings", {
+        method: "GET"
+    }).then(response => response.json())
+    navigator.clipboard.writeText(resp['data'])
+    console.log("Settings exported", resp);
+    alert("Settings have been successfully expored. You can use the text that has been copied to your clipboard to import them on another device.");
+}
