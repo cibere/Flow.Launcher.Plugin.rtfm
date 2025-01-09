@@ -3,4 +3,4 @@ favicon==0.7.0
 Wand==0.6.13
 aiohttp==3.11.10
 aiohttp-jinja2==1.6
-beautifulsoup4==2.6
+beautifulsoup4==4.12.3
