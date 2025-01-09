@@ -6,22 +6,31 @@ Credits to Danny/Rapptz for the original rtfm code
 from __future__ import annotations
 
 import asyncio
-import logging, pickle, os
+import logging
+import os
+import pickle
+from typing import TYPE_CHECKING, Any
+
 import aiohttp
-from typing import Any
 from flogin import Plugin, QueryResponse
-from .results import OpenSettingsResult, ReloadCacheResult, OpenLogFileResult
+
+from .libraries import DocType, doc_types, library_from_dict
+from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
-from .settings import RtfmSettings
-from .library import SphinxLibrary
+from .settings import RtfmBetterSettings
+
+if TYPE_CHECKING:
+    from .library import Library
 
 log = logging.getLogger("rtfm")
 
 
-class RtfmPlugin(Plugin[RtfmSettings]):
-    _library_cache: dict[str, SphinxLibrary] | None = None
+class RtfmPlugin(Plugin[None]):  # type: ignore
+    _library_cache: dict[str, Library] | None = None
     session: aiohttp.ClientSession
     webserver_port: int
+    webserver_ready_future: asyncio.Future
+    better_settings: RtfmBetterSettings
 
     def __init__(self) -> None:
         super().__init__(settings_no_update=True)
@@ -32,8 +41,27 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         self.register_search_handlers(SettingsHandler(), LookupHandler())
         self.register_event(self.on_context_menu)
         self.register_event(self.init, "on_initialization")
+        self.load_settings()
 
-    def load_libraries(self) -> dict[str, SphinxLibrary]:
+    def load_settings(self):
+        fp = os.path.join(
+            "..", "..", "Settings", "Plugins", "rtfm", "better_settings.json"
+        )
+        try:
+            with open(fp) as f:
+                data = f.read()
+        except FileNotFoundError:
+            data = "{}"
+        self.better_settings = RtfmBetterSettings.decode(data)
+
+    def dump_settings(self):
+        fp = os.path.join(
+            "..", "..", "Settings", "Plugins", "rtfm", "better_settings.json"
+        )
+        with open(fp, "wb") as f:
+            f.write(self.better_settings.encode())
+
+    def load_libraries(self) -> dict[str, Library]:
         fp = os.path.join(
             "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"
         )
@@ -54,68 +82,80 @@ class RtfmPlugin(Plugin[RtfmSettings]):
         with open(fp, "wb") as f:
             pickle.dump(libs, f)
 
-    async def init(self):
+    async def init(self) -> None:
+        await self.webserver_ready_future
         await self.ensure_keywords()
         await self.build_rtfm_lookup_tables()
-        self.check_for_legacy_settings()
 
     @property
-    def libraries(self) -> dict[str, SphinxLibrary]:
+    def libraries(self) -> dict[str, Library]:
         if self._library_cache is None:
-            libs = self.load_libraries()
+            self._library_cache = libs = self.load_libraries()
         else:
             libs = self._library_cache
 
         log.info(f"Libraries: {libs!r}")
         return libs
 
-    @libraries.setter
-    def libraries(self, data: list[dict[str, Any]]):
-        self._library_cache = {
-            lib["name"]: SphinxLibrary.from_dict(lib) for lib in data
-        }
-        self.dump_libraries()
-
     @property
     def keywords(self):
-        return list(self.libraries.keys()) + [self.main_kw]
+        return [*list(self.libraries.keys()), self.main_kw]
 
     @property
     def main_kw(self) -> str:
-        return self.settings.main_kw or "rtfm"
+        return self.better_settings.main_kw
 
     @main_kw.setter
     def main_kw(self, value: str) -> None:
-        self.settings.main_kw = value
+        self.better_settings.main_kw = value
+        self.dump_settings()
 
-    async def build_rtfm_lookup_tables(self):
+    @property
+    def static_port(self) -> int:
+        return self.better_settings.static_port
+
+    @static_port.setter
+    def static_port(self, value: int) -> None:
+        self.better_settings.static_port = value
+        self.dump_settings()
+
+    async def build_rtfm_lookup_tables(self) -> None:
         log.info("Starting to build cache...")
 
         await asyncio.gather(
             *(self.refresh_library_cache(lib) for lib in self.libraries.values())
         )
 
-        log.info(f"Done building cache.")
+        log.info("Done building cache.")
 
     async def refresh_library_cache(
-        self, library: SphinxLibrary, *, send_noti: bool = True
+        self, library: Library, *, send_noti: bool = True, txt: str | None = None
     ) -> str | None:
+        log.info(f"Building cache for {library!r}")
+
+        if library.is_api is True:
+            if txt is None:
+                return await library.fetch_icon()
+            coro = library.make_request(self.session, txt)
+        else:
+            coro = library.build_cache(self.session, self.webserver_port)
+
         try:
-            await library.build_cache(self.session, self.webserver_port)
+            await coro
         except Exception as e:
             log.exception(
                 f"Sending could not be parsed notification for {library!r}", exc_info=e
             )
             txt = f"Unable to cache {library.name!r} due to the following error: {e}"
             if send_noti:
-                await self.api.show_error_message(f"rtfm", txt)
+                await self.api.show_error_message("rtfm", txt)
             return txt
         await library.fetch_icon()
 
-    async def start(self):
+    async def start(self) -> None:
         async with aiohttp.ClientSession() as cs:
             self.session = cs
-            await self.start_webserver()
+            asyncio.create_task(self.start_webserver())
             await super().start()
 
     async def on_context_menu(self, data: list[str]):
@@ -126,15 +166,30 @@ class RtfmPlugin(Plugin[RtfmSettings]):
                 resp.results.append(res)
         return resp
 
-    async def start_webserver(self):
-        def write_libs(libs: list[dict[str, str]]):
-            self.libraries = libs
+    async def start_webserver(self) -> None:
+        self.webserver_ready_future = asyncio.Future()
+
+        async def write_libs(libs: list[dict[str, Any]]) -> None:
+            cache = {}
+            for lib in libs:
+                if lib["type"] == "auto":
+                    obj = await self.handle_auto_doctype(lib)
+                    if obj is None:
+                        await self.api.show_error_message(
+                            "rtfm", f"Could not figure out how to parse {lib['name']!r}"
+                        )
+                    else:
+                        cache[lib["name"]] = obj
+                else:
+                    cache[lib["name"]] = library_from_dict(lib)
+            self._library_cache = cache
+            self.dump_libraries()
             log.info(f"--- {self.libraries=} ---")
             asyncio.create_task(self.ensure_keywords())
 
         await start_webserver(write_libs, self, run_forever=False)
 
-    async def ensure_keywords(self):
+    async def ensure_keywords(self) -> None:
         plugins = await self.api.get_all_plugins()
         for plugin in plugins:
             if plugin.id == self.metadata.id:
@@ -148,15 +203,12 @@ class RtfmPlugin(Plugin[RtfmSettings]):
                 for kw in to_add:
                     await plugin.add_keyword(kw)
 
-    def check_for_legacy_settings(self):
-        libs = self.settings.libraries
-        if libs is None:
-            return log.info("No legacy lib settings found")
-
-        log.info("Legacy library settings found, converting to current format")
-        self.libraries = [
-            {"name": name, "loc": loc, "use_cache": True} for name, loc in libs.items()
-        ]
-        self.settings.libraries = None
-
-        log.info("Done converting legacy library settings")
+    async def handle_auto_doctype(self, data: dict[str, str | bool]) -> DocType | None:
+        for cls in doc_types:
+            lib = cls.from_dict(data)
+            try:
+                await lib.build_cache(self.session, self.webserver_port)
+            except:  # noqa: E722
+                pass
+            else:
+                return lib

@@ -5,20 +5,19 @@ import logging
 from flogin import Query, SearchHandler
 
 from ..plugin import RtfmPlugin
-from ..results import OpenSettingsResult, ReloadCacheResult, OpenLogFileResult
+from ..results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 
 log = logging.getLogger(__name__)
 
 
 class SettingsHandler(SearchHandler[RtfmPlugin]):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(condition=self.condition)
 
     def condition(self, query: Query):
         assert self.plugin
 
-        res = query.keyword == self.plugin.main_kw
-        return res
+        return query.keyword == self.plugin.main_kw
 
     async def callback(self, query: Query):
         assert self.plugin

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+
 from flogin import Query, Result, SearchHandler
 
 from ..fuzzy import finder as fuzzy_finder
@@ -28,25 +29,15 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
             log.info(
                 f"Library {library.name!r} not set to use cache, rebuilding for request"
             )
-            msg = await self.plugin.refresh_library_cache(library, send_noti=False)
+            msg = await self.plugin.refresh_library_cache(
+                library, send_noti=False, txt=query.text
+            )
             if msg is not None:
                 return Result(msg, icon=library.icon)
 
         if library.cache is None:
             return Result(
                 f"Library '{library.name}' not found in cache", icon="Images/error.png"
-            )
-
-        if not text:
-            return OpenRtfmResult(
-                library=library,
-                text="Open documentation",
-                url=str(
-                    library._build_url("index.html", self.plugin.webserver_port)
-                    if library.path
-                    else library.url
-                ),
-                score=1,
             )
 
         cache = list(library.cache.items())
