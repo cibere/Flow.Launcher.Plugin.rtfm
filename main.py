@@ -14,14 +14,12 @@ libs_path = (
 
 sys.path.append(libs_path)
 
-from plugin.plugin import RtfmPlugin  # noqa: E402
-
 # Since msgspec is primarily written in C and uses pyd files, the pyd files need to be generated for the user's system
 # So if msgspec._core can not be imported, force reinstall the package on the user's system so that the proper pyd files are generated.
 
 try:
     import msgspec._core  # noqa: F401
-except ImportError:
+except ModuleNotFoundError:
     import subprocess
 
     subprocess.run(
@@ -35,8 +33,12 @@ except ImportError:
             "msgspec",
             "-t",
             libs_path,
-        ]
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
+
+from plugin.plugin import RtfmPlugin  # noqa: E402
 
 if __name__ == "__main__":
     RtfmPlugin().run()
