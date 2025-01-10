@@ -4,6 +4,7 @@ import asyncio
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Self
 
+import msgspec
 from yarl import URL
 
 from .icons import get_icon as _get_icon
@@ -12,6 +13,33 @@ if TYPE_CHECKING:
     from aiohttp import ClientSession
 
 BuilderType = Callable[[str, int], str]
+
+
+class PartialLibrary(msgspec.Struct):
+    name: str
+    type: str
+    loc: str | None
+    use_cache: bool
+    is_api: bool = False
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "type": self.type,
+            "loc": self.loc,
+            "use_cache": self.use_cache,
+        }
+
+    def encode(self) -> bytes:
+        return encoder.encode(self)
+
+    @classmethod
+    def decode(cls, data: bytes) -> PartialLibrary:
+        return decoder.decode(data)
+
+
+encoder = msgspec.json.Encoder()
+decoder = msgspec.json.Decoder(type=PartialLibrary)
 
 
 class Library:
@@ -84,11 +112,27 @@ class Library:
 
         return cls(**kwargs)
 
-    def to_dict(self) -> dict[str, str | bool | None]:
-        return {
-            "use_cache": self.use_cache,
-            "type": self.classname,
-            "loc": None if self.is_preset else str(self.loc),
-            "name": self.name,
-            "is_api": self.is_api,
-        }
+    @classmethod
+    def from_partial(cls: type[Self], data: PartialLibrary) -> Self:
+        kwargs = {"name": data.name, "use_cache": data.use_cache}
+
+        if data.loc is not None:
+            loc: str = data.loc
+
+            if loc.startswith(("http://", "https://")):
+                kwargs["loc"] = URL(loc)
+            elif loc.startswith("file:///"):
+                kwargs["loc"] = Path(URL(loc).path.strip("/"))
+            else:
+                kwargs["loc"] = Path(loc)
+
+        return cls(**kwargs)
+
+    def to_partial(self) -> PartialLibrary:
+        return PartialLibrary(
+            self.name,
+            type=self.classname,
+            loc=None if self.is_preset else str(self.loc),
+            use_cache=self.use_cache,
+            is_api=self.is_api,
+        )

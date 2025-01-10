@@ -1,26 +1,30 @@
+# ruff: noqa: E402, F401
+
 import os
 import sys
 
 parent_folder_path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(parent_folder_path)
+sys.path.append(os.path.join(parent_folder_path, "lib"))
+sys.path.append(os.path.join(parent_folder_path, "venv", "lib", "site-packages"))
 
-is_prod = os.path.exists("lib")
+from flogin.utils import print, setup_logging
 
-libs_path = (
-    os.path.join(parent_folder_path, "lib")
-    if is_prod
-    else os.path.join(parent_folder_path, "venv", "lib", "site-packages")
-)
-
-sys.path.append(libs_path)
+setup_logging()
 
 # Since msgspec is primarily written in C and uses pyd files, the pyd files need to be generated for the user's system
 # So if msgspec._core can not be imported, force reinstall the package on the user's system so that the proper pyd files are generated.
 
 try:
-    import msgspec._core  # noqa: F401
+    import msgspec._core
 except ModuleNotFoundError:
     import subprocess
+
+    libs = (
+        os.path.join("venv", "lib", "site-packages")
+        if os.path.exists("venv")
+        else "lib"
+    )
 
     subprocess.run(
         [
@@ -32,13 +36,14 @@ except ModuleNotFoundError:
             "-U",
             "msgspec",
             "-t",
-            libs_path,
+            libs,
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
+    print(f"Installed msgspec at {libs!r}")
 
-from plugin.plugin import RtfmPlugin  # noqa: E402
+from plugin.plugin import RtfmPlugin
 
 if __name__ == "__main__":
-    RtfmPlugin().run()
+    RtfmPlugin().run(setup_default_log_handler=False)

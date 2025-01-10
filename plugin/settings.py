@@ -1,15 +1,22 @@
-from typing import Self
+from __future__ import annotations
 
 import msgspec
+
+from .library import PartialLibrary  # noqa: TC001
 
 
 class RtfmBetterSettings(msgspec.Struct):
     main_kw: str = "rtfm"
     static_port: int = 0
+    libraries: list[PartialLibrary] = []
 
     @classmethod
-    def decode(cls, data: str) -> Self:
-        return msgspec.json.decode(data, type=cls)
+    def decode(cls, data: str) -> RtfmBetterSettings:
+        return decoder.decode(data)
 
     def encode(self) -> bytes:
-        return msgspec.json.encode(self)
+        return encoder.encode(self)
+
+
+encoder = msgspec.json.Encoder()
+decoder = msgspec.json.Decoder(RtfmBetterSettings)

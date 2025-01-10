@@ -7,20 +7,19 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
-import pickle
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 import aiohttp
 from flogin import Plugin, QueryResponse
 
-from .libraries import DocType, doc_types, library_from_dict
+from .libraries import DocType, doc_types, library_from_partial
 from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
 from .settings import RtfmBetterSettings
 
 if TYPE_CHECKING:
-    from .library import Library
+    from .library import Library, PartialLibrary
 
 log = logging.getLogger("rtfm")
 
@@ -43,44 +42,25 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         self.register_event(self.init, "on_initialization")
         self.load_settings()
 
+    @property
+    def better_settings_file(self) -> Path:
+        return Path("..", "..", "Settings", "Plugins", "rtfm", "better_settings.json")
+
+    @property
+    def libraries_database_file(self) -> Path:
+        return Path("..", "..", "Settings", "Plugins", "rtfm", "libraries.json")
+
     def load_settings(self):
-        fp = os.path.join(
-            "..", "..", "Settings", "Plugins", "rtfm", "better_settings.json"
-        )
         try:
-            with open(fp) as f:
+            with self.better_settings_file.open() as f:
                 data = f.read()
         except FileNotFoundError:
             data = "{}"
         self.better_settings = RtfmBetterSettings.decode(data)
 
     def dump_settings(self):
-        fp = os.path.join(
-            "..", "..", "Settings", "Plugins", "rtfm", "better_settings.json"
-        )
-        with open(fp, "wb") as f:
+        with self.better_settings_file.open("wb") as f:
             f.write(self.better_settings.encode())
-
-    def load_libraries(self) -> dict[str, Library]:
-        fp = os.path.join(
-            "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"
-        )
-        if os.path.exists(fp):
-            with open(fp, "rb") as f:
-                self._library_cache = libs = pickle.load(f)
-        else:
-            self._library_cache = libs = {}
-
-        return libs
-
-    def dump_libraries(self) -> None:
-        libs = self.libraries
-
-        fp = os.path.join(
-            "..", "..", "Settings", "Plugins", self.metadata.name, "libraries.pickle"
-        )
-        with open(fp, "wb") as f:
-            pickle.dump(libs, f)
 
     async def init(self) -> None:
         await self.webserver_ready_future
@@ -90,7 +70,10 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     @property
     def libraries(self) -> dict[str, Library]:
         if self._library_cache is None:
-            self._library_cache = libs = self.load_libraries()
+            libs = {
+                lib.name: library_from_partial(lib)
+                for lib in self.better_settings.libraries
+            }
         else:
             libs = self._library_cache
 
@@ -135,7 +118,8 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
 
         if library.is_api is True:
             if txt is None:
-                return await library.fetch_icon()
+                asyncio.create_task(library.fetch_icon())
+                return
             coro = library.make_request(self.session, txt)
         else:
             coro = library.build_cache(self.session, self.webserver_port)
@@ -150,7 +134,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             if send_noti:
                 await self.api.show_error_message("rtfm", txt)
             return txt
-        await library.fetch_icon()
+        asyncio.create_task(library.fetch_icon())
 
     async def start(self) -> None:
         async with aiohttp.ClientSession() as cs:
@@ -169,21 +153,24 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     async def start_webserver(self) -> None:
         self.webserver_ready_future = asyncio.Future()
 
-        async def write_libs(libs: list[dict[str, Any]]) -> None:
-            cache = {}
+        async def write_libs(libs: list[PartialLibrary]) -> None:
+            cache: dict[str, Library] = {}
             for lib in libs:
-                if lib["type"] == "auto":
+                if lib.type == "auto":
                     obj = await self.handle_auto_doctype(lib)
                     if obj is None:
                         await self.api.show_error_message(
-                            "rtfm", f"Could not figure out how to parse {lib['name']!r}"
+                            "rtfm", f"Could not figure out how to parse {lib.name!r}"
                         )
                     else:
-                        cache[lib["name"]] = obj
+                        cache[lib.name] = obj
                 else:
-                    cache[lib["name"]] = library_from_dict(lib)
+                    cache[lib.name] = library_from_partial(lib)
             self._library_cache = cache
-            self.dump_libraries()
+            self.better_settings.libraries = [
+                lib.to_partial() for lib in cache.values()
+            ]
+            self.dump_settings()
             log.info(f"--- {self.libraries=} ---")
             asyncio.create_task(self.ensure_keywords())
 
@@ -203,9 +190,9 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
                 for kw in to_add:
                     await plugin.add_keyword(kw)
 
-    async def handle_auto_doctype(self, data: dict[str, str | bool]) -> DocType | None:
+    async def handle_auto_doctype(self, data: PartialLibrary) -> DocType | None:
         for cls in doc_types:
-            lib = cls.from_dict(data)
+            lib = cls.from_partial(data)
             try:
                 await lib.build_cache(self.session, self.webserver_port)
             except:  # noqa: E722

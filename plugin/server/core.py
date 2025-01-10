@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import json
 import logging
 import os
 from typing import TYPE_CHECKING, Callable
@@ -13,6 +12,7 @@ import msgspec
 from aiohttp import web
 
 from ..libraries import doc_types, preset_docs
+from ..library import PartialLibrary
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable
@@ -34,38 +34,29 @@ no_cache_headers = {
 }
 
 
-class PartialLibrary(msgspec.Struct):
-    name: str
-    type: str
-    loc: str | None
-    use_cache: bool
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "type": self.type,
-            "loc": self.loc,
-            "use_cache": self.use_cache,
-        }
-
-
 class ImportExportSettings(msgspec.Struct):
     port: int
     keyword: str
     libraries: list[PartialLibrary]
 
 
+settings_decoder = msgspec.json.Decoder(type=list[PartialLibrary])
+
+
 def build_app(
-    write_settings: Callable[[list[dict[str, str]]], Awaitable[None]],
+    write_settings: Callable[[list[PartialLibrary]], Awaitable[None]],
     plugin: RtfmPlugin,
 ) -> web.Application:
     routes = web.RouteTableDef()
 
     @routes.put("/api/save_settings")
     async def save_settings(request: web.Request):
-        content = await request.json()
-        log.info(f"Writiting new settings: {content}")
-        await write_settings(content)
+        try:
+            data = settings_decoder.decode(await request.content.read())
+        except msgspec.DecodeError:
+            return web.json_response({"success": False})
+
+        await write_settings(data)
         asyncio.create_task(plugin.build_rtfm_lookup_tables())
         return web.json_response({"success": True})
 
@@ -101,6 +92,7 @@ def build_app(
                     lib.classname,
                     None if lib.is_preset else str(lib.loc),
                     lib.use_cache,
+                    lib.is_api,
                 )
                 for lib in plugin.libraries.values()
             ],
@@ -120,7 +112,7 @@ def build_app(
         except msgspec.DecodeError:
             return web.json_response({"success": False})
 
-        await write_settings([lib.to_dict() for lib in data.libraries])
+        await write_settings(data.libraries)
         plugin.main_kw = data.keyword
         plugin.static_port = data.port
         return web.json_response({"success": True})
@@ -154,11 +146,13 @@ def build_app(
     async def get_data(request: web.Request):
         presets = [pre.classname for pre in preset_docs]
         doctypes = ["auto"] + [typ.classname for typ in doc_types]
-        libs = [lib.to_dict() for lib in plugin.libraries.values()]
+        libs = str(
+            [lib.to_partial().encode().decode() for lib in plugin.libraries.values()]
+        )
 
         return web.Response(
             body=DATA_JS_TEMPLATE.format(
-                presets=presets, doctypes=doctypes, libraries=json.dumps(libs)
+                presets=presets, doctypes=doctypes, libraries=libs
             ),
             headers=no_cache_headers,
         )
@@ -206,7 +200,7 @@ async def start_runner(app: web.Application, host: str, port: int):
 
 
 async def run_app(
-    write_settings: Callable[[list[dict[str, str]]], Awaitable[None]],
+    write_settings: Callable[[list[PartialLibrary]], Awaitable[None]],
     plugin: RtfmPlugin,
     *,
     run_forever: bool = True,

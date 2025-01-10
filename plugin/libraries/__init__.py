@@ -1,4 +1,6 @@
-from collections.abc import Iterable
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from .autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
 from .discord import Discord
@@ -9,6 +11,11 @@ from .lua import Lua54
 from .mdn import MdnDocs
 from .mkdocs import Mkdocs
 from .qmk import QmkDocs
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from ..library import Library, PartialLibrary
 
 DocType = SphinxLibrary | Mkdocs
 
@@ -28,12 +35,11 @@ PresetDocs = (
 preset_docs: Iterable[type[PresetDocs]] = PresetDocs.__args__
 
 
-def library_from_dict(lib: dict[str, str | bool]) -> DocType | PresetDocs:
-    classname = lib["type"]
-
+def library_from_partial(lib: PartialLibrary) -> Library:
+    classname = lib.type
     for iterable in (doc_types, preset_docs):
         for class_ in iterable:
             if classname == class_.classname:
-                return class_.from_dict(lib)
+                return class_.from_partial(lib)
 
     raise ValueError(f"Unsupported type {classname!r}")
