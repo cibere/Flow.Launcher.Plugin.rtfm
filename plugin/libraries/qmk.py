@@ -3,37 +3,31 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar
 
 import msgspec
-from msgspec import json
 from yarl import URL
 
-from ..library import BuilderType, Library
+from ..library import Library
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
 
 
-class QmkInvEntry(msgspec.Struct):
-    text: str
-    items: list[QmkInvEntry] | None = None
-    link: str | None = None
+class QmkLocalSearchField(msgspec.Struct):
+    title: str
+    titles: list[str]
 
-    def parse_self(self, webserver_port: int, builder: BuilderType) -> dict[str, str]:
-        cache: dict[str, str] = {}
 
-        if self.items is not None:
-            for entry in self.items:
-                cache.update(entry.parse_self(webserver_port, builder))
-        if self.link is not None:
-            cache[self.text] = builder(self.link, webserver_port)
-        return cache
+class QmkLocalSearchData(msgspec.Struct):
+    documentIds: dict[str, str]
+    storedFields: dict[str, QmkLocalSearchField]
 
 
 class QmkDocs(Library):
     inventory_url: ClassVar[str] = (
-        "https://raw.githubusercontent.com/qmk/qmk_firmware/refs/heads/master/docs/_sidebar.json"
+        "https://docs.qmk.fm/assets/chunks/@localSearchIndexroot.DuIlbnO1.js"
     )
     classname: ClassVar[str] = "docs.qmk.fm"
     is_preset: ClassVar[bool] = True
+    favicon_url: ClassVar[str] | None = "https://docs.qmk.fm"
 
     def __init__(self, name: str, *, use_cache: bool) -> None:
         super().__init__(name, URL("https://docs.qmk.fm/"), use_cache=use_cache)
@@ -42,10 +36,18 @@ class QmkDocs(Library):
         async with session.get(self.inventory_url) as res:
             raw_content: bytes = await res.content.read()
 
-        data = json.decode(raw_content, type=list[QmkInvEntry])
+        line = raw_content.splitlines()[0].decode()
+        raw_json = (
+            line.removesuffix("`;")
+            .removeprefix("const _localSearchIndexroot = `")
+            .replace("\\`", "`")
+        )
 
+        index = msgspec.json.decode(raw_json, type=QmkLocalSearchData)
         cache = {}
 
-        for entry in data:
-            cache.update(entry.parse_self(webserver_port, self._build_url))
+        for docid, field in index.storedFields.items():
+            document = index.documentIds[docid]
+            cache[field.title] = self._build_url(document, webserver_port)
+
         self.cache = cache

@@ -1,20 +1,21 @@
 
 import aiohttp
 import json
-from plugin.libraries.discordsex import DiscordSex
+from plugin.libraries.qmk import QmkIndexReader
 
 
 async def main() -> None:
     async with aiohttp.ClientSession() as cs:
-        sex = DiscordSex('sex', use_cache=True)
-        await sex.make_request(cs, "test")
-    
-    formatted = json.dumps(sex.cache, indent=4)
-    with open("cache.json", "w") as f:
+        async with cs.get("https://docs.qmk.fm/assets/chunks/@localSearchIndexroot.DuIlbnO1.js") as res:
+            reader = QmkIndexReader(await res.content.read())
         
-        f.write(formatted)
-    print(formatted)
-    
+        data = reader.parse_file()
+        with open("data.json", "w", encoding="UTF-8") as f:
+            f.write(data)
+        print(json.loads(data))
+        with open("data.json", "w", encoding="UTF-8") as f:
+            json.dump(json.loads(data), f, indent=4)
+
 
 import asyncio
 
