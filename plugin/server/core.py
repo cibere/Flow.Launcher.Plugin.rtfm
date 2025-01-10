@@ -32,7 +32,13 @@ no_cache_headers = {
     "Expires": "0",
     "Pragma": "no-cache",
 }
-
+class ExactString:
+    def __init__(self, data):
+        self.data = data
+    
+    def __str__(self):
+        return self.data
+    __repr__ = __str__
 
 class ImportExportSettings(msgspec.Struct):
     port: int
@@ -146,9 +152,7 @@ def build_app(
     async def get_data(request: web.Request):
         presets = [pre.classname for pre in preset_docs]
         doctypes = ["auto"] + [typ.classname for typ in doc_types]
-        libs = str(
-            [lib.to_partial().encode().decode() for lib in plugin.libraries.values()]
-        )
+        libs = [ExactString(lib.to_partial().encode().decode()) for lib in plugin.libraries.values()]
 
         return web.Response(
             body=DATA_JS_TEMPLATE.format(
