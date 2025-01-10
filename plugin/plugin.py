@@ -72,7 +72,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     @property
     def libraries(self) -> dict[str, Library]:
         if self._library_cache is None:
-            libs = {
+            self._library_cache = libs = {
                 lib.name: library_from_partial(lib)
                 for lib in self.better_settings.libraries
             }
