@@ -30,15 +30,18 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
                 f"Library {library.name!r} not set to use cache, rebuilding for request"
             )
             msg = await self.plugin.refresh_library_cache(
-                library, send_noti=False, txt=query.text
+                library, send_noti=False, txt=query.text, wait=True
             )
             if msg is not None:
                 return Result(msg, icon=library.icon)
 
         if library.cache is None:
-            return Result(
-                f"Library '{library.name}' not found in cache", icon="Images/error.png"
-            )
+            await self.plugin.refresh_library_cache(library)
+            if library.cache is None:
+                return Result(
+                    f"Library '{library.name}' not found in cache, and I was unable to build the cache.",
+                    icon="Images/error.png",
+                )
 
         cache = list(library.cache.items())
         matches = fuzzy_finder(text, cache, key=lambda t: t[0])

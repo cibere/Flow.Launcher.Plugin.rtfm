@@ -8,7 +8,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 from flogin import Plugin, QueryResponse
@@ -19,6 +19,8 @@ from .server.core import run_app as start_webserver
 from .settings import RtfmBetterSettings
 
 if TYPE_CHECKING:
+    from collections.abc import Coroutine
+
     from .library import Library, PartialLibrary
 
 log = logging.getLogger("rtfm")
@@ -112,13 +114,23 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         log.info("Done building cache.")
 
     async def refresh_library_cache(
-        self, library: Library, *, send_noti: bool = True, txt: str | None = None
+        self,
+        library: Library,
+        *,
+        send_noti: bool = True,
+        txt: str | None = None,
+        wait: bool = False,
     ) -> str | None:
         log.info(f"Building cache for {library!r}")
 
+        async def run(coro: Coroutine[Any, Any, Any]):
+            if wait:
+                return await coro
+            asyncio.create_task(coro)
+
         if library.is_api is True:
             if txt is None:
-                asyncio.create_task(library.fetch_icon())
+                await run(library.fetch_icon())
                 return
             coro = library.make_request(self.session, txt)
         else:
@@ -134,7 +146,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             if send_noti:
                 await self.api.show_error_message("rtfm", txt)
             return txt
-        asyncio.create_task(library.fetch_icon())
+        await run(library.fetch_icon())
 
     async def start(self) -> None:
         async with aiohttp.ClientSession() as cs:
