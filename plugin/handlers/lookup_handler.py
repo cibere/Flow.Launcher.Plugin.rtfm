@@ -36,6 +36,7 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
                 return Result(msg, icon=library.icon)
 
         if library.cache is None:
+            log.info("Cache is `None`, refreshing")
             await self.plugin.refresh_library_cache(library)
             if library.cache is None:
                 return Result(
