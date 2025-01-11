@@ -12,6 +12,7 @@ from .mdn import MdnDocs
 from .mkdocs import Mkdocs
 from .qmk import QmkDocs
 from .ss64 import SS64NT, SS64PS, SS64Bash, SS64Mac
+from .tom_select_js import TomSelectJs
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -35,6 +36,7 @@ PresetDocs = (
     | SS64Bash
     | SS64NT
     | SS64PS
+    | TomSelectJs
 )
 
 preset_docs: Iterable[type[PresetDocs]] = PresetDocs.__args__
