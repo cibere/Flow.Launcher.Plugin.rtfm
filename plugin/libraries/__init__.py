@@ -11,7 +11,7 @@ from .lua import Lua54
 from .mdn import MdnDocs
 from .mkdocs import Mkdocs
 from .qmk import QmkDocs
-from .ss64 import SS64Bash, SS64Mac, SS64NT, SS64PS
+from .ss64 import SS64NT, SS64PS, SS64Bash, SS64Mac
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
