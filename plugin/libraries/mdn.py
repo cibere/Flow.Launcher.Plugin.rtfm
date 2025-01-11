@@ -23,7 +23,7 @@ class MdnDocs(Library):
 
     def __init__(self, name: str, *, use_cache: bool) -> None:
         super().__init__(
-            name, URL("https://developer.mozilla.org/en-US"), use_cache=use_cache
+            name, URL("https://developer.mozilla.org/"), use_cache=use_cache
         )
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
@@ -31,11 +31,8 @@ class MdnDocs(Library):
         if url is None:
             raise ValueError("Local mdndocs are not supported")
 
-        async with session.get(url / "search-index.json") as res:
+        async with session.get(url / "en-US" / "search-index.json") as res:
             raw_content: bytes = await res.content.read()
-
-        with open("raw", "wb") as f:
-            f.write(raw_content)
 
         data = json.decode(raw_content, type=list[DocEntry])
 
