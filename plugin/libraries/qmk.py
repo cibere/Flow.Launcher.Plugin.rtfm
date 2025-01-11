@@ -101,11 +101,9 @@ class QmkDocs(Library):
 
         for tag in tags:
             search_box_url = await self.qmk_parse_theme_file(session, tag)
-            print(f"{search_box_url=}")
             if search_box_url is None:
                 continue
             index_name = await self.qmk_parse_search_box_file(session, search_box_url)
-            print(f"{index_name=}")
             if index_name is None:
                 continue
             self.cache = await self.parse_index(
