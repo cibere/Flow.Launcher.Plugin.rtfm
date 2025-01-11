@@ -28,6 +28,7 @@ class PartialLibrary(msgspec.Struct):
             "type": self.type,
             "loc": self.loc,
             "use_cache": self.use_cache,
+            "is_api": self.is_api,
         }
 
     def encode(self) -> bytes:
