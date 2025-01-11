@@ -11,6 +11,7 @@ from .lua import Lua54
 from .mdn import MdnDocs
 from .mkdocs import Mkdocs
 from .qmk import QmkDocs
+from .ss64 import SS64Bash, SS64Mac, SS64NT, SS64PS
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -30,6 +31,10 @@ PresetDocs = (
     | Lua54
     | Discord
     | DiscordSex
+    | SS64Mac
+    | SS64Bash
+    | SS64NT
+    | SS64PS
 )
 
 preset_docs: Iterable[type[PresetDocs]] = PresetDocs.__args__
