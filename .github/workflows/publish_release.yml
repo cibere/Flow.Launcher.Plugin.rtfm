@@ -26,13 +26,16 @@ jobs:
           path: 'plugin.json'
           prop_path: 'Version'
 
-      - run: echo ${{steps.version.outputs.prop}} 
+      - run: echo ${{steps.version.outputs.prop}}
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r ./requirements.txt -t ./lib
-          zip -r ${{ github.event.repository.name }}.zip . -x '*.git*'
+      
+      - name: Build Archive
+        run: |
+          python build_plugin.py ${{ github.event.repository.name }}.zip
 
       - name: Publish
         if: success()
