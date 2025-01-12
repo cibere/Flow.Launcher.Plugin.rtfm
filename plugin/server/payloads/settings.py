@@ -21,8 +21,11 @@ class PluginSettings(Payload):
             parts = key.split(".")
             match parts[0]:
                 case "plugin":
-                    if parts[1] in ("port", "keyword"):
-                        kwargs[parts[1]] = value
+                    match parts[1]:
+                        case "port":
+                            kwargs["port"] = int(value)
+                        case "keyword":
+                            kwargs["keyword"] = value
                 case "doc":
                     idx = int(parts[1])
                     match parts[2]:
