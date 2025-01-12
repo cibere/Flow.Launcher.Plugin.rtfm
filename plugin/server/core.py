@@ -35,12 +35,12 @@ def build_app(
     build_api(routes, plugin)
 
     @routes.get("/")
-    @aiohttp_jinja2.template("template.html")
+    @aiohttp_jinja2.template("index.html")
     async def index(request: web.Request):
         data = {
             "libs": plugin.libraries.values(),
             "main_kw": plugin.main_kw,
-            "static_port": plugin.static_port,
+            "port": plugin.static_port,
         }
         log.info(f"Sending data: {data}")
         return data

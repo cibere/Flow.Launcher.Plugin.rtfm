@@ -1,0 +1,82 @@
+{% macro card(title) %}
+    <div class="card">
+        <div class="title">{{ title }}</div>
+        {{ caller() }}
+    </div>
+{% endmacro %}
+
+{% macro doc(location, index, type, name, use_cache, is_api) %}
+    <div class="card" data-index="{{ index }}">
+        <input type="hidden" name="doc.{{ index }}.loc" value="{{ location }}">
+        <input type="hidden" name="doc.{{ index }}.type" value="{{ type }}">
+        <div class="title">{{ location }}</div>
+        <div class="two-columns">
+            {% call input(label="Keyword", id="lib-keyword-input-" ~ index) %}
+                <input
+                        id="lib-keyword-input-{{ index }}"
+                        type="text"
+                        value="{{ name }}"
+                        name="doc.{{ index }}.keyword"
+                >
+            {% endcall %}
+
+            {% call input(label="Type", id="lib-type-input-" ~ index) %}
+                <input
+                        id="lib-type-input-{{ index }}"
+                        type="text"
+                        value="{{ type }}"
+                        disabled
+                >
+            {% endcall %}
+
+            {% call checkbox(label="Use Cache", id="lib-cache-input-" ~ index, description="If checked, the plugin will cache the index. If not checked, the plugin will rebuild the index for each query.") %}
+                <input
+                        id="lib-cache-input-{{ index }}"
+                        type="checkbox"
+                        name="doc.{{ index }}.use_cache"
+                        {% if use_cache %}checked{% endif %}
+                        {% if is_api %}disabled{% endif %}
+                >
+            {% endcall %}
+
+            {% call checkbox(label="Is API", id="lib-api-input-" ~ index, description="If checked, this means that the plugin must make a web request for each query, and that caching is not supported.") %}
+                <input type="checkbox" id="lib-api-input-{{ index }}" name="doc.{{ index }}.is_api" disabled {% if is_api %}checked{% endif %}>
+            {% endcall %}
+        </div>
+        {% call actions() %}
+            <button class="remove-btn" type="button">Remove</button>
+        {% endcall %}
+    </div>
+{%- endmacro %}
+
+{% macro actions() %}
+    <hr>
+    <div class="actions">
+        {{ caller() }}
+    </div>
+{% endmacro %}
+
+{% macro input(label, id, description=None) %}
+    <div class="field">
+        <label for="{{ id }}">{{ label }}</label>
+        {{ caller() }}
+        {% if description %}
+            <span class="small-text">{{ description }}</span>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro checkbox(label, id, description=None) %}
+    <label class="field checkbox-field">
+        <span>
+            <svg class="checkmark" viewBox="0 0 16 16">
+                <path d="M3 8 L6 11 L13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            {{ label }}
+        </span>
+        {{ caller() }}
+        {% if description %}
+            <span class="small-text">{{ description }}</span>
+        {% endif %}
+    </label>
+{% endmacro %}

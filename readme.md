@@ -1,5 +1,8 @@
 # Flow.Launcher.Plugin.Rtfm
-Credits to [Danny/Rapptz](https://github.com/Rapptz) for the original rtfm code
+
+## Credits
+- Credits to [Danny/Rapptz](https://github.com/Rapptz) for the original intersphinx code
+- The webserver's design is based on [Figma SDS](https://github.com/figma/sds/) (licensed under MIT)
 
 ![Example Gif](assets/example.gif)
 

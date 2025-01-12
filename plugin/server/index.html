@@ -1,0 +1,54 @@
+<!doctype html>
+{% from 'macros.html' import card, doc, actions, input %}
+<html lang="en" data-theme="auto">
+<head>
+    <meta charset="UTF-8">
+    <title>rtfm</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+<template id="docs-template">
+    {{ doc(location="{{LOCATION}}", index="{{INDEX}}", type="{{TYPE}}", name="{{NAME}}", use_cache=False, is_api=False) }}
+</template>
+<main>
+    {% call card("Rtfm Plugin") %}
+        <p>bla bla bla</p>
+    {% endcall %}
+
+    <form id="main-form" action="/api/settings" method="POST">
+        {% call card("Plugin Settings") %}
+            <div class="two-columns">
+                {% call input(label="Webserver Port", id="webserver-port-input", description="This is the port that this settings page will be hosted on. If set to 0, the plugin will let your system choose an unused port on startup.") %}
+                    <input type="number" id="webserver-port-input" name="plugin.port" min="0" max="65535" step="1" value="{{ port }}">
+                {% endcall %}
+                {% call input(label="Main Keyword", id="main-keyword-input", description="This is the keyword that lets you access the settings page, reload the cache, and open up the plugin's log file.") %}
+                    <input type="text" id="main-keyword-input" name="plugin.keyword" value="{{ main_kw }}">
+                {% endcall %}
+            </div>
+            {% call actions() %}
+                <button>Save Settings & Reload Cache</button>
+            {% endcall %}
+        {% endcall %}
+
+        {% for lib in libs %}
+            {{ doc(location=lib.loc, index=loop.index, type=lib.typename, name=lib.name, use_cache=lib.use_cache, is_api=lib.is_api) }}
+        {% endfor %}
+    </form>
+
+    <form id="add-manual-form" action="/api/get_library" method="POST">
+        {% call card("Add Manual") %}
+            {% call input(label="Keyword", id="add-manual-keyword") %}
+                <input type="text" name="docs.new.keyword" id="add-manual-keyword" value="{{ main_keyword }}">
+            {% endcall %}
+            {% call input(label="Location", id="add-manual-loc", description="The URL or Path of where the manual you want to use is located.") %}
+                <input type="text" name="docs.new.loc" id="add-manual-loc">
+            {% endcall %}
+            {% call actions() %}
+                <button id="add-manual-btn">Add</button>
+            {% endcall %}
+        {% endcall %}
+    </form>
+</main>
+</body>
+</html>

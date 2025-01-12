@@ -19,7 +19,7 @@ class PartialLibrary(msgspec.Struct):
     name: str
     type: str
     loc: str
-    use_cache: bool
+    use_cache: bool = False
     is_api: bool = False
 
     def to_dict(self):
