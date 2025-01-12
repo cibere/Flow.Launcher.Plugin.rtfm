@@ -9,7 +9,6 @@ import aiohttp_jinja2
 import jinja2
 from aiohttp import web
 
-from ..libraries import doc_types, preset_docs
 from .api import build_api
 from .payloads.base import encoder as payload_encoder
 
@@ -67,9 +66,7 @@ def build_app(
         ).decode()
 
         return web.Response(
-            body=DATA_JS_TEMPLATE.format(
-                libraries=libs
-            ),
+            body=DATA_JS_TEMPLATE.format(libraries=libs),
             headers=no_cache_headers,
         )
 
