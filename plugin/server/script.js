@@ -42,6 +42,8 @@ const elements = {
     addManualKeyword: document.querySelector("#add-manual-keyword"),
     /** @type {HTMLInputElement} */
     addManualLoc: document.querySelector("#add-manual-loc"),
+    /** @type {HTMLDialogElement} */
+    loadingModal: document.querySelector("#loading-modal"),
 };
 
 /**
@@ -69,53 +71,74 @@ function addNewDoc(data) {
     elements.mainForm.appendChild(doc);
 }
 
+function showLoadingModal() {
+    elements.loadingModal.showModal();
+}
+
+function hideLoadingModal() {
+    elements.loadingModal.close();
+}
+
 elements.mainForm.addEventListener("submit", async e => {
     e.preventDefault();
 
-    const formData = new FormData(elements.mainForm);
+    try {
+        showLoadingModal();
 
-    const payload = Object.fromEntries(formData.entries());
+        const formData = new FormData(elements.mainForm);
 
-    /** @type {SettingsResponse} */
-    const response = await fetch(elements.mainForm.action, {
-        method: elements.mainForm.method ?? "POST",
-        body: JSON.stringify(payload),
-    }).then(v => v.json());
-    console.log("Got settings response", response);
+        const payload = Object.fromEntries(formData.entries());
 
-    if (!response.success) {
-        console.log("Saved settings response", response);
-        alert(`An error occurred: ${response.message}`);
-        return;
+        /** @type {SettingsResponse} */
+        const response = await fetch(elements.mainForm.action, {
+            method: elements.mainForm.method ?? "POST",
+            body: JSON.stringify(payload),
+        }).then(v => v.json());
+        console.log("Got settings response", response);
+
+        hideLoadingModal();
+        if (!response.success) {
+            console.log("Saved settings response", response);
+            alert(`An error occurred: ${response.message}`);
+            return;
+        }
+
+        alert("Success!");
+    } catch {
+        hideLoadingModal();
     }
-
-    alert("Success!");
 });
 
 elements.addManualForm.addEventListener("submit", async e => {
     e.preventDefault();
 
-    const location = elements.addManualLoc.value;
-    const keyword = elements.addManualKeyword.value;
+    try {
+        showLoadingModal();
+        const location = elements.addManualLoc.value;
+        const keyword = elements.addManualKeyword.value;
 
-    const payload = {
-        url: location,
-        name: keyword,
-    };
-    /** @type {GetLibraryResponse} */
-    const response = await fetch(elements.addManualForm.action, {
-        method: elements.addManualForm.method ?? "POST",
-        body: JSON.stringify(payload),
-    }).then(v => v.json());
-    console.log("Got get library response", response);
+        const payload = {
+            url: location,
+            name: keyword,
+        };
+        /** @type {GetLibraryResponse} */
+        const response = await fetch(elements.addManualForm.action, {
+            method: elements.addManualForm.method ?? "POST",
+            body: JSON.stringify(payload),
+        }).then(v => v.json());
+        console.log("Got get library response", response);
 
-    if (!response.success) {
-        alert(`An error occurred: ${response.message}`);
-        return;
+        hideLoadingModal();
+        if (!response.success) {
+            alert(`An error occurred: ${response.message}`);
+            return;
+        }
+
+        alert("Success!");
+        addNewDoc(response.data);
+    } catch {
+        hideLoadingModal();
     }
-
-    alert("Success!");
-    addNewDoc(response.data);
 });
 
 /**

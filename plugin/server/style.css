@@ -279,3 +279,34 @@ select {
     background-color: var(--card-background-color);
     color: var(--text-color);
 }
+
+#loading-modal {
+    background: transparent;
+    border: none;
+    align-self: center;
+    justify-self: center;
+    outline: none;
+    width: 100px;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+#loading-modal::backdrop {
+    background: var(--page-background-color);
+    opacity: 0.8;
+}
+
+.loading-spinner {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background-image: conic-gradient(var(--text-color) 0deg, transparent 360deg);
+    animation: rotate 1s infinite linear;
+    clip-path: path('M 50,0 A 50,50 0 1,1 50,100 A 50,50 0 1,1 50,0 Z M 50,10 A 40,40 0 1,0 50,90 A 40,40 0 1,0 50,10 Z');
+}
+
+@keyframes rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
