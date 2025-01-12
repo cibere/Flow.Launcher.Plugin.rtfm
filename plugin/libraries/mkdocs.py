@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, ClassVar
 import msgspec
 from msgspec import json
 
-from ..library import Library
+from .library import Library
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
@@ -23,7 +23,7 @@ class SearchIndexFile(msgspec.Struct):
 
 
 class Mkdocs(Library):
-    classname: ClassVar[str] = "Mkdocs"
+    typename: ClassVar[str] = "Mkdocs"
     is_preset: ClassVar[bool] = False
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:

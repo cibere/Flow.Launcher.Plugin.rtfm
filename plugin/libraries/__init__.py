@@ -2,51 +2,34 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .autohotkey import AutoHotkeyDocsV1, AutoHotkeyDocsV2
-from .discord import Discord
-from .discordsex import DiscordSex
-from .flowlauncher import FlowLauncherDocs
+from yarl import URL
+
 from .intersphinx import SphinxLibrary
-from .lua import Lua54
-from .mdn import MdnDocs
 from .mkdocs import Mkdocs
-from .qmk import QmkDocs
-from .ss64 import SS64NT, SS64PS, SS64Bash, SS64Mac
-from .tom_select_js import TomSelectJs
+from .presets._loader import built_presets
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from ..library import Library, PartialLibrary
+    from .library import Library, PartialLibrary
+    from .preset import PresetLibrary
 
-DocType = SphinxLibrary | Mkdocs
-
-doc_types: Iterable[type[DocType]] = DocType.__args__
-
-PresetDocs = (
-    AutoHotkeyDocsV1
-    | AutoHotkeyDocsV2
-    | MdnDocs
-    | QmkDocs
-    | FlowLauncherDocs
-    | Lua54
-    | Discord
-    | DiscordSex
-    | SS64Mac
-    | SS64Bash
-    | SS64NT
-    | SS64PS
-    | TomSelectJs
+doc_types: Iterable[type[Library]] = (
+    Mkdocs,
+    SphinxLibrary,
 )
-
-preset_docs: Iterable[type[PresetDocs]] = PresetDocs.__args__
+preset_docs: Iterable[type[PresetLibrary]] = list(built_presets())
 
 
 def library_from_partial(lib: PartialLibrary) -> Library:
-    classname = lib.type
-    for iterable in (doc_types, preset_docs):
-        for class_ in iterable:
-            if classname == class_.classname:
-                return class_.from_partial(lib)
+    if lib.type == "Preset":
+        url = URL(lib.loc)
+        for preset in preset_docs:
+            if preset.validate_url(url):
+                return preset.from_partial(lib)
 
-    raise ValueError(f"Unsupported type {classname!r}")
+    for doctype in doc_types:
+        if lib.type == doctype.typename:
+            return doctype.from_partial(lib)
+
+    raise ValueError(f"Unsupported type {lib.type!r}")

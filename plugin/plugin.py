@@ -1,8 +1,3 @@
-"""
-Adapted from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/api.py
-Credits to Danny/Rapptz for the original rtfm code
-"""
-
 from __future__ import annotations
 
 import asyncio
@@ -12,8 +7,9 @@ from typing import TYPE_CHECKING, Any
 
 import aiohttp
 from flogin import Plugin, QueryResponse
+from yarl import URL
 
-from .libraries import DocType, doc_types, library_from_partial
+from .libraries import doc_types, library_from_partial, preset_docs
 from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
 from .settings import RtfmBetterSettings
@@ -21,7 +17,8 @@ from .settings import RtfmBetterSettings
 if TYPE_CHECKING:
     from collections.abc import Coroutine
 
-    from .library import Library, PartialLibrary
+    from .libraries.library import Library, PartialLibrary
+    from .libraries.preset import PresetLibrary
 
 log = logging.getLogger("rtfm")
 
@@ -162,31 +159,29 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
                 resp.results.append(res)
         return resp
 
+    async def update_libraries(self, libs: list[PartialLibrary]) -> None:
+        cache: dict[str, Library] = {}
+        for lib in libs:
+            if lib.type == "auto":
+                obj = await self.handle_auto_doctype(lib)
+                if obj is None:
+                    await self.api.show_error_message(
+                        "rtfm", f"Could not figure out how to parse {lib.name!r}"
+                    )
+                else:
+                    cache[lib.name] = obj
+            else:
+                cache[lib.name] = library_from_partial(lib)
+        self._library_cache = cache
+        self.better_settings.libraries = [lib.to_partial() for lib in cache.values()]
+        self.dump_settings()
+        log.info(f"--- {self.libraries=} ---")
+        asyncio.create_task(self.ensure_keywords())
+
     async def start_webserver(self) -> None:
         self.webserver_ready_future = asyncio.Future()
 
-        async def write_libs(libs: list[PartialLibrary]) -> None:
-            cache: dict[str, Library] = {}
-            for lib in libs:
-                if lib.type == "auto":
-                    obj = await self.handle_auto_doctype(lib)
-                    if obj is None:
-                        await self.api.show_error_message(
-                            "rtfm", f"Could not figure out how to parse {lib.name!r}"
-                        )
-                    else:
-                        cache[lib.name] = obj
-                else:
-                    cache[lib.name] = library_from_partial(lib)
-            self._library_cache = cache
-            self.better_settings.libraries = [
-                lib.to_partial() for lib in cache.values()
-            ]
-            self.dump_settings()
-            log.info(f"--- {self.libraries=} ---")
-            asyncio.create_task(self.ensure_keywords())
-
-        await start_webserver(write_libs, self, run_forever=False)
+        await start_webserver(self, run_forever=False)
 
     async def ensure_keywords(self) -> None:
         plugins = await self.api.get_all_plugins()
@@ -202,10 +197,48 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
                 for kw in to_add:
                     await plugin.add_keyword(kw)
 
-    async def handle_auto_doctype(self, data: PartialLibrary) -> DocType | None:
+    async def handle_auto_doctype(self, data: PartialLibrary) -> Library | None:
         for cls in doc_types:
             lib = cls.from_partial(data)
             try:
+                await lib.build_cache(self.session, self.webserver_port)
+            except:  # noqa: E722
+                pass
+            else:
+                return lib
+
+    def convert_raw_loc(self, loc: str) -> URL | Path:
+        if loc.startswith(("http://", "https://")):
+            return URL(loc)
+        if loc.startswith("file:///"):
+            return Path(URL(loc).path.strip("/"))
+        if (
+            loc[0] in "QWERTYUIOPASDFGHJKLZXCVBNM"
+            and loc[1] == ":"
+            and loc[2] in ("/", "\\")
+        ):
+            return Path(loc)
+        parts = loc.split("/")
+        return URL.build(scheme="https", host=parts.pop(0), path="/" + "/".join(parts))
+
+    async def get_library_from_url(
+        self, name: str, raw_url: str
+    ) -> Library | PresetLibrary | None:
+        loc = self.convert_raw_loc(raw_url)
+        log.info(f"{loc=}")
+        is_path: bool = True
+        if isinstance(loc, URL):
+            is_path = False
+            for preset in preset_docs:
+                log.info(f"Trying {preset!r}")
+                if preset.validate_url(loc):
+                    return preset(name, use_cache=True)
+        for doctype in doc_types:
+            if is_path is True and doctype.supports_local is False:
+                continue
+            lib = doctype(name, loc, use_cache=True)
+            try:
+                log.info(f"Trying {doctype!r}")
                 await lib.build_cache(self.session, self.webserver_port)
             except:  # noqa: E722
                 pass

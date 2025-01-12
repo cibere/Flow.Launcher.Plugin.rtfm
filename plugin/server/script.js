@@ -88,8 +88,6 @@ function refreshTable(){
 
 document.addEventListener('DOMContentLoaded', refreshTable)
 
-// region Add Lib Modal
-
 function createModal(){
     let modal = document.createElement("div");
     modal.className = "modal";
@@ -110,69 +108,41 @@ function createModal(){
     return contentContainer;
 }
 
-function makeSelectInput(label, options, id, nextModalGen){
-    let container = document.createElement("div");
-
-    let labelEl = document.createElement("label");
-    labelEl.for = id;
-    labelEl.innerText = label;
-    container.appendChild(labelEl);
-
-    let menu = document.createElement("select");
-    menu.id = id;
-    for (let text of options){
-        let opt = document.createElement("option");
-        opt.innerText = text;
-        menu.appendChild(opt);
-    }
-    container.appendChild(menu);
-
-    let nextBtn = document.createElement("button");
-    nextBtn.innerText = "Add";
-    nextBtn.onclick = function(){
-        container.parentNode.parentNode.remove();
-        nextModalGen(menu.options[menu.selectedIndex].innerText);
-    }
-    container.appendChild(nextBtn)
-
-    return container;
-}
-
-function _makePresetInput(){
-    return makeSelectInput("Select a preset: ", presetOptions, "modal-select-preset-docs", function(value){
-        libraries.push(
-            {
-                name:prompt("What should the name be? This will be used as the keyword you will use to access the documentation."),
-                type:`${value}`,
-                loc:null,
-                use_cache:true
-            }
-        );
-        refreshTable();
-    })
-}
-
-function _makeTypeInput(){
-    return makeSelectInput("Select a doctype: ", docTypes, "modal-select-doctype", function(value){
-        let lib = {
-            name:"",
-            type:value,
-            loc:"",
-            use_cache:true
-        }
-        editLibraryModal(lib);
-    })
-}
+// region Add Lib Modal
 
 function createLibraryModal(){
     let modal = createModal();
-    modal.appendChild(_makePresetInput());
+    
+    let nameEl = document.createElement("input");
+    nameEl.id = "create-modal-name-el";
+    let nameLabel = document.createElement("label");
+    nameLabel.for = "create-modal-name-el";
+    nameLabel.innerText = "Manual Name (this is the keyword you will use to query it): "
+    modal.appendChild(nameLabel);
+    modal.appendChild(nameEl);
 
-    let orEl = document.createElement("p");
-    orEl.innerText = "or";
-    modal.appendChild(orEl);
+    modal.appendChild(document.createElement("br"));
+    modal.appendChild(document.createElement("br"));
 
-    modal.appendChild(_makeTypeInput());
+    let urlEl = document.createElement("input");
+    urlEl.id = "create-modal-url-el";
+    let urlLabel = document.createElement("label");
+    urlLabel.for = "create-modal-url-el";
+    urlLabel.innerText = "Manual Url (ensure its the root of the manual version): "
+    modal.appendChild(urlLabel);
+    modal.appendChild(urlEl);
+
+    let createBtn = document.createElement("button");
+    createBtn.innerText = "Create";
+    createBtn.onclick = async function(){
+        let lib = await getLibraryFromUrl(nameEl.value, urlEl.value);
+        if (lib){
+            libraries.push(lib);
+            refreshTable();
+            modal.parentNode.remove();
+        }
+    }
+    modal.appendChild(createBtn);
 }
 
 // region Edit Lib Modal
@@ -233,13 +203,7 @@ function editLibraryModal(library){
     let typeEl = _createTextareaInput("Type: ", library['type'], "modal-lib-type-input", true)
     modal.appendChild(typeEl.parentNode);
 
-    if (library['loc'] === null){
-        var opts = [null, true]
-    } else {
-        var opts = [library['loc'], false]
-    }
-
-    let locEl = _createTextareaInput("Location: ", opts[0], "modal-lib-loc-input", opts[1])
+    let locEl = _createTextareaInput("Location: ", library.loc, "modal-lib-loc-input", true)
     modal.appendChild(locEl.parentNode);
 
     let cacheEl = _createCheckboxInput("Use Cache: ", library['use_cache'], "modal-lib-cache-input", library['is_api'])
@@ -255,10 +219,6 @@ function editLibraryModal(library){
     saveBtn.appendChild(saveBtnTxt);
     saveBtn.onclick = function(){
         library['name'] = nameEl.value;
-        library['type'] = typeEl.value;
-        if (opts[1] === false){
-            library['loc'] = locEl.value;
-        }
         library['use_cache'] = cacheEl.checked;
         if (!containsObject(library, libraries)){
             libraries.push(library);
@@ -291,49 +251,58 @@ function editLibraryModal(library){
 // region API Functions
 
 async function saveSettings() {
-    console.log("Data for new settings", libraries)
+    let staticPortEl = document.getElementById("static-port");
+    let settingsKeywordEl = document.getElementById("settings-keyword");
+    let payload = {
+        port: Number(staticPortEl.value),
+        keyword: settingsKeywordEl.value,
+        libraries: libraries
+    }
+    console.log("Data for new settings", payload)
 
-    let resp = await fetch("/api/save_settings", {
+    let resp = await fetch("/api/settings", {
         method: "PUT",
-        body: JSON.stringify(libraries)
+        body: JSON.stringify(payload)
     }).then(response => response.json())
-    console.log("Saved settings response", resp);
-    alert("Settings successfully saved")
-}
-async function setSettingsKeyword() {
-    let el = document.getElementById("settings-keyword");
-    let data = {
-    keyword: el.value
+    console.log("Got settings response", resp)
+    if (resp.success){
+        console.log("Saved settings response", resp);
+        alert("Settings successfully saved")
+    } else {
+        alert(`An error occured: ${resp.message}`)
     }
-    let resp = await fetch("/api/set_main_kw", {
-        method: "PUT",
-        body: JSON.stringify(data)
-    }).then(response => response.json())
-    
-    console.log("Settings Keyword Saved", resp);
-    alert("Settings Keyword Successfully Updated")
 }
-async function saveStaticPort() {
-    let el = document.getElementById("static-port");
-    let data = {
-    port: Number(el.value)
+async function getLibraryFromUrl(name, url) {
+    let payload = {
+        url: url,
+        name: name
     }
-    let resp = await fetch("/api/set_static_port", {
-        method: "PUT",
-        body: JSON.stringify(data)
+    console.log("Data for getting library", payload);
+
+    let resp = await fetch("/api/get_library", {
+        method: "POST",
+        body: JSON.stringify(payload)
     }).then(response => response.json())
-    
-    console.log("Static Port Saved", resp);
-    alert("Static Port Updated. Restart flow for it to take affect.");
+    console.log("Got get library response", resp)
+    if (resp.success){
+        return resp.data;
+    } else {
+        console.log(resp.message);
+        alert(resp.message);
+    }
 }
-async function importSettings(data) {
+async function importSettings(code) {
+    payload = {
+        data: code
+    }
     let resp = await fetch("/api/import_settings", {
         method: "POST",
-        body: data
+        body: JSON.stringify(payload)
     }).then(response => response.json())
+    console.log("Got import settings response", resp)
     if (resp['success'] === true){
         console.log("Settings Imported", resp);
-        alert("Settings have been imported.");
+        alert("Settings have been imported. Restart flow for them to fully take affect.");
     } else {
         console.log("Data was malformed and settings were not imported successfully.", resp);
         alert("Data was malformed and settings were not imported successfully. Restart flow launcher for port setting to take affect.");
@@ -344,7 +313,8 @@ async function exportSettings() {
     let resp = await fetch("/api/export_settings", {
         method: "GET"
     }).then(response => response.json())
+    console.log("Got export settings response", resp)
     navigator.clipboard.writeText(resp['data'])
     console.log("Settings exported", resp);
-    alert("Settings have been successfully expored. You can use the text that has been copied to your clipboard to import them on another device.");
+    alert("Settings have been successfully exported. You can use the text that has been copied to your clipboard to import them on another device.");
 }

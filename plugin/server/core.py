@@ -1,29 +1,24 @@
 from __future__ import annotations
 
 import asyncio
-import base64
 import logging
 import os
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import aiohttp_jinja2
 import jinja2
-import msgspec
 from aiohttp import web
 
 from ..libraries import doc_types, preset_docs
-from ..library import PartialLibrary
+from .api import build_api
+from .payloads.base import encoder as payload_encoder
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable
-
     from ..plugin import RtfmPlugin
 
 log = logging.getLogger("webserver")
 
 DATA_JS_TEMPLATE = """
-const presetOptions = {presets};
-const docTypes = {doctypes};
 const libraries = {libraries}
 """
 
@@ -34,89 +29,11 @@ no_cache_headers = {
 }
 
 
-class ImportExportSettings(msgspec.Struct):
-    port: int
-    keyword: str
-    libraries: list[PartialLibrary]
-
-
-settings_decoder = msgspec.json.Decoder(type=list[PartialLibrary])
-settings_encoder = msgspec.json.Encoder()
-
-
 def build_app(
-    write_settings: Callable[[list[PartialLibrary]], Awaitable[None]],
     plugin: RtfmPlugin,
 ) -> web.Application:
     routes = web.RouteTableDef()
-
-    @routes.put("/api/save_settings")
-    async def save_settings(request: web.Request):
-        try:
-            data = settings_decoder.decode(await request.content.read())
-        except msgspec.DecodeError:
-            return web.json_response({"success": False})
-
-        await write_settings(data)
-        asyncio.create_task(plugin.build_rtfm_lookup_tables())
-        return web.json_response({"success": True})
-
-    @routes.put("/api/set_main_kw")
-    async def set_main_kw(request: web.Request):
-        content = await request.json()
-        log.info(f"Writiting new settings kw: {content}")
-        kw = content.get("keyword")
-        if kw:
-            plugin.main_kw = kw
-            asyncio.create_task(plugin.ensure_keywords())
-            return web.json_response({"success": True})
-        return web.json_response({"success": False})
-
-    @routes.put("/api/set_static_port")
-    async def set_static_port(request: web.Request):
-        content = await request.json()
-        log.info(f"Writiting new static port: {content}")
-        port = content.get("port")
-        if port:
-            plugin.static_port = port
-            return web.json_response({"success": True})
-        return web.json_response({"success": False})
-
-    @routes.get("/api/export_settings")
-    async def export_settings(request: web.Request):
-        obj = ImportExportSettings(
-            plugin.static_port,
-            plugin.main_kw,
-            [
-                PartialLibrary(
-                    lib.name,
-                    lib.classname,
-                    None if lib.is_preset else str(lib.loc),
-                    lib.use_cache,
-                    lib.is_api,
-                )
-                for lib in plugin.libraries.values()
-            ],
-        )
-        return web.json_response(
-            {
-                "success": True,
-                "data": base64.b64encode(msgspec.json.encode(obj)).decode(),
-            }
-        )
-
-    @routes.post("/api/import_settings")
-    async def import_settings(request: web.Request):
-        raw = await request.content.read()
-        try:
-            data = msgspec.json.decode(base64.b64decode(raw), type=ImportExportSettings)
-        except msgspec.DecodeError:
-            return web.json_response({"success": False})
-
-        await write_settings(data.libraries)
-        plugin.main_kw = data.keyword
-        plugin.static_port = data.port
-        return web.json_response({"success": True})
+    build_api(routes, plugin)
 
     @routes.get("/")
     @aiohttp_jinja2.template("template.html")
@@ -145,15 +62,13 @@ def build_app(
 
     @routes.get("/data.js")
     async def get_data(request: web.Request):
-        presets = [pre.classname for pre in preset_docs]
-        doctypes = ["auto"] + [typ.classname for typ in doc_types]
-        libs = settings_encoder.encode(
+        libs = payload_encoder.encode(
             [lib.to_partial() for lib in plugin.libraries.values()]
         ).decode()
 
         return web.Response(
             body=DATA_JS_TEMPLATE.format(
-                presets=presets, doctypes=doctypes, libraries=libs
+                libraries=libs
             ),
             headers=no_cache_headers,
         )
@@ -201,12 +116,11 @@ async def start_runner(app: web.Application, host: str, port: int):
 
 
 async def run_app(
-    write_settings: Callable[[list[PartialLibrary]], Awaitable[None]],
     plugin: RtfmPlugin,
     *,
     run_forever: bool = True,
 ) -> None:
-    app = build_app(write_settings, plugin)
+    app = build_app(plugin)
     port = await start_runner(app, "localhost", plugin.static_port)
 
     if plugin.static_port != 0 and port != plugin.static_port:

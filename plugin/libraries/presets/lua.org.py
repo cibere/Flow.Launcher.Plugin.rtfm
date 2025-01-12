@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import asyncio
 from functools import partial
-from typing import TYPE_CHECKING, Callable, ClassVar
+from typing import TYPE_CHECKING, Callable
 
 import bs4
-from yarl import URL
 
-from ..library import Library
+from plugin.libraries.preset import PresetLibrary
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
@@ -42,28 +41,18 @@ class LuaManualParser:
         return self.cache
 
 
-class LuaManual(Library):
-    classname: ClassVar[str]
-    lua_version: ClassVar[str]
-    is_preset: ClassVar[bool] = True
-    favicon_url: ClassVar[str] | None = "https://www.lua.org"
-
-    def __init__(self, name: str, *, use_cache: bool) -> None:
-        super().__init__(
-            name,
-            URL(f"https://www.lua.org/manual/{self.lua_version}"),
-            use_cache=use_cache,
+class LuaManual(PresetLibrary):
+    def __init_subclass__(cls, version: int | float) -> None:
+        return super().__init_subclass__(
+            base_url=f"https://www.lua.org/manual/{version}",
+            favicon_url="https://www.lua.org",
         )
 
     async def fetch_icon(self) -> str | None:
         return await super().fetch_icon()
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
-        url = self.url
-        if url is None:
-            raise ValueError("Local lua manuals are not supported")
-
-        async with session.get(url) as res:
+        async with session.get(self.url) as res:
             raw_content: bytes = await res.content.read()
 
         parser = LuaManualParser(
@@ -73,6 +62,7 @@ class LuaManual(Library):
         self.cache = await asyncio.to_thread(parser.parse)
 
 
-class Lua54(LuaManual):
-    classname: ClassVar[str] = "Lua 5.4 Reference Manual"
-    lua_version: ClassVar[str] = "5.4"
+class Lua54(LuaManual, version=5.4): ...
+
+
+preset = Lua54

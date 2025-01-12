@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from flogin import ExecuteResponse, Result
 
 if TYPE_CHECKING:
-    from .library import Library
+    from .libraries.library import Library
     from .plugin import RtfmPlugin  # noqa: F401
 
 log = logging.getLogger(__name__)

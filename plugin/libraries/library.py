@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Self
+from typing import TYPE_CHECKING, Callable, ClassVar, Self
 
 import msgspec
 from yarl import URL
 
-from .icons import get_icon as _get_icon
+from ..icons import get_icon as _get_icon
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
@@ -18,7 +18,7 @@ BuilderType = Callable[[str, int], str]
 class PartialLibrary(msgspec.Struct):
     name: str
     type: str
-    loc: str | None
+    loc: str
     use_cache: bool
     is_api: bool = False
 
@@ -44,10 +44,11 @@ decoder = msgspec.json.Decoder(type=PartialLibrary)
 
 
 class Library:
-    classname: ClassVar[str]
+    typename: ClassVar[str]
     is_preset: ClassVar[bool]
     favicon_url: ClassVar[str] | None = None
     is_api: ClassVar[bool] = False
+    supports_local: ClassVar[bool] = False
 
     def __init__(self, name: str, loc: URL | Path, *, use_cache: bool) -> None:
         self.name = name
@@ -65,7 +66,7 @@ class Library:
         return self.loc if isinstance(self.loc, Path) else None
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {self.name=} {self.url=} {self.icon=} {self.use_cache=}>"
+        return f"<{self.__class__.__name__} {self.name=} {self.url=} {self.icon=} {self.use_cache=} {self.typename=} {self.is_api=} {self.is_preset=}>"
 
     async def fetch_icon(self) -> str | None:
         if self.favicon_url is None:
@@ -98,33 +99,19 @@ class Library:
         )
 
     @classmethod
-    def from_dict(cls: type[Self], data: dict[str, Any]) -> Self:
-        kwargs = {"name": data["name"], "use_cache": data["use_cache"]}
-
-        if data.get("loc") is not None:
-            loc: str = data["loc"]
-
-            if loc.startswith(("http://", "https://")):
-                kwargs["loc"] = URL(loc)
-            elif loc.startswith("file:///"):
-                kwargs["loc"] = Path(URL(loc).path.strip("/"))
-            else:
-                kwargs["loc"] = Path(loc)
-
-        return cls(**kwargs)
-
-    @classmethod
     def from_partial(cls: type[Self], data: PartialLibrary) -> Self:
         kwargs = {"name": data.name, "use_cache": data.use_cache}
 
-        if data.loc is not None:
+        if data.type != "Preset":
             loc: str = data.loc
 
             if loc.startswith(("http://", "https://")):
                 kwargs["loc"] = URL(loc)
-            elif loc.startswith("file:///"):
-                kwargs["loc"] = Path(URL(loc).path.strip("/"))
             else:
+                if not cls.supports_local:
+                    raise RuntimeError(
+                        f"{cls.__name__} does not support local docs. {loc!r} seems to be a local path."
+                    )
                 kwargs["loc"] = Path(loc)
 
         return cls(**kwargs)
@@ -132,8 +119,8 @@ class Library:
     def to_partial(self) -> PartialLibrary:
         return PartialLibrary(
             self.name,
-            type=self.classname,
-            loc=None if self.is_preset else str(self.loc),
+            type=self.typename,
+            loc=str(self.loc),
             use_cache=self.use_cache,
             is_api=self.is_api,
         )

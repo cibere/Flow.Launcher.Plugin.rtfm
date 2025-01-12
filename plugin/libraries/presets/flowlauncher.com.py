@@ -1,27 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
-from yarl import URL
-
-from ..library import Library
+from plugin.libraries.preset import PresetLibrary
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
 
 
-class FlowLauncherDocs(Library):
-    inventory_url: ClassVar[str] = "https://www.flowlauncher.com/docs/_sidebar.md"
-    classname: ClassVar[str] = "flowlauncher.com"
-    is_preset: ClassVar[bool] = True
-
-    def __init__(self, name: str, *, use_cache: bool) -> None:
-        super().__init__(
-            name, URL("https://www.flowlauncher.com/docs/"), use_cache=use_cache
-        )
-
+class FlowLauncherDocs(PresetLibrary, base_url="https://www.flowlauncher.com/docs"):
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
-        async with session.get(self.inventory_url) as res:
+        async with session.get("https://www.flowlauncher.com/docs/_sidebar.md") as res:
             raw_content: bytes = await res.content.read()
 
         lines = raw_content.decode().splitlines()
@@ -42,3 +31,6 @@ class FlowLauncherDocs(Library):
                 cache[title] = self._build_url(loc, webserver_port)
 
         self.cache = cache
+
+
+preset = FlowLauncherDocs

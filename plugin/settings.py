@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import msgspec
 
-from .library import PartialLibrary  # noqa: TC001
+from .libraries.library import PartialLibrary  # noqa: TC001
 
 
 class RtfmBetterSettings(msgspec.Struct):

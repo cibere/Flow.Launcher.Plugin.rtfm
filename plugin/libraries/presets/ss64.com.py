@@ -5,9 +5,8 @@ from functools import partial
 from typing import TYPE_CHECKING, Callable, ClassVar
 
 import bs4
-from yarl import URL
 
-from ..library import Library
+from plugin.libraries.preset import PresetLibrary
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
@@ -63,28 +62,20 @@ class SS64Parser:
         return self.cache
 
 
-class SS64Base(Library):
-    classname: ClassVar[str]
+class SS64Base(PresetLibrary):
     ss64_version: ClassVar[str]
-    is_preset: ClassVar[bool] = True
-    favicon_url: ClassVar[str] | None = "https://ss64.com"
 
-    def __init__(self, name: str, *, use_cache: bool) -> None:
-        super().__init__(
-            name,
-            URL(f"https://ss64.com/{self.ss64_version}"),
-            use_cache=use_cache,
+    def __init_subclass__(cls, version: str) -> None:
+        cls.ss64_version = version
+        return super().__init_subclass__(
+            base_url=f"https://ss64.com/{version}", favicon_url="https://ss64.com"
         )
 
     async def fetch_icon(self) -> str | None:
         return await super().fetch_icon()
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
-        url = self.url
-        if url is None:
-            raise ValueError("Local ss64 manuals are not supported")
-
-        async with session.get(url) as res:
+        async with session.get(self.url) as res:
             raw_content: bytes = await res.content.read()
 
         parser = SS64Parser(
@@ -96,21 +87,16 @@ class SS64Base(Library):
         self.cache = await asyncio.to_thread(parser.parse)
 
 
-class SS64Mac(SS64Base):
-    classname: ClassVar[str] = "SS64 Mac"
-    ss64_version: ClassVar[str] = "mac"
+class SS64Mac(SS64Base, version="mac"): ...
 
 
-class SS64Bash(SS64Base):
-    classname: ClassVar[str] = "SS64 Linux"
-    ss64_version: ClassVar[str] = "bash"
+class SS64Bash(SS64Base, version="bash"): ...
 
 
-class SS64NT(SS64Base):
-    classname: ClassVar[str] = "SS64 CMD"
-    ss64_version: ClassVar[str] = "nt"
+class SS64NT(SS64Base, version="nt"): ...
 
 
-class SS64PS(SS64Base):
-    classname: ClassVar[str] = "SS64 PowerShell"
-    ss64_version: ClassVar[str] = "ps"
+class SS64PS(SS64Base, version="ps"): ...
+
+
+presets = (SS64Bash, SS64Mac, SS64PS, SS64NT)

@@ -1,36 +1,20 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 import bs4
 import msgspec
 from yarl import URL
 
-from ..library import Library
+from plugin.libraries.preset import PresetLibrary
+from plugin.libraries.presets._structs.qmk import QmkLocalSearchData
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
 
 
-class QmkLocalSearchField(msgspec.Struct):
-    title: str
-    titles: list[str]
-
-
-class QmkLocalSearchData(msgspec.Struct):
-    documentIds: dict[str, str]
-    storedFields: dict[str, QmkLocalSearchField]
-
-
-class QmkDocs(Library):
-    classname: ClassVar[str] = "docs.qmk.fm"
-    is_preset: ClassVar[bool] = True
-    favicon_url: ClassVar[str] | None = "https://docs.qmk.fm"
-
-    def __init__(self, name: str, *, use_cache: bool) -> None:
-        super().__init__(name, URL("https://docs.qmk.fm/"), use_cache=use_cache)
-
+class QmkDocs(PresetLibrary, base_url="https://docs.qmk.fm"):
     def qmk_get_theme(self, text: bytes) -> list[str]:
         soup = bs4.BeautifulSoup(text.decode(), "html.parser")
         return [tag.attrs["href"] for tag in soup.find_all("link", rel="modulepreload")]
@@ -93,9 +77,7 @@ class QmkDocs(Library):
         return cache
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
-        assert isinstance(self.loc, URL)
-
-        async with session.get(self.loc) as res:
+        async with session.get(self.url) as res:
             raw_content: bytes = await res.content.read()
         tags = await asyncio.to_thread(self.qmk_get_theme, raw_content)
 
@@ -110,3 +92,6 @@ class QmkDocs(Library):
                 session, index_name.strip("/"), webserver_port
             )
             return
+
+
+preset = QmkDocs

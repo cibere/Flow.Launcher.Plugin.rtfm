@@ -4,9 +4,8 @@ from typing import TYPE_CHECKING, ClassVar
 
 import msgspec
 from aiohttp import ClientSession
-from yarl import URL
 
-from ..library import Library
+from .preset import PresetLibrary
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
@@ -63,18 +62,22 @@ class AlgoliaConfig(msgspec.Struct):
     kwargs: dict[str, Jsonable] = {}
 
 
-class AlgoliaBase(Library):
+class AlgoliaBase(PresetLibrary):
     is_preset: ClassVar[bool] = True
     is_api: ClassVar[bool] = True
     algolia_config: ClassVar[AlgoliaConfig]
-    base_url: ClassVar[str]
 
     def __init__(self, name: str, *, use_cache: bool) -> None:
-        super().__init__(
-            name,
-            URL(self.base_url),
-            use_cache=False,
-        )
+        super().__init__(name, use_cache=False)
+
+    def __init_subclass__(
+        cls,
+        config: AlgoliaConfig,
+        base_url: str | None = None,
+        favicon_url: str | None = None,
+    ) -> None:
+        cls.algolia_config = config
+        return super().__init_subclass__(base_url, favicon_url)
 
     async def make_request(self, session: ClientSession, query: str) -> None:
         payload = {
