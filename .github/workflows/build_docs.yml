@@ -59,15 +59,19 @@ jobs:
       - name: Switch Branch
         run: |
           git fetch
-          git checkout -f gh-pages
+          git switch gh-pages
       
       - name: Show Tree
         run: |
           find . | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-\1/" 
       
       - name: Delete Previous Version
+        continue-on-error: true
         run: |
-          rm -r ${{ steps.version.outputs.prop }}
+          rm -r ${{ steps.version.outputs.prop }} ||
+      
+      - name: Pop Stash
+        run: |
           git stash pop 0
       
       - name: Update Index Page
@@ -82,4 +86,4 @@ jobs:
         run: |
           git add .
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update docs" --author="cibere <71997063+cibere@users.noreply.github.com>"
-          git push
+          git push -f origin gh-pages
