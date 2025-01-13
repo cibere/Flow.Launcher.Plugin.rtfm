@@ -35,7 +35,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ./requirements.txt
           pip install -r ./docs/requirements.txt
-          pip install -r ./.github/ci/requirements.txt
 
       - name: Build Docs
         id: build-docs
@@ -50,12 +49,6 @@ jobs:
           cd .github
           cd ci
           python move_doc_builds.py
-        
-      - name: Update Index
-        run: |
-          cd .github
-          cd ci
-          python index_updater.py
 
       - name: Commit Changes
         if: ${{ always() && steps.move-doc-build.outcome == 'success' }}
