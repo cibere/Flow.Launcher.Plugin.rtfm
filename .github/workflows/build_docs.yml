@@ -48,9 +48,6 @@ jobs:
           cd ci
           python move_doc_builds.py
 
-      - name: Show Git Status
-        run: git status
-
       - name: Stash Changes
         run: |
           git add .
@@ -66,30 +63,29 @@ jobs:
         run: |
           rm -r -v -f ${{ steps.version.outputs.prop }}
 
-      - name: Commit Changes
+      - name: Commit Previous Version
         run: |
           git add .
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Remove old doc version" --author="cibere <71997063+cibere@users.noreply.github.com>"  
+          git commit -m "Remove previous doc version"
 
       - name: Pop Stash
         run: |
           git stash pop 0
 
-      - name: Commit Changes
+      - name: Commit New Changes
         run: |
           git add .
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update docs" --author="cibere <71997063+cibere@users.noreply.github.com>"
+          git commit -m "Apply Doc Changes"
 
       - name: Update Index Page
         run: |
           cd .scripts
           python index_updater.py
 
-      - name: Commit Changes
-        continue-on-error: true
+      - name: Commit Index Paeg
         run: |
           git add .
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update index page" --author="cibere <71997063+cibere@users.noreply.github.com>" --allow-empty
+          git commit -m "Update Index Page" --allow-empty
 
       - name: Push Changes
         run: |
