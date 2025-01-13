@@ -37,11 +37,13 @@ jobs:
           pip install -r ./docs/requirements.txt
       
       - name: Build Docs
+        id: build-docs
         run: |
             cd docs
             sphinx-build -b html -j auto -a -n -T -W --keep-going . en/${{steps.version.outputs.prop}}
 
       - name: Commit Changes
+        if: ${{ steps.build-docs.outcome == 'success' }}
         uses: actions/checkout@v4
         with:
             ref: "gh-pages"
