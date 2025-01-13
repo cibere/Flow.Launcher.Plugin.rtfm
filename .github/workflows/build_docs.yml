@@ -50,11 +50,12 @@ jobs:
           cd .github
           cd ci
           python move_doc_builds.py
+          cd ..
+          cd ..
 
       - name: Commit Changes
         if: ${{ always() && steps.move-doc-build.outcome == 'success' }}
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-            branch: "gh-pages"
-            push_options: '--force'
-            skip_dirty_check: true
+        run: |
+          git checkout -f gh-pages
+          git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update docs" --author="cibere <71997063+cibere@users.noreply.github.com>"
