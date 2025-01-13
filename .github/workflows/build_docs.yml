@@ -37,14 +37,12 @@ jobs:
           pip install -r ./docs/requirements.txt
 
       - name: Build Docs
-        id: build-docs
         run: |
             cd docs
             sphinx-build -b html -j auto -a -n -T -W --keep-going . _build/${{steps.version.outputs.prop}}
       
       - name: Move Build
         id: move-doc-build
-        if: ${{ always() && steps.build-docs.outcome == 'success' }}
         run: |
           cd .github
           cd ci
