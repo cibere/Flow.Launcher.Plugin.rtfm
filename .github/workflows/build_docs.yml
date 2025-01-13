@@ -93,4 +93,4 @@ jobs:
 
       - name: Push Changes
         run: |
-          git push -f origin gh-pages
+          git push --squash -f origin gh-pages
