@@ -45,7 +45,9 @@ jobs:
       
       - name: Move Build
         run: |
-          python .github\ci\move_doc_builds.py
+          cd .github
+          cd ci
+          python move_doc_builds.py
 
       - name: Commit Changes
         if: ${{ steps.build-docs.outcome == 'success' }}
