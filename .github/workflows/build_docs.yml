@@ -40,7 +40,7 @@ jobs:
         run: |
             cd docs
             sphinx-build -b html -j auto -a -n -T -W --keep-going . _build/${{steps.version.outputs.prop}}
-      
+
       - name: Move Build
         id: move-doc-build
         run: |
@@ -52,12 +52,12 @@ jobs:
         run: |
           git add .
           git stash
-      
+
       - name: Switch Branch
         run: |
           git fetch
           git switch gh-pages
-      
+
       - name: Delete Previous Version
         continue-on-error: true
         run: |
