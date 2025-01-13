@@ -47,6 +47,7 @@ jobs:
           cd .github
           cd ci
           python move_doc_builds.py
+          git stash
       
       - name: Switch Branch
         run: |
@@ -55,7 +56,6 @@ jobs:
       
       - name: Delete Previous Version
         run: |
-          git stash
           rm -r ${{ steps.version.outputs.prop }}
           git stash pop 0
       
