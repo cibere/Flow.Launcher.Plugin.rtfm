@@ -61,6 +61,10 @@ jobs:
           git fetch
           git checkout -f gh-pages
       
+      - name: Show Tree
+        run: |
+          find . | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-\1/" 
+      
       - name: Delete Previous Version
         run: |
           rm -r ${{ steps.version.outputs.prop }}
