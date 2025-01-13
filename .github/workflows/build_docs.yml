@@ -58,4 +58,3 @@ jobs:
             branch: "gh-pages"
             push_options: '--force'
             skip_dirty_check: true
-            skip_checkout: true
