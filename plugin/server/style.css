@@ -253,7 +253,8 @@ input[type="number"]:disabled {
     color: var(--disabled-text-color);
 }
 
-button {
+button,
+.button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -266,9 +267,11 @@ button {
     font-size: 16px;
     padding: 8px;
     color: var(--text-color);
+    text-decoration: none;
 }
 
-button:hover {
+button:hover,
+.button:hover {
     background-color: var(--button-background-color-hover);
 }
 

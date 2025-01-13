@@ -41,6 +41,7 @@ def build_app(
             "libs": plugin.libraries.values(),
             "main_kw": plugin.main_kw,
             "port": plugin.static_port,
+            "rtfm_version": plugin.metadata.version,
         }
         log.info(f"Sending data: {data}")
         return data

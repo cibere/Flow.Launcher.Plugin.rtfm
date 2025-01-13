@@ -13,7 +13,11 @@
 </template>
 <main>
     {% call card("Rtfm Plugin") %}
-        <p>bla bla bla</p>
+        <p>The rtfm plugin allows you to easily and quickly query manuals and docs.</p>
+        {% call actions() %}
+            <a class="button" target="_blank" href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm">Open Github Page</a>
+            <a class="button" target="_blank" href="https://rtfm.cibere.dev/{{ rtfm_version }}">Open Documentation</a>
+        {% endcall %}
     {% endcall %}
 
     <form id="main-form" action="/api/settings" method="POST">
