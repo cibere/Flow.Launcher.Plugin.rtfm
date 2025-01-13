@@ -3,6 +3,7 @@ exclude = [
     "venv",
     "test.py",
     "plugin/fuzzy.py",
+    "docs",
 ]
 
 [tool.ruff.lint]
