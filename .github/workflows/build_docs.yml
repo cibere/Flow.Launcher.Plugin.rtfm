@@ -66,7 +66,7 @@ jobs:
       - name: Commit Previous Version
         run: |
           git add .
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit --author="cibere <71997063+cibere@users.noreply.github.com>" -m "Remove previous doc version"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit --author="cibere <71997063+cibere@users.noreply.github.com>" -m "Remove previous doc version" --allow-empty
 
       - name: Pop Stash
         run: |
@@ -75,7 +75,7 @@ jobs:
       - name: Commit New Changes
         run: |
           git add .
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit --author="cibere <71997063+cibere@users.noreply.github.com>" -m "Apply Doc Changes"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit --author="cibere <71997063+cibere@users.noreply.github.com>" -m "Apply Doc Changes" --allow-empty
 
       - name: Update Index Page
         run: |
