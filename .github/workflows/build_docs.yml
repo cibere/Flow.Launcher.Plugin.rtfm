@@ -47,6 +47,7 @@ jobs:
           cd .github
           cd ci
           python move_doc_builds.py
+          git add ${{ steps.version.outputs.prop }}
           git stash
       
       - name: Switch Branch
