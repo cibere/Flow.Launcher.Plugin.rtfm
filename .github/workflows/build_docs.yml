@@ -53,6 +53,10 @@ jobs:
           git fetch
           git checkout -f gh-pages
       
+      - name: Delete Previous Version
+        run: |
+          rm -r ${{ steps.version.outputs.prop }}
+      
       - name: Update Index Page
         run: |
           cd .scripts
