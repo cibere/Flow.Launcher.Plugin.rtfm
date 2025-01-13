@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>rtfm docs</title>
+    </head>
+    <body>
+        <h3>Documentation Versions</h3>
+        <ul>
+            {% for version in versions %}
+                <li>
+                    <a href="/{{ version }}">{{ version }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>
