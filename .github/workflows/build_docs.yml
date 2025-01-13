@@ -57,8 +57,7 @@ jobs:
       
       - name: Update Index Page
         run: |
-          cd .github
-          cd ci
+          cd .scripts
           python index_updater.py
 
       - name: Commit Changes
