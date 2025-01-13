@@ -19,6 +19,7 @@ def main():
         for folder in root_dir.glob("*")
         if folder.is_dir and VERSION_RE.fullmatch(folder.name)
     ]
+    print(f"Versions: {', '.join(versions)}")
 
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(ci_dir))
     template = env.get_template("index_template.html")
