@@ -89,8 +89,10 @@ jobs:
         continue-on-error: true
         run: |
           git add .
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update index page" --author="cibere <71997063+cibere@users.noreply.github.com>"
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update index page" --author="cibere <71997063+cibere@users.noreply.github.com>" --allow-empty
 
       - name: Push Changes
         run: |
-          git push --squash -f origin gh-pages
+          git reset --soft HEAD~3
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update docs" --author="cibere <71997063+cibere@users.noreply.github.com>"
+          git push -f origin gh-pages
