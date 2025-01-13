@@ -110,5 +110,4 @@ def setup(app: Sphinx):
     app.add_node(SeperatorNode, html=(visit_seperator_node, depart_seperator_node))
     app.add_node(ListPresetsPlaceholder)
     app.connect("doctree-resolved", process_list_presets)
-    return {}
-    return {"parallel_read_safe": True}
+    return {"parallel_read_safe": False}
