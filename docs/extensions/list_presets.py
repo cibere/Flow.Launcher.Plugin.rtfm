@@ -71,7 +71,6 @@ def depart_seperator_node(self, node: SeperatorNode) -> None:
 
 def process_list_presets(app: Sphinx, doctree: nodes.Node, fromdocname: str) -> None:
     root_dir = Path(__file__) / ".." / ".." / ".."
-    sys.path.append(str(root_dir))
     presets_loader_path = root_dir / "plugin" / "libraries" / "presets" / "_loader.py"
 
     spec = importlib.util.spec_from_file_location(
