@@ -24,9 +24,13 @@ def main():
 
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(ci_dir))
     template = env.get_template("index_template.html")
+    code = template.render(versions=versions)
 
     with index_fp.open("w", encoding="UTF-8") as f:
-        f.write(template.render(versions=versions))
+        f.write(code)
+
+    print(f"Wrote to {index_fp!r}")
+    print(code)
 
 
 if __name__ == "__main__":
