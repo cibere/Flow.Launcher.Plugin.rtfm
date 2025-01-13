@@ -41,6 +41,11 @@ jobs:
         run: |
             cd docs
             sphinx-build -b html -j auto -a -n -T -W --keep-going . build/${{steps.version.outputs.prop}}
+            cd ..
+      
+      - name: Move Build
+        run: |
+          python .github\ci\move_doc_builds.py
 
       - name: Commit Changes
         if: ${{ steps.build-docs.outcome == 'success' }}
