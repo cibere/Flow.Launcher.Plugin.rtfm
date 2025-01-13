@@ -40,7 +40,7 @@ jobs:
         id: build-docs
         run: |
             cd docs
-            sphinx-build -b html -j auto -a -n -T -W --keep-going . build/${{steps.version.outputs.prop}}
+            sphinx-build -b html -j auto -a -n -T -W --keep-going . _build/${{steps.version.outputs.prop}}
             cd ..
       
       - name: Move Build
