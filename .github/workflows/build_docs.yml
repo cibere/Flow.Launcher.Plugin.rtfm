@@ -61,43 +61,35 @@ jobs:
           git fetch
           git switch gh-pages
       
-      - name: Show Tree
-        run: |
-          find . | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-\1/" 
-      
       - name: Delete Previous Version
         continue-on-error: true
         run: |
           rm -r -v -f ${{ steps.version.outputs.prop }}
-
-      - name: Show Tree
-        run: |
-          find . | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-\1/" 
 
       - name: Commit Changes
         run: |
           git add .
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Remove old doc version" --author="cibere <71997063+cibere@users.noreply.github.com>"  
 
-      - name: Show Git Status
-        run: git status
-
       - name: Pop Stash
         run: |
           git stash pop 0
-      
-      - name: Update Index Page
-        run: |
-          cd .scripts
-          python index_updater.py
-
-      - name: Show Git Status
-        run: git status
 
       - name: Commit Changes
         run: |
           git add .
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update docs" --author="cibere <71997063+cibere@users.noreply.github.com>"
+
+      - name: Update Index Page
+        run: |
+          cd .scripts
+          python index_updater.py
+
+      - name: Commit Changes
+        continue-on-error: true
+        run: |
+          git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update index page" --author="cibere <71997063+cibere@users.noreply.github.com>"
 
       - name: Push Changes
         run: |
