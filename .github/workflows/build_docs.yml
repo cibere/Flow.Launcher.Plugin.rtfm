@@ -47,7 +47,13 @@ jobs:
           cd .github
           cd ci
           python move_doc_builds.py
-          git add ${{ steps.version.outputs.prop }}
+
+      - name: Show Git Status
+        run: git status
+
+      - name: Stash Changes
+        run: |
+          git add .
           git stash
       
       - name: Switch Branch
