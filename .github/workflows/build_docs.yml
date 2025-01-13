@@ -40,10 +40,11 @@ jobs:
         id: build-docs
         run: |
             cd docs
-            sphinx-build -b html -j auto -a -n -T -W --keep-going . en/${{steps.version.outputs.prop}}
+            sphinx-build -b html -j auto -a -n -T -W --keep-going . build/${{steps.version.outputs.prop}}
 
       - name: Commit Changes
         if: ${{ steps.build-docs.outcome == 'success' }}
-        uses: actions/checkout@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-            ref: "gh-pages"
+            branch: "gh-pages"
+            file_pattern: "docs/build"
