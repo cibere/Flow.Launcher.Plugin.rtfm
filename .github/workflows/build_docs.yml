@@ -52,7 +52,7 @@ jobs:
           python move_doc_builds.py
 
       - name: Commit Changes
-        if: ${{ steps.move-doc-build.outcome == 'success' }}
+        if: ${{ steps.move-doc-build.outputs != 'Starting' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
             branch: "gh-pages"

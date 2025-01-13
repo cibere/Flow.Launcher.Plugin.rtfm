@@ -3,6 +3,7 @@ from pathlib import Path
 
 
 def main():
+    print("Starting")
     ci_dir = Path(__file__)
     root_dir = Path(*ci_dir.parts[0:-3])
     builds_dir = root_dir / "docs" / "_build"
