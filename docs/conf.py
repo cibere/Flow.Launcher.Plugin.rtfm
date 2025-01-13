@@ -6,8 +6,8 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import os
 import json
+import os
 import sys
 from datetime import date
 
@@ -39,7 +39,10 @@ copyright = f"{current_year}, {author}"
 sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
 sys.path.append(os.path.abspath("extensions"))
 
-extensions = ["list_presets", "sphinx_copybutton",]
+extensions = [
+    "list_presets",
+    "sphinx_copybutton",
+]
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build"]
