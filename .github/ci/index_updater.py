@@ -1,6 +1,7 @@
-from pathlib import Path
 import os
 import re
+from pathlib import Path
+
 import jinja2
 
 VERSION_RE = re.compile(
