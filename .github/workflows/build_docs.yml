@@ -74,6 +74,14 @@ jobs:
         run: |
           find . | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-\1/" 
 
+      - name: Commit Changes
+        run: |
+          git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Remove old doc version" --author="cibere <71997063+cibere@users.noreply.github.com>"  
+
+      - name: Show Git Status
+        run: git status
+
       - name: Pop Stash
         run: |
           git stash pop 0
@@ -90,4 +98,7 @@ jobs:
         run: |
           git add .
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update docs" --author="cibere <71997063+cibere@users.noreply.github.com>"
+
+      - name: Push Changes
+        run: |
           git push -f origin gh-pages
