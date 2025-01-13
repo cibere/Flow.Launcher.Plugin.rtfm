@@ -44,13 +44,15 @@ jobs:
             cd ..
       
       - name: Move Build
+        id: move-doc-build
+        if: ${{ always() && steps.build-docs.outcome == 'success' }}
         run: |
           cd .github
           cd ci
           python move_doc_builds.py
 
       - name: Commit Changes
-        if: ${{ steps.build-docs.outcome == 'success' }}
+        if: ${{ steps.move-doc-build.outcome == 'success' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
             branch: "gh-pages"
