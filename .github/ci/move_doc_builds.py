@@ -16,6 +16,10 @@ def move_item(path: Path):
         relative_fp = Path(str(path).removeprefix(str(builds_dir)))
 
         dest_fp = Path(*root_dir.parts + relative_fp.parts[1:]).resolve()
+
+        for parent in dest_fp.parents:
+            parent.mkdir(exist_ok=True)
+
         print(f"Moving {relative_fp} to {dest_fp}")
         os.rename(path, dest_fp)
 
