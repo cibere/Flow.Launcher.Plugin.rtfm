@@ -57,7 +57,7 @@ jobs:
         run: |
           git stash
           rm -r ${{ steps.version.outputs.prop }}
-          git pop 0
+          git stash pop 0
       
       - name: Update Index Page
         run: |
