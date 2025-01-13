@@ -20,7 +20,7 @@ def main():
         if folder.is_dir and VERSION_RE.fullmatch(folder.name)
     ]
 
-    env = jinja2.Environment(loader=jinja2.PackageLoader("update_index", ""))
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(ci_dir))
     template = env.get_template("index_template.html")
 
     with index_fp.open("w", encoding="UTF-8") as f:
