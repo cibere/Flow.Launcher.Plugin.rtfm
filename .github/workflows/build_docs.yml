@@ -49,12 +49,20 @@ jobs:
           cd .github
           cd ci
           python move_doc_builds.py
-
-      - name: Commit Changes
-        if: ${{ always() && steps.move-doc-build.outcome == 'success' }}
+      
+      - name: Switch Branch
         run: |
           git fetch
           git checkout -f gh-pages
+      
+      - name: Update Index Page
+        run: |
+          cd .github
+          cd ci
+          python index_updater.py
+
+      - name: Commit Changes
+        run: |
           git add .
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update docs" --author="cibere <71997063+cibere@users.noreply.github.com>" --allow-empty
           git push
