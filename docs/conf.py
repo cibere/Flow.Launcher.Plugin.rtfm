@@ -55,4 +55,4 @@ html_theme = "furo"
 html_static_path = ["_static"]
 # html_css_files = ["style.css"]
 # html_js_files = ["custom.js"]
-# html_favicon = "./images/flow_logo.ico"
+html_favicon = "./_static/images/favicon.ico"
