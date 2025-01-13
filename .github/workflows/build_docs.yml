@@ -60,9 +60,11 @@ jobs:
           cd .scripts
           python index_updater.py
 
+      - name: Show Git Status
+        run: git status
+
       - name: Commit Changes
         run: |
-          git status
           git add .
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update docs" --author="cibere <71997063+cibere@users.noreply.github.com>" || exit 0
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Auto update docs" --author="cibere <71997063+cibere@users.noreply.github.com>"
           git push
