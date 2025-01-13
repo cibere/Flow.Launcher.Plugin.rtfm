@@ -1,5 +1,5 @@
-rtfm plugin documentation
-==========================
+rtfm plugin
+===========
 The rtfm plugin for `flow launcher <https://www.flowlauncher.com/>`__ makes it easy to query docs or manuals.
 
 .. toctree::
