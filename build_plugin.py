@@ -18,7 +18,7 @@ def main(archive_name: str):
     for ext in ("py", "html", "css", "js"):
         files.extend(plugin_dir.rglob(f"**.{ext}"))
 
-    lib_dir = Path("lib")
+    lib_dir = Path("lib").resolve()
     files.extend(lib_dir.rglob("*"))
 
     with zipfile.ZipFile(archive_name, "w") as f:
