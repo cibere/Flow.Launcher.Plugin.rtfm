@@ -16,7 +16,7 @@ def main(archive_name: str):
 
     plugin_dir = Path("plugin")
     for ext in ("py", "html", "css", "js"):
-        files.extend(plugin_dir.rglob(f"**.{ext}"))
+        files.extend(plugin_dir.rglob(f"*.{ext}"))
 
     lib_dir = Path("lib").resolve()
     files.extend(lib_dir.rglob("*"))
