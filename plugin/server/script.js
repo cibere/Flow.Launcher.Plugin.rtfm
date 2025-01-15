@@ -69,6 +69,10 @@ function addNewDoc(data) {
     isApiInput.checked = data.is_api;
 
     elements.addManualDiv.insertAdjacentElement("afterend", doc.querySelector(".card"));
+
+    elements.addManualDiv.querySelectorAll("input").forEach(inp => {
+        inp.value = "";
+    })
 }
 
 function showLoadingModal() {
