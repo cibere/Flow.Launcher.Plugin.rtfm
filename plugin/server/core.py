@@ -60,6 +60,13 @@ def build_app(
             headers=no_cache_headers,
         )
 
+    @routes.get("/favicon.ico")
+    async def favicon(request: web.Request):
+        return web.FileResponse(
+            os.path.join("assets", "app.ico"),
+            headers=no_cache_headers,
+        )
+
     @routes.get("/data.js")
     async def get_data(request: web.Request):
         libs = payload_encoder.encode(
