@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -18,12 +19,18 @@ def main(archive_name: str):
     for ext in ("py", "html", "css", "js"):
         files.extend(plugin_dir.rglob(f"*.{ext}"))
 
-    lib_dir = Path("lib").resolve()
+    lib_dir = Path("lib")
     files.extend(lib_dir.rglob("*"))
 
-    with zipfile.ZipFile(archive_name, "w") as f:
+    if archive_name == "--debug":
+        manager = tempfile.TemporaryFile("w")  # noqa: SIM115
+        archive_name = manager.name
+    else:
+        manager = zipfile.ZipFile(archive_name, "w")
+
+    with manager as f:
         for file in files:
-            f.write(file)
+            f.write(str(file))
             print(f"Added {file}")
     print(f"\nDone. Archive saved to {archive_name}")
 
