@@ -35,23 +35,22 @@
             {% endcall %}
         {% endcall %}
 
+        <div class="card" id="add-manual-form" data-action="/api/get_library" data-method="POST">
+            <div class="title">Add Manual</div>
+            {% call input(label="Keyword", id="add-manual-keyword") %}
+                <input type="text" id="add-manual-keyword" value="{{ main_keyword }}">
+            {% endcall %}
+            {% call input(label="Location", id="add-manual-loc", description="The URL or Path of where the manual you want to use is located.") %}
+                <input type="text" id="add-manual-loc">
+            {% endcall %}
+            {% call actions() %}
+                <button id="add-manual-btn" type="button">Add</button>
+            {% endcall %}
+        </div>
+
         {% for lib in libs %}
             {{ doc(location=lib.loc, index=loop.index, type=lib.typename, name=lib.name, use_cache=lib.use_cache, is_api=lib.is_api) }}
         {% endfor %}
-    </form>
-
-    <form id="add-manual-form" action="/api/get_library" method="POST">
-        {% call card("Add Manual") %}
-            {% call input(label="Keyword", id="add-manual-keyword") %}
-                <input type="text" name="docs.new.keyword" id="add-manual-keyword" value="{{ main_keyword }}">
-            {% endcall %}
-            {% call input(label="Location", id="add-manual-loc", description="The URL or Path of where the manual you want to use is located.") %}
-                <input type="text" name="docs.new.loc" id="add-manual-loc">
-            {% endcall %}
-            {% call actions() %}
-                <button id="add-manual-btn">Add</button>
-            {% endcall %}
-        {% endcall %}
     </form>
 </main>
 <dialog id="loading-modal">

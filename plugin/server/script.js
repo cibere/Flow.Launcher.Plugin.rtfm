@@ -34,8 +34,8 @@ const elements = {
     template: document.querySelector("#docs-template"),
     /** @type {HTMLFormElement} */
     mainForm: document.querySelector("#main-form"),
-    /** @type {HTMLFormElement} */
-    addManualForm: document.querySelector("#add-manual-form"),
+    /** @type {HTMLDivElement} */
+    addManualDiv: document.querySelector("#add-manual-form"),
     /** @type {HTMLButtonElement} */
     addManualButton: document.querySelector("#add-manual-btn"),
     /** @type {HTMLInputElement} */
@@ -68,7 +68,7 @@ function addNewDoc(data) {
     const isApiInput = card.querySelector('input[name$="is_api"]');
     isApiInput.checked = data.is_api;
 
-    elements.mainForm.appendChild(doc);
+    elements.addManualDiv.insertAdjacentElement("afterend", doc.querySelector(".card"));
 }
 
 function showLoadingModal() {
@@ -82,36 +82,28 @@ function hideLoadingModal() {
 elements.mainForm.addEventListener("submit", async e => {
     e.preventDefault();
 
-    try {
-        showLoadingModal();
+    const formData = new FormData(elements.mainForm);
 
-        const formData = new FormData(elements.mainForm);
+    const payload = Object.fromEntries(formData.entries());
 
-        const payload = Object.fromEntries(formData.entries());
+    /** @type {SettingsResponse} */
+    const response = await fetch(elements.mainForm.action, {
+        method: elements.mainForm.method ?? "POST",
+        body: JSON.stringify(payload),
+    }).then(v => v.json());
+    console.log("Got settings response", response);
 
-        /** @type {SettingsResponse} */
-        const response = await fetch(elements.mainForm.action, {
-            method: elements.mainForm.method ?? "POST",
-            body: JSON.stringify(payload),
-        }).then(v => v.json());
-        console.log("Got settings response", response);
-
-        hideLoadingModal();
-        if (!response.success) {
-            console.log("Saved settings response", response);
-            alert(`An error occurred: ${response.message}`);
-            return;
-        }
-
-        alert("Success!");
-    } catch {
-        hideLoadingModal();
+    if (!response.success) {
+        console.log("Saved settings response", response);
+        alert(`An error occurred: ${response.message}`);
+        return;
     }
+
+    alert("Success!");
 });
 
-elements.addManualForm.addEventListener("submit", async e => {
-    e.preventDefault();
-
+elements.addManualButton.addEventListener("click", async () => {
+    console.log('clicked');
     try {
         showLoadingModal();
         const location = elements.addManualLoc.value;
@@ -121,9 +113,10 @@ elements.addManualForm.addEventListener("submit", async e => {
             url: location,
             name: keyword,
         };
+        console.log(elements.addManualDiv.dataset.action);
         /** @type {GetLibraryResponse} */
-        const response = await fetch(elements.addManualForm.action, {
-            method: elements.addManualForm.method ?? "POST",
+        const response = await fetch(elements.addManualDiv.dataset.action, {
+            method: elements.addManualDiv.dataset.method ?? "POST",
             body: JSON.stringify(payload),
         }).then(v => v.json());
         console.log("Got get library response", response);
@@ -134,9 +127,8 @@ elements.addManualForm.addEventListener("submit", async e => {
             return;
         }
 
-        alert("Success!");
         addNewDoc(response.data);
-    } catch {
+    } catch (e) {
         hideLoadingModal();
     }
 });
