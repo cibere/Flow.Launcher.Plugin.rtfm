@@ -10,26 +10,10 @@ Need help? Either create an `issue request on github <https://github.com/cibere/
 
 Demo
 -----
-.. image:: /_static/images/demo.gif
+.. image:: docs/_static/images/demo.gif
 
 Credits
 -------
 - Credits to `Danny/Rapptz <https://github.com/Rapptz>`__ for the original intersphinx code
 - Credits to `Yusyuriv <https://github.com/Yusyuriv>`__ for writing the frontend code for the settings website.
 - The webserver's design is based on `Figma SDS <https://github.com/figma/sds/>`__ (licensed under MIT)
-
-.. toctree::
-   :caption: First Steps
-   :hidden:
-
-   installing
-   quickstart
-
-.. toctree::
-   :caption: Info
-   :hidden:
-
-   presets
-   favicons
-   main_keyword
-   settings
