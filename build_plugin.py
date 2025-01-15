@@ -14,13 +14,25 @@ def main(archive_name: str):
             "assets/app.png",
         )
     ]
+    ignore_exts = (".dist-info", ".pyc", "__pycache__")
+    plugin_include_exts = ("py", "html", "css", "js")
 
     plugin_dir = Path("plugin")
-    for ext in ("py", "html", "css", "js"):
+    for ext in plugin_include_exts:
         files.extend(plugin_dir.rglob(f"*.{ext}"))
 
     lib_dir = Path("lib")
-    files.extend(lib_dir.rglob("*"))
+    files.extend(
+        [
+            file
+            for file in lib_dir.rglob("*")
+            if not file.parent.parent.name.endswith(
+                ignore_exts  # some deps include a licenses dir inside of their dist-info dir
+            )
+            and not file.parent.name.endswith(ignore_exts)
+            and not file.name.endswith(ignore_exts)
+        ]
+    )
 
     if archive_name == "--debug":
         manager = tempfile.TemporaryFile("w")  # noqa: SIM115
