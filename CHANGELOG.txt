@@ -9,3 +9,4 @@ v1.0.0
 - rewrite webserver frontend
 - add proper documentation
 - fix bug with infinitly big log files
+- update plugin build workflow to remove unneccessary files
