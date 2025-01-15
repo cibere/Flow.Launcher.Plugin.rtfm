@@ -11,3 +11,4 @@ v1.0.0
 - fix bug with infinitly big log files
 - update plugin build workflow to remove unneccessary files
 - fix bug with cache being built multiple times simultaneously
+- Support star keywords and no keywords

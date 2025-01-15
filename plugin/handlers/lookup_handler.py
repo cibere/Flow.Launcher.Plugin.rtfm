@@ -16,7 +16,7 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
         assert self.plugin
 
         text = query.text
-        keyword = query.keyword
+        keyword = query.keyword or "*"
 
         try:
             library = self.plugin.libraries[keyword]

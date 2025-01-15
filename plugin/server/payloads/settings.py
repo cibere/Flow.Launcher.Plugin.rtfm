@@ -25,7 +25,7 @@ class PluginSettings(Payload):
                         case "port":
                             kwargs["port"] = int(value)
                         case "keyword":
-                            kwargs["keyword"] = value
+                            kwargs["keyword"] = value or "*"
                 case "doc":
                     idx = int(parts[1])
                     match parts[2]:
@@ -33,6 +33,9 @@ class PluginSettings(Payload):
                             value = True
                         case "keyword":
                             parts[2] = "name"
+                            if not value:
+                                value = "*"
+
                     raw_docs[idx][parts[2]] = value
 
         kwargs["libraries"] = [PartialLibrary(**opts) for opts in raw_docs.values()]
