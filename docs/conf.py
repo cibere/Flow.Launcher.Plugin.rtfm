@@ -42,6 +42,7 @@ sys.path.append(os.path.abspath("extensions"))
 extensions = [
     "list_presets",
     "sphinx_copybutton",
+    "sphinx_tabs.tabs",
 ]
 
 templates_path = ["_templates"]
