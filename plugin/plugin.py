@@ -9,6 +9,7 @@ import aiohttp
 from flogin import Plugin, QueryResponse
 from yarl import URL
 
+from .better_lock import BetterLock
 from .libraries import doc_types, library_from_partial, preset_docs
 from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
@@ -29,6 +30,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     webserver_port: int
     webserver_ready_future: asyncio.Future
     better_settings: RtfmBetterSettings
+    cache_lock: BetterLock
 
     def __init__(self) -> None:
         super().__init__(settings_no_update=True)
@@ -40,6 +42,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         self.register_event(self.on_context_menu)
         self.register_event(self.init, "on_initialization")
         self.load_settings()
+        self.cache_lock = BetterLock()
 
     @property
     def better_settings_file(self) -> Path:
@@ -104,9 +107,14 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     async def build_rtfm_lookup_tables(self) -> None:
         log.info("Starting to build cache...")
 
-        await asyncio.gather(
-            *(self.refresh_library_cache(lib) for lib in self.libraries.values())
-        )
+        if self.cache_lock.locked():
+            log.exception("Cache is already building, awaiting until complete")
+            return await self.cache_lock.wait()
+
+        async with self.cache_lock:
+            await asyncio.gather(
+                *(self.refresh_library_cache(lib) for lib in self.libraries.values())
+            )
 
         log.info("Done building cache.")
 
