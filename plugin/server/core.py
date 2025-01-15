@@ -10,7 +10,6 @@ import jinja2
 from aiohttp import web
 
 from .api import build_api
-from .payloads.base import encoder as payload_encoder
 
 if TYPE_CHECKING:
     from ..plugin import RtfmPlugin
@@ -64,17 +63,6 @@ def build_app(
     async def favicon(request: web.Request):
         return web.FileResponse(
             os.path.join("assets", "app.ico"),
-            headers=no_cache_headers,
-        )
-
-    @routes.get("/data.js")
-    async def get_data(request: web.Request):
-        libs = payload_encoder.encode(
-            [lib.to_partial() for lib in plugin.libraries.values()]
-        ).decode()
-
-        return web.Response(
-            body=DATA_JS_TEMPLATE.format(libraries=libs),
             headers=no_cache_headers,
         )
 
