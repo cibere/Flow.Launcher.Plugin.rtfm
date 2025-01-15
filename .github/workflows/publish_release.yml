@@ -7,7 +7,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     env:
-      python_ver: 3.11
+      python_ver: 3.13.1
     permissions:
       contents: write
 
