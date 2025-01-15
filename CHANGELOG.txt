@@ -2,8 +2,10 @@ v1.0.0
 
 - Query on root searches
 - Add support for libraries built with mkdocs
-- rewrite webserver
+- rewrite webserver backend
 - add doc presets for autohotkey, discord.dev, discord.sex, flowlauncher.com, lua, mdn, and qmk.
 - Add the ability to choose a custom port
 - Add an auto doctype option for the plugin to try and detect if it can index a doc
-- Add the ability to import/export settings
+- rewrite webserver frontend
+- add proper documentation
+- fix bug with infinitly big log files
