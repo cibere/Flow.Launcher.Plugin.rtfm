@@ -3,3 +3,4 @@ venv
 *.log
 _build
 *.log.1
+test.py
