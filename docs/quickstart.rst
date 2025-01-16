@@ -9,7 +9,11 @@ To open up the settings website, type ``rtfm`` into flow launcher and press the 
 .. NOTE::
     See :doc:`main_keyword` for more information on that keyword.
 
-.. image:: /_static/images/quickstart/rtfm_result_example.png
+.. image:: /_static/images/quickstart/rtfm_result_example_darkmode.png
+    :class: only-dark
+    
+.. image:: /_static/images/quickstart/rtfm_result_example_lightmode.png
+    :class: only-light
 
 Adding the doc
 --------------
@@ -18,15 +22,11 @@ Find the ``Add Manual`` section, and input a keyword and location for the doc/ma
 .. NOTE::
     See :doc:`settings` for more information on the plugin settings.
 
-.. tabs::
-
-    .. tab:: Dark Mode
-
-        .. image:: /_static/images/quickstart/add_manual_darkmode.png
+.. image:: /_static/images/quickstart/add_manual_darkmode.png
+    :class: only-dark
     
-    .. tab:: Light Mode
-
-        .. image:: /_static/images/quickstart/add_manual_lightmode.png
+.. image:: /_static/images/quickstart/add_manual_lightmode.png
+    :class: only-light
 
 Editing the doc
 -------------------
@@ -35,15 +35,11 @@ To edit the manual/doc, scroll down until you find the doc/manual we just added.
 .. NOTE::
     See :ref:`the editing a manual section <edit_manual>` for information about the different fields.
 
-.. tabs::
-
-    .. tab:: Dark Mode
-
-        .. image:: /_static/images/quickstart/edit_manual_darkmode.png
+.. image:: /_static/images/quickstart/edit_manual_darkmode.png
+    :class: only-dark
     
-    .. tab:: Light Mode
-
-        .. image:: /_static/images/quickstart/edit_manual_lightmode.png
+.. image:: /_static/images/quickstart/edit_manual_lightmode.png
+    :class: only-light
 
 Save the settings
 ------------------
@@ -53,18 +49,18 @@ Now we are going to save our settings so that it actually gets added to the plug
 
     See :ref:`the saving settings section <save_settings>` for more information about saving the settings.
 
-.. tabs::
-
-    .. tab:: Dark Mode
-
-        .. image:: /_static/images/save_settings_example_darkmode.png
+.. image:: /_static/images/save_settings_example_darkmode.png
+    :class: only-dark
     
-    .. tab:: Light Mode
-
-        .. image:: /_static/images/save_settings_example_lightmode.png
+.. image:: /_static/images/save_settings_example_lightmode.png
+    :class: only-light
 
 Querying the doc/manual
 -----------------------
 Now that we've added and saved our doc/manual, we can query it to see the results. As we set the keyword to ``kw`` in the `adding the doc step <#adding-the-doc>`__, we will be using the ``kw`` keyword to do so. So, using flow, type ``kw presets`` and see the results.
 
-.. image:: /_static/images/quickstart/kw_presets.png
+.. image:: /_static/images/quickstart/kw_presets_darkmode.png
+    :class: only-dark
+    
+.. image:: /_static/images/quickstart/kw_presets_lightmode.png
+    :class: only-light

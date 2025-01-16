@@ -42,7 +42,6 @@ sys.path.append(os.path.abspath("extensions"))
 extensions = [
     "list_presets",
     "sphinx_copybutton",
-    "sphinx_tabs.tabs",
 ]
 
 templates_path = ["_templates"]
@@ -55,5 +54,5 @@ exclude_patterns = ["_build"]
 html_theme = "furo"
 html_static_path = ["_static"]
 # html_css_files = ["style.css"]
-# html_js_files = ["custom.js"]
+#html_js_files = ["custom.js"]
 html_favicon = "./_static/images/favicon.ico"

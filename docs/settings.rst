@@ -23,15 +23,11 @@ Saving your settings
 --------------------
 Your settings will not automatically save, you have to save them manually. To save your settings and trigger a cache reload, press the ``Save Settings & Reload Cache`` button under the ``Plugin Settings`` section in the website. This button is the only method to save any of your settings.
 
-.. tabs::
+.. image:: /_static/images/save_settings_example_darkmode.png
+    :class: only-dark
 
-    .. tab:: Dark Mode
-
-        .. image:: /_static/images/save_settings_example_darkmode.png
-    
-    .. tab:: Light Mode
-
-        .. image:: /_static/images/save_settings_example_lightmode.png
+.. image:: /_static/images/save_settings_example_lightmode.png
+    :class: only-light
 
 Adding a manual/doc
 -------------------
