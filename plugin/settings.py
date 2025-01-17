@@ -9,6 +9,9 @@ class RtfmBetterSettings(msgspec.Struct):
     main_kw: str = "rtfm"
     static_port: int = 0
     libraries: list[PartialLibrary] = []
+    version: str | None = (
+        None  # For backwards compatible settings in the future. Incase the format changes again, this key can be used to determine which format to parse.
+    )
 
     @classmethod
     def decode(cls, data: str) -> RtfmBetterSettings:

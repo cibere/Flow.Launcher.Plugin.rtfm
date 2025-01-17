@@ -69,6 +69,10 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         await self.ensure_keywords()
         await self.build_rtfm_lookup_tables()
 
+        if self.better_settings.version != self.metadata.version:
+            self.better_settings.version = self.metadata.version
+            self.dump_settings()
+
     @property
     def libraries(self) -> dict[str, Library]:
         if self._library_cache is None:
