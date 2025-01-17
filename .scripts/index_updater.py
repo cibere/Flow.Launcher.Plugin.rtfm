@@ -69,6 +69,22 @@ def update_latest_symlink(versions: list[VersionInfo]):
     print(f"Latest symlink now links to {newest}")
 
 
+def update_stable_symlink(versions: list[VersionInfo]):
+    for version in versions:
+        if version.level == "a":
+            continue
+
+        temp_path = root_dir / "stable-temp"
+        actual_path = root_dir / "stable"
+
+        symlink_force(str(version), temp_path)
+
+        actual_path.unlink(missing_ok=True)
+        os.replace(temp_path, actual_path)
+
+        print(f"Stable symlink now links to {version}")
+
+
 def main():
     unsorted_versions = [
         VersionInfo.from_str(match)
@@ -79,6 +95,7 @@ def main():
     print(f"Versions: {', '.join([str(v) for v in versions])}")
 
     update_latest_symlink(versions)
+    update_stable_symlink(versions)
 
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(ci_dir))
     template = env.get_template("template.html")
