@@ -253,13 +253,17 @@
         <article role="main" id="furo-main-content">
           <section id="favicons">
 <h1>Favicons<a class="headerlink" href="#favicons" title="Link to this heading">¶</a></h1>
-<p>By default, the plugin will download the documentation’s favicon using an undocumented google api. However, if those websites use SVG files, those icons look pretty messy and dirty. If you have <a class="reference external" href="https://imagemagick.org/script/download.php#windows">ImageMagick</a> installed on your computer, the plugin will detect that, and use imagemagick to get crisp and clean icon for the results.</p>
+<p>The plugin will look for and download the favicon for each manual/doc that you are using. If the plugin consistantly chooses the wrong favicon/image to use as the result icons, please create an <a class="reference external" href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm/issues/new">issue on the github page</a> to let the developers of the plugin know, and so that they can fix it.</p>
+<section id="svg-files">
+<h2>SVG Files<a class="headerlink" href="#svg-files" title="Link to this heading">¶</a></h2>
+<p>In the event that the favicon is an <a class="reference external" href="https://en.wikipedia.org/wiki/SVG">svg</a> file, the plugin will try to use <a class="reference external" href="https://imagemagick.org/script/download.php#windows">ImageMagick</a> to convert it to a high quality <code class="docutils literal notranslate"><span class="pre">png</span></code> file. If <a class="reference external" href="https://imagemagick.org/script/download.php#windows">ImageMagick</a> is not installed, the plugin will use an undocumented google API to get a low quality render of the favicon.</p>
 <section id="example">
-<h2>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h2>
+<h3>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h3>
 <p>Without ImageMagick</p>
 <img alt="_images/py_logo_wo_imagemagick_example.png" src="_images/py_logo_wo_imagemagick_example.png" />
 <p>With ImageMagick</p>
 <img alt="_images/py_logo_w_imagemagick_example.png" src="_images/py_logo_w_imagemagick_example.png" />
+</section>
 </section>
 </section>
 
@@ -319,7 +323,10 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Favicons</a><ul>
+<li><a class="reference internal" href="#svg-files">SVG Files</a><ul>
 <li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
