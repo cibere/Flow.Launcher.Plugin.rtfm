@@ -33,3 +33,4 @@ Credits
    favicons
    main_keyword
    settings
+   changelog
