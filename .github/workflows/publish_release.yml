@@ -1,7 +1,8 @@
 name: Publish and Release
 
 on:
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   publish:
@@ -37,11 +38,8 @@ jobs:
         run: |
           python build_plugin.py ${{ github.event.repository.name }}.zip
 
-      - name: Publish
-        if: success()
-        uses: softprops/action-gh-release@v2
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
         with:
-          files: '${{ github.event.repository.name }}.zip'
-          tag_name: "v${{steps.version.outputs.prop}}"
-          body_path: 'CHANGELOG.txt'
-          prerelease: true
+          name: ${{ github.event.repository.name }}.zip
+          path: ${{ github.event.repository.name }}.zip
