@@ -13,6 +13,8 @@ from plugin.libraries.presets._structs.qmk import QmkLocalSearchData
 if TYPE_CHECKING:
     from aiohttp import ClientSession
 
+response_decoder = msgspec.json.Decoder(type=QmkLocalSearchData)
+
 
 class QmkDocs(PresetLibrary, base_url="https://docs.qmk.fm"):
     def qmk_get_theme(self, text: bytes) -> list[str]:
@@ -67,7 +69,7 @@ class QmkDocs(PresetLibrary, base_url="https://docs.qmk.fm"):
             .replace("\\`", "`")
         )
 
-        index = msgspec.json.decode(raw_json, type=QmkLocalSearchData)
+        index = response_decoder.decode(raw_json)
         cache = {}
 
         for docid, field in index.storedFields.items():

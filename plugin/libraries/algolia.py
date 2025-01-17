@@ -53,6 +53,7 @@ class SearchResponse(msgspec.Struct):
     results: list[SearchResult]
 
 
+response_decoder = msgspec.json.Decoder(type=SearchResponse)
 Jsonable = dict[str, "Jsonable"] | list["Jsonable"] | int | str
 
 
@@ -92,7 +93,7 @@ class AlgoliaBase(PresetLibrary):
         async with session.post(self.algolia_config.url, json=payload) as res:
             raw = await res.content.read()
 
-        resp = msgspec.json.decode(raw, type=SearchResponse)
+        resp = response_decoder.decode(raw)
 
         cache = {}
 

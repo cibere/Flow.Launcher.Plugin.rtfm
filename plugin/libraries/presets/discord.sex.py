@@ -38,6 +38,7 @@ class DiscordSex(
         },
     ),
     base_url="https://docs.discord.sex",
+    favicon_url="https://docs.discord.sex/favicon.ico",
 ): ...
 
 

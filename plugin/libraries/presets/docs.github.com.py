@@ -14,11 +14,14 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
+search_decoder = msgspec.json.Decoder(type=SearchResponse)
+error_decoder = msgspec.json.Decoder(type=ErrorResponse)
+
 
 class Github(
     PresetLibrary,
     base_url="https://docs.github.com",
-    favicon_url="https://github.com",
+    favicon_url="https://github.com/favicon.ico",
 ):
     is_preset: ClassVar[bool] = True
     is_api: ClassVar[bool] = True
@@ -34,9 +37,9 @@ class Github(
             raw = await res.content.read()
 
         try:
-            resp = msgspec.json.decode(raw, type=SearchResponse)
+            resp = search_decoder.decode(raw)
         except msgspec.ValidationError:
-            error = msgspec.json.decode(raw, type=ErrorResponse)
+            error = error_decoder.decode(raw)
             log.exception(f"Received error from github: {error!r}")
             self.cache = {}
             return
