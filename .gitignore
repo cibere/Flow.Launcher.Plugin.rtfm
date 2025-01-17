@@ -5,3 +5,4 @@ __pycache__
 _build
 assets/app.png
 venv
+test.py
