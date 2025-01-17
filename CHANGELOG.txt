@@ -12,3 +12,4 @@ v1.0.0
 - update plugin build workflow to remove unneccessary files
 - fix bug with cache being built multiple times simultaneously
 - Support star keywords and no keywords
+- Add a ``version`` key to the settings for better backwards compatibility in the future, if the format is ever to change.
