@@ -63,7 +63,7 @@ def build_google_favicon_url(domain: str) -> str:
 
 
 def get_local_icon(key: str, path: Path) -> str | None:
-    raw_icons = favicon.tags(str(path), path.read_bytes())
+    raw_icons = get_favicon(path)
     log.info(f"Found icons for {key} @ {path!r}: {raw_icons!r}")
     for icon in raw_icons:
         icon_url = icon[0]
@@ -73,7 +73,28 @@ def get_local_icon(key: str, path: Path) -> str | None:
         return str(fp)
 
 
+def handle_raw_icon(file: bytes | None, url: URL) -> str | None:
+    if file is None:
+        domain = url.host
+        if domain is None:
+            return
+
+        return build_google_favicon_url(domain)
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+        f.write(file)
+        return f.name
+
+
 def get_online_icon(key: str, url: URL) -> str | None:
+    if url.parts[-1].endswith(
+        (
+            ".ico",
+            ".png",
+        )
+    ):
+        icon = requests.get(str(url))
+        return handle_raw_icon(icon.content, url)
+
     raw_icons = get_favicon(url)
     log.info(f"Found icons for {key} @ {url}: {raw_icons!r}")
     for icon in raw_icons:
@@ -81,16 +102,9 @@ def get_online_icon(key: str, url: URL) -> str | None:
         format = icon[3]
 
         file = url_to_bytes(icon_url, format)
-        if file is None:
-            domain = url.host
-            if domain is None:
-                return
-
-            return build_google_favicon_url(domain)
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
-            f.write(file)
-            log.info(f"Saved icon for {key} at {f.name}")
-            return f.name
+        filename = handle_raw_icon(file, url)
+        log.info(f"Saved icon for {key} at {filename}")
+        return filename
 
 
 def get_icon(key: str, loc: URL | str | Path) -> str | None:
