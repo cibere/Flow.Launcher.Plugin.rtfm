@@ -1,11 +1,12 @@
-name: Publish and Release
+name: Build Plugin
 
 on:
-  release:
-    types: [published]
+    push:
+      branches:
+          - main
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     env:
       python_ver: 3.13.1
@@ -37,8 +38,19 @@ jobs:
       - name: Build Archive
         run: |
           python build_plugin.py ${{ github.event.repository.name }}.zip
+    
+      - name: Print Event Name
+        run: |
+          echo ${{ github.event_name }}
+
+      - name: Upload Archive
+        uses: actions/upload-artifact@v4
+        if: ${{ github.event_name == 'push' }}
+        with:
+          path: ${{ github.event.repository.name }}.zip
 
       - name: Upload Archive
         uses: softprops/action-gh-release@v2
+        if: ${{ github.event_name == 'release' }}
         with:
-          files: ${{ github.event.repository.name }}.zip
+            files: ${{ github.event.repository.name }}.zip
