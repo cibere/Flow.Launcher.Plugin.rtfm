@@ -62,13 +62,13 @@ class SS64Parser:
         return self.cache
 
 
-class SS64Base(PresetLibrary):
+class SS64Base(PresetLibrary, is_variant=True, favicon_url="https://ss64.com"):
     ss64_version: ClassVar[str]
 
     def __init_subclass__(cls, version: str) -> None:
         cls.ss64_version = version
         return super().__init_subclass__(
-            base_url=f"https://ss64.com/{version}", favicon_url="https://ss64.com"
+            base_url=f"https://ss64.com/{version}",
         )
 
     async def fetch_icon(self) -> str | None:

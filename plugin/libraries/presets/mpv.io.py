@@ -34,7 +34,7 @@ class MpvIoParser:
             )
 
 
-class MpvIoBase(PresetLibrary):
+class MpvIoBase(PresetLibrary, is_variant=True):
     def __init_subclass__(cls, version: str) -> None:
         return super().__init_subclass__(base_url=f"https://mpv.io/manual/{version}")
 

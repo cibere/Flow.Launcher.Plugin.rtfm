@@ -7,10 +7,9 @@ from plugin.libraries.preset import PresetLibrary
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
-    from yarl import URL
 
 
-class AutoHotkeyDocs(PresetLibrary):
+class AutoHotkeyDocs(PresetLibrary, is_variant=True):
     autohotkey_version: ClassVar[int]
     inventory_url: ClassVar[str]
 
@@ -34,10 +33,6 @@ class AutoHotkeyDocs(PresetLibrary):
             name: self._build_url(str(extra[0]), webserver_port)
             for name, *extra in data
         }
-
-    @classmethod
-    def validate_url(cls, url: URL) -> bool:
-        return cls.base_url == url
 
 
 class AutoHotkeyDocsV2(AutoHotkeyDocs, version=2): ...
