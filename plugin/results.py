@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import random
+import secrets
 import webbrowser
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from flogin import ExecuteResponse, Result
 
@@ -15,12 +15,25 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-class ReloadCacheResult(Result["RtfmPlugin"]):
+class BaseResult(Result["RtfmPlugin"]):
+    def __modified_init(self, *args: Any, **kwargs: Any) -> None:
+        if "auto_complete_text" in kwargs:
+            raise RuntimeError(
+                "'auto_complete_text' arg not supported as to add result slugs"
+            )
+        kwargs["auto_complete_text"] = secrets.token_hex(5)
+        if "icon" not in kwargs:
+            kwargs["icon"] = "assets/app.png"
+        return super().__init__(*args, **kwargs)
+
+    if not TYPE_CHECKING:
+        __init__ = __modified_init
+
+
+class ReloadCacheResult(BaseResult):
     def __init__(self) -> None:
         super().__init__(
             "Reload cache",
-            icon="assets/app.png",
-            auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm")),
         )
 
     async def callback(self):
@@ -37,13 +50,11 @@ class ReloadCacheResult(Result["RtfmPlugin"]):
         return ExecuteResponse(hide=False)
 
 
-class OpenSettingsResult(Result["RtfmPlugin"]):
+class OpenSettingsResult(BaseResult):
     def __init__(self) -> None:
         super().__init__(
             "Open Settings",
-            icon="assets/app.png",
             sub="Open the settings webserver",
-            auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm")),
         )
 
     async def callback(self):
@@ -55,13 +66,11 @@ class OpenSettingsResult(Result["RtfmPlugin"]):
         return ExecuteResponse()
 
 
-class OpenLogFileResult(Result["RtfmPlugin"]):
+class OpenLogFileResult(BaseResult):
     def __init__(self) -> None:
         super().__init__(
             "Open Log File",
-            icon="assets/app.png",
             sub="Opens up the flogin log file",
-            auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm")),
         )
 
     async def callback(self):
@@ -73,7 +82,7 @@ class OpenLogFileResult(Result["RtfmPlugin"]):
         return ExecuteResponse()
 
 
-class OpenRtfmResult(Result["RtfmPlugin"]):
+class OpenRtfmResult(BaseResult):
     def __init__(self, *, library: Library, url: str, text: str, score: int) -> None:
         self.library = library
         self.url = url
@@ -81,7 +90,6 @@ class OpenRtfmResult(Result["RtfmPlugin"]):
 
         super().__init__(
             title=text,
-            auto_complete_text="".join(random.choices("qwertyuiopasdfghjklzxcvbnm")),
             score=score,
             icon=library.icon,
         )

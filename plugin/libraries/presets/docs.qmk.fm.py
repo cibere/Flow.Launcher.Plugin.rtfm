@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 import bs4
 import msgspec
-from yarl import URL
 
 from plugin.libraries.preset import PresetLibrary
 from plugin.libraries.presets._structs.qmk import QmkLocalSearchData
@@ -24,22 +23,16 @@ class QmkDocs(PresetLibrary, base_url="https://docs.qmk.fm"):
     async def qmk_parse_theme_file(
         self, session: ClientSession, url: str
     ) -> str | None:
-        assert isinstance(self.loc, URL)
-
         async with session.get(self.loc.with_path(url)) as res:
             raw_content = await res.content.read()
         data = raw_content.decode()
         if not data.startswith("const __vite__fileDeps=["):
             return
-        data = data.removeprefix('const __vite__fileDeps=["').split('"')[0]
-        assert "VPLocalSearchBox" in data
-        return data
+        return data.removeprefix('const __vite__fileDeps=["').split('"')[0]
 
     async def qmk_parse_search_box_file(
         self, session: ClientSession, url: str
     ) -> str | None:
-        assert isinstance(self.loc, URL)
-
         async with session.get(self.loc.with_path(url)) as res:
             raw_content = await res.content.read()
         data = raw_content.decode()
@@ -57,8 +50,6 @@ class QmkDocs(PresetLibrary, base_url="https://docs.qmk.fm"):
     async def parse_index(
         self, session: ClientSession, filename: str, webserver_port: int
     ) -> dict[str, str]:
-        assert isinstance(self.loc, URL)
-
         async with session.get(self.loc / "assets" / "chunks" / filename) as res:
             raw_content = await res.content.read()
 

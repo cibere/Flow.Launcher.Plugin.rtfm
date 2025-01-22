@@ -74,8 +74,13 @@ def build_app(
         try:
             lib = plugin.libraries[name]
         except KeyError:
-            return web.Response(body="Library not found")
-        assert lib.path
+            return web.Response(body="Library not found", status=404)
+
+        if lib.path is None:
+            return web.Response(
+                body="Library does not support local documentation", status=400
+            )
+
         page = os.path.join(lib.path, path)
         log.info(f"Returning file: {page!r}")
         return web.FileResponse(page)

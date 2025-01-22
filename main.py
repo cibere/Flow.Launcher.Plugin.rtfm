@@ -18,7 +18,7 @@ setup_logging()
 try:
     import msgspec._core
 except ModuleNotFoundError:
-    import subprocess
+    import subprocess  # nosec
 
     libs = (
         os.path.join("venv", "lib", "site-packages")
@@ -26,7 +26,7 @@ except ModuleNotFoundError:
         else "lib"
     )
 
-    subprocess.run(
+    subprocess.run(  # nosec
         [
             sys.executable,
             "-m",

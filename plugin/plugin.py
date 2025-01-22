@@ -214,7 +214,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             lib = cls.from_partial(data)
             try:
                 await lib.build_cache(self.session, self.webserver_port)
-            except:  # noqa: E722
+            except:  # noqa: E722 #nosec
                 pass
             else:
                 return lib
@@ -252,7 +252,9 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             try:
                 log.info(f"Trying {doctype!r}")
                 await lib.build_cache(self.session, self.webserver_port)
-            except:  # noqa: E722
-                pass
+            except Exception as e:
+                log.exception(
+                    f"Failed to build cache for library: {name!r}", exc_info=e
+                )
             else:
                 return lib

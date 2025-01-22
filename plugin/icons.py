@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 
 
 def url_to_bytes(url: str, format: str) -> bytes | None:
-    res = requests.get(url)
+    res = requests.get(url, timeout=5)
 
     if format != "svg":
         return res.content
@@ -92,7 +92,7 @@ def get_online_icon(key: str, url: URL) -> str | None:
             ".png",
         )
     ):
-        icon = requests.get(str(url))
+        icon = requests.get(str(url), timeout=5)
         return handle_raw_icon(icon.content, url)
 
     raw_icons = get_favicon(url)
