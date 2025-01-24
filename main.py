@@ -1,47 +1,23 @@
 # ruff: noqa: E402, F401
 
-import os
 import sys
+from pathlib import Path
 
-parent_folder_path = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(parent_folder_path)
-sys.path.append(os.path.join(parent_folder_path, "lib"))
-sys.path.append(os.path.join(parent_folder_path, "venv", "lib", "site-packages"))
+root = Path(__file__).parent
+prod_dir = root / "lib"
+dev_dir = root / "venv" / "lib" / "site-packages"
 
-from flogin.utils import print, setup_logging
+lib_dir = prod_dir if prod_dir.exists() else dev_dir
+
+sys.path.extend([root.as_posix(), lib_dir.as_posix()])
+
+from flogin import Pip
+from flogin.utils import setup_logging
 
 setup_logging()
 
-# Since msgspec is primarily written in C and uses pyd files, the pyd files need to be generated for the user's system
-# So if msgspec._core can not be imported, force reinstall the package on the user's system so that the proper pyd files are generated.
-
-try:
-    import msgspec._core
-except ModuleNotFoundError:
-    import subprocess  # nosec
-
-    libs = (
-        os.path.join("venv", "lib", "site-packages")
-        if os.path.exists("venv")
-        else "lib"
-    )
-
-    subprocess.run(  # nosec
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "--force-reinstall",
-            "-U",
-            "msgspec",
-            "-t",
-            libs,
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    print(f"Installed msgspec at {libs!r}")
+with Pip(lib_dir) as pip:
+    pip.ensure_installed("msgspec==0.19.0", module="msgspec._core")
 
 from plugin.plugin import RtfmPlugin
 
