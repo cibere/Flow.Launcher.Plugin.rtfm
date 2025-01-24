@@ -14,3 +14,4 @@ Changelog
 - Fix bug with cache being built multiple times simultaneously
 - Support star/blank keywords
 - Add a ``version`` key to the settings for better backwards compatibility in the future, if the format is ever to change.
+- Add a context menu item to copy the url

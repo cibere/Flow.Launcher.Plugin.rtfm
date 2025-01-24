@@ -4,13 +4,19 @@ import asyncio
 import logging
 import secrets
 import webbrowser
-from typing import TYPE_CHECKING, Any
 
+import pyperclip
 from flogin import ExecuteResponse, Result
 
+TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from .libraries.library import Library
+    from typing import TYPE_CHECKING, Any, Unpack
+
+    from flogin.jsonrpc.results import ResultConstructorArgs  # noqa: TC002
+
+    from .libraries.library import Library  # noqa: TC001
     from .plugin import RtfmPlugin  # noqa: F401
+
 
 log = logging.getLogger(__name__)
 
@@ -104,3 +110,22 @@ class OpenRtfmResult(BaseResult):
             await self.plugin.api.open_url(self.url)
 
         return ExecuteResponse()
+
+    async def context_menu(self):
+        assert self.plugin
+
+        return CopyResult(self.url, title="Copy URL", icon="assets/copy.png")
+
+
+class CopyResult(BaseResult):
+    def __init__(self, text: str, **kwargs: Unpack[ResultConstructorArgs]) -> None:
+        super().__init__(**kwargs)
+        self.text = text
+
+    async def callback(self):
+        assert self.plugin
+
+        pyperclip.copy(self.text)
+        await self.plugin.api.show_notification(
+            "rtfm", f"Copied Text to clipboard: {self.text!r}"
+        )

@@ -4,16 +4,16 @@ exclude = [
     "test.py",
     "plugin/fuzzy.py",
     "docs",
+    "lib",
 ]
 
 [tool.ruff.lint]
 select = [
     "C4", # https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
-    "E", # https://docs.astral.sh/ruff/rules/#error-e_1
+    "E", # https://docs.astral.sh/ruff/rules/#error-e
     "F", # https://docs.astral.sh/ruff/rules/#pyflakes-f
     "G", # https://docs.astral.sh/ruff/rules/#flake8-logging-format-g
     "I", # https://docs.astral.sh/ruff/rules/#isort-i
-    #"PTH", # https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
     "RUF", # https://docs.astral.sh/ruff/rules/#ruff-specific-rules-ruf
     "SIM", # https://docs.astral.sh/ruff/rules/#flake8-simplify-sim
     "TC", # https://docs.astral.sh/ruff/rules/#flake8-type-checking-tc
@@ -28,14 +28,14 @@ select = [
 ignore = [
     "G004", # https://docs.astral.sh/ruff/rules/logging-f-string/
     "SIM105", # https://docs.astral.sh/ruff/rules/suppressible-exception/
-    "E501", # https://docs.astral.sh/ruff/rules/#error-e_1
+    "E501", # https://docs.astral.sh/ruff/rules/line-too-long
     "ANN401", # https://docs.astral.sh/ruff/rules/any-type/
     "RET503", # https://docs.astral.sh/ruff/rules/implicit-return/
     "RET502", # https://docs.astral.sh/ruff/rules/implicit-return-value/
-    "ANN201",
-    "PGH003",
-    "ANN202",
-    "RUF006",
+    "ANN201", # https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function
+    "PGH003", # https://docs.astral.sh/ruff/rules/blanket-type-ignore
+    "ANN202", # https://docs.astral.sh/ruff/rules/missing-return-type-private-function
+    "RUF006", # https://docs.astral.sh/ruff/rules/asyncio-dangling-task
 ]
 
 [tool.ruff.format]
@@ -46,7 +46,7 @@ line-ending = "auto"
 
 [tool.bandit]
 exclude_dirs  = [
-    ".github", "venv", "docs"
+    ".github", "venv", "docs", "lib"
 ]
 skips = [
     "B101" # skip asssets as they are used for typing purposes
