@@ -41,10 +41,17 @@ jobs:
           python build_plugin.py ${{ github.event.repository.name }}.zip
     
       - name: Upload Archive to workflow artifacts
+        id: upload-artifact
         uses: actions/upload-artifact@v4
         with:
           path: ${{ github.event.repository.name }}.zip
           name: ${{ github.event.repository.name }}.zip
+      
+      - name: Send Artifact Download Url To Webhook
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
+          content: https://github-artifact-downloader.cibere.dev?repo=${{ github.repository.name }}&aid=${{ steps.upload-artifact.outputs.artifact-id }}
 
       - name: Upload Archive to release artifacts
         uses: softprops/action-gh-release@v2
