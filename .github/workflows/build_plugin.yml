@@ -46,6 +46,7 @@ jobs:
         with:
           path: ${{ github.event.repository.name }}.zip
           name: ${{ github.event.repository.name }}.zip
+          compression-level: 0
       
       - name: Send Artifact Download Url To Webhook
         uses: tsickert/discord-webhook@v6.0.0
