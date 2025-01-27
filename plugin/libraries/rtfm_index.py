@@ -33,7 +33,4 @@ class RtfmIndexBase(PresetLibrary):
         ) as res:
             raw_content: bytes = await res.content.read()
 
-        with open("data", "wb") as f:
-            f.write(raw_content)
-
         self.cache = json.decode(raw_content)
