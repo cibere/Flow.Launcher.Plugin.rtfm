@@ -1,40 +1,5 @@
 Changelog
 =========
 
-- Support empty searches
-- Update webserver
-    - Rewrite webserver backend
-    - Rewrite webserver frontend (thanks `Yusyuriv <https://github.com/Yusyuriv>`__)
-    - re-add the ability to choose a custom port
-- Add support for mkdocs
-- Added a preset system + the following presets:
-    - https://www.lua.org/manual/5.4
-    - https://www.flowlauncher.com/docs
-    - https://autohotkey.com/docs/v1
-    - https://autohotkey.com/docs/v2
-    - https://docs.github.com
-    - https://developer.mozilla.org
-    - https://mpv.io/manual/master
-    - https://mpv.io/manual/stable
-    - https://docs.discord.sex
-    - https://discord.com/developers/docs
-    - https://ss64.com/bash
-    - https://ss64.com/mac
-    - https://ss64.com/ps
-    - https://ss64.com/nt
-    - https://tom-select.js.org/docs
-    - https://docs.qmk.fm
-- Add a `rtfm indexes <https://github.com/cibere/Rtfm-Indexes/>`__ to index presets that are too "heavy" for the plugin itself.
-- Add proper documentation
-- Fix bug with infinitely big log files
-- Update build process to not include unneccessary files
-- Fix bug with cache being built multiple times simultaneously
-- Support star/blank keywords
-- Add a ``version`` key to the settings for better backwards compatibility in the future, if the format is ever to change.
-- Add a context menu item to copy the url
-- Add support for API presets
-- Fix bug with favicons being very inconsistent
-- Fix bug with settings being version-specific and breaking when either their path changes, or the plugin's path changes.
-- Add some location serialization to attempt to autofix bad locations/urls/paths.
-- Remove the need to provide paths in a ``file`` protocol url
-- Add a temp-fix to broken result caching
+- Fix bug with a debug ``data`` file being created when using rtfm indexed presets
+- Fix bug with some presets failing to load on startup due to extra slashes at the end of the url.
