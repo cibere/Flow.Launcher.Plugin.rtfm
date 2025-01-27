@@ -22,7 +22,7 @@ class PresetLibrary(Library):
         is_variant: bool | None = None,
     ) -> None:
         if base_url:
-            cls.base_url = URL(base_url)
+            cls.base_url = URL(base_url.rstrip("/"))
         if favicon_url:
             cls.favicon_url = favicon_url
         if is_variant is not None:
