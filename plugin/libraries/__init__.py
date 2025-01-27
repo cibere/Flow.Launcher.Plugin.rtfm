@@ -23,10 +23,12 @@ preset_docs: Iterable[type[PresetLibrary]] = list(built_presets())
 
 def library_from_partial(lib: PartialLibrary) -> Library:
     if lib.type == "Preset":
-        url = URL(lib.loc)
+        url = URL(lib.loc.rstrip("/"))
         for preset in preset_docs:
             if preset.validate_url(url):
                 return preset.from_partial(lib)
+
+        raise ValueError(f"Unknown preset for {url!r}")
 
     for doctype in doc_types:
         if lib.type == doctype.typename:
