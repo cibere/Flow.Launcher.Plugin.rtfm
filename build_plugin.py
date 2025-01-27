@@ -4,7 +4,7 @@ import zipfile
 from pathlib import Path
 
 
-def main(archive_name: str):
+def main():
     files = [
         Path(fp)
         for fp in (
@@ -34,18 +34,9 @@ def main(archive_name: str):
         ]
     )
 
-    if archive_name == "--debug":
-        manager = tempfile.TemporaryFile("w")  # noqa: SIM115
-        archive_name = manager.name
-    else:
-        manager = zipfile.ZipFile(archive_name, "w")
-
-    with manager as f:
-        for file in files:
-            f.write(str(file))
-            print(f"Added {file}")
-    print(f"\nDone. Archive saved to {archive_name}")
+    for file in files:
+        print(file.as_posix())
 
 
 if __name__ == "__main__":
-    main(sys.argv[-1])
+    main()

@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ${{ github.event.repository.name }}.zip
-          name: ${{ github.event.repository.name }}.zip
+          name: ${{ github.event.repository.name }}
           compression-level: 0
       
       - name: Send Artifact Download Url To Webhook
