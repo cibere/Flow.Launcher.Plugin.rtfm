@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
     from .libraries.library import Library, PartialLibrary
     from .libraries.preset import PresetLibrary
+    from .logs import Logs
 
 log = logging.getLogger("rtfm")
 
@@ -31,9 +32,10 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     webserver_ready_future: asyncio.Future
     better_settings: RtfmBetterSettings
     cache_lock: BetterLock
+    logs: Logs
 
     def __init__(self) -> None:
-        super().__init__(settings_no_update=True)
+        super().__init__(settings_no_update=True, disable_log_override_files=True)
 
         from .handlers.lookup_handler import LookupHandler
         from .handlers.settings_handler import SettingsHandler
@@ -83,7 +85,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         else:
             libs = self._library_cache
 
-        log.info(f"Libraries: {libs!r}")
+        log.debug("Libraries: %r", libs)
         return libs
 
     @property
@@ -108,8 +110,20 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         self.better_settings.static_port = value
         self.dump_settings()
 
+    @property
+    def debug_mode(self) -> bool:
+        return self.better_settings.debug_mode
+
+    @debug_mode.setter
+    def debug_mode(self, value: bool) -> None:
+        log.debug("Debug Mode Set To: %r", value)
+        if value != self.better_settings.debug_mode:
+            self.logs.update_debug(value)
+            self.better_settings.debug_mode = value
+            self.dump_settings()
+
     async def build_rtfm_lookup_tables(self) -> None:
-        log.info("Starting to build cache...")
+        log.debug("Starting to build cache...")
 
         if self.cache_lock.locked():
             log.exception("Cache is already building, awaiting until complete")
@@ -120,7 +134,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
                 *(self.refresh_library_cache(lib) for lib in self.libraries.values())
             )
 
-        log.info("Done building cache.")
+        log.debug("Done building cache.")
 
     async def refresh_library_cache(
         self,
@@ -130,7 +144,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         txt: str | None = None,
         wait: bool = False,
     ) -> str | None:
-        log.info(f"Building cache for {library!r}")
+        log.debug("Building cache for %r", library)
 
         async def run(coro: Coroutine[Any, Any, Any]):
             if wait:
@@ -149,7 +163,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             await coro
         except Exception as e:
             log.exception(
-                f"Sending could not be parsed notification for {library!r}", exc_info=e
+                "Sending could not be parsed notification for %r", library, exc_info=e
             )
             txt = f"Unable to cache {library.name!r} due to the following error: {e}"
             if send_noti:
@@ -187,7 +201,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         self._library_cache = cache
         self.better_settings.libraries = [lib.to_partial() for lib in cache.values()]
         self.dump_settings()
-        log.info(f"--- {self.libraries=} ---")
+        log.debug("libraries: %r", self.libraries)
         asyncio.create_task(self.ensure_keywords())
 
     async def start_webserver(self) -> None:
@@ -199,7 +213,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         plugins = await self.api.get_all_plugins()
         for plugin in plugins:
             if plugin.id == self.metadata.id:
-                log.info(f"Got plugin: {plugin!r}")
+                log.debug("Got plugin: %r", plugin)
                 keys = set(self.keywords)
                 to_remove = set(plugin.keywords).difference(keys)
                 to_add = keys.difference(plugin.keywords)
@@ -237,12 +251,12 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         self, name: str, raw_url: str
     ) -> Library | PresetLibrary | None:
         loc = self.convert_raw_loc(raw_url)
-        log.info(f"{loc=}")
+        log.debug("Getting library from url: %r", loc)
         is_path: bool = True
         if isinstance(loc, URL):
             is_path = False
             for preset in preset_docs:
-                log.info(f"Trying {preset!r}")
+                log.debug("Trying Preset: %r", preset)
                 if preset.validate_url(loc):
                     return preset(name, use_cache=True)
         for doctype in doc_types:
@@ -250,11 +264,9 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
                 continue
             lib = doctype(name, loc, use_cache=True)
             try:
-                log.info(f"Trying {doctype!r}")
+                log.debug("Trying doctype: %r", doctype)
                 await lib.build_cache(self.session, self.webserver_port)
             except Exception as e:
-                log.exception(
-                    f"Failed to build cache for library: {name!r}", exc_info=e
-                )
+                log.exception("Failed to build cache for library: %r", name, exc_info=e)
             else:
                 return lib

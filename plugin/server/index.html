@@ -1,5 +1,5 @@
 <!doctype html>
-{% from 'macros.html' import card, doc, actions, input %}
+{% from 'macros.html' import card, doc, actions, input, checkbox %}
 <html lang="en" data-theme="auto">
 <head>
     <meta charset="UTF-8">
@@ -28,6 +28,14 @@
                 {% endcall %}
                 {% call input(label="Main Keyword", id="main-keyword-input", description="This is the keyword that lets you access the settings page, reload the cache, and open up the plugin's log file.") %}
                     <input type="text" id="main-keyword-input" name="plugin.keyword" value="{{ main_kw }}">
+                {% endcall %}
+                {% call checkbox(label="Debug Mode", id="main-debug-mode-input", description="If checked, the plugin will include debug logs in the plugin's log file.") %}
+                    <input
+                        id="main-debug-mode-input"
+                        type="checkbox"
+                        name="plugin.debug"
+                        {% if debug_mode %}checked{% endif %}
+                    >
                 {% endcall %}
             </div>
             {% call actions() %}

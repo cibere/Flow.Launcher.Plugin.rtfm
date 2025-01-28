@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import base64
 import logging
 from typing import TYPE_CHECKING
@@ -8,7 +7,6 @@ from typing import TYPE_CHECKING
 import msgspec
 from aiohttp import web
 
-from ..libraries.library import PartialLibrary
 from .payloads.error import ErrorResponse
 from .payloads.get_library import GetLibraryPayload, GetLibraryResponse
 from .payloads.settings import (
@@ -45,22 +43,8 @@ def build_api(
                 body=ErrorResponse("Invalid Data Received").encode(), status=400
             )
 
-        plugin.static_port = payload.port
-        plugin.main_kw = payload.keyword
-
-        await plugin.update_libraries(payload.libraries)
-        asyncio.create_task(plugin.build_rtfm_lookup_tables())
+        await payload.save(plugin)
         return web.json_response({"success": True}, headers=no_cache_headers)
-
-    @routes.get("/api/settings")
-    async def get_settings(request: web.Request):
-        data = PluginSettings(
-            port=plugin.static_port,
-            keyword=plugin.main_kw,
-            libraries=[lib.to_partial() for lib in plugin.libraries.values()],
-        )
-
-        return web.Response(body=data.encode(), headers=no_cache_headers)
 
     @routes.post("/api/get_library")
     async def get_library(request: web.Request):
@@ -77,27 +61,12 @@ def build_api(
                 body=ErrorResponse("Could not index site").encode(), status=400
             )
 
-        log.info(f"{lib=}")
-
         response = GetLibraryResponse(lib.to_partial())
         return web.Response(body=response.encode(), headers=no_cache_headers)
 
     @routes.get("/api/export_settings")
     async def export_settings(request: web.Request):
-        obj = PluginSettings(
-            plugin.static_port,
-            plugin.main_kw,
-            [
-                PartialLibrary(
-                    lib.name,
-                    lib.typename,
-                    str(lib.loc),
-                    lib.use_cache,
-                    lib.is_api,
-                )
-                for lib in plugin.libraries.values()
-            ],
-        )
+        obj = PluginSettings.from_plugin(plugin)
         response = ExportSettingsResponse(base64.b64encode(obj.encode()).decode())
         return web.Response(body=response.encode(), headers=no_cache_headers)
 
@@ -112,8 +81,5 @@ def build_api(
                 body=ErrorResponse("Invalid Data Received").encode(), status=400
             )
 
-        plugin.main_kw = settings.keyword
-        plugin.static_port = settings.port
-        await plugin.update_libraries(settings.libraries)
-        asyncio.create_task(plugin.build_rtfm_lookup_tables())
+        await settings.save(plugin)
         return web.json_response({"success": True}, headers=no_cache_headers)

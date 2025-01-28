@@ -41,8 +41,9 @@ def build_app(
             "main_kw": plugin.main_kw,
             "port": plugin.static_port,
             "rtfm_version": plugin.metadata.version,
+            "debug_mode": plugin.debug_mode,
         }
-        log.info(f"Sending data: {data}")
+        log.debug("Sending data: %r", data)
         return data
 
     @routes.get("/style.css")
@@ -82,7 +83,7 @@ def build_app(
             )
 
         page = os.path.join(lib.path, path)
-        log.info(f"Returning file: {page!r}")
+        log.debug("Returning file: %r", page)
         return web.FileResponse(page)
 
     app = web.Application()
@@ -130,7 +131,7 @@ async def run_app(
     plugin.webserver_port = port
     plugin.webserver_ready_future.set_result(None)
 
-    log.info(f"Started webserver on port {port}")
+    log.info("Started webserver on port %s", port)
 
     while run_forever:
         await asyncio.sleep(10000)
