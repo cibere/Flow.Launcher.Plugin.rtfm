@@ -1,4 +1,4 @@
-flogin[pip] @ git+https://github.com/cibere/flogin@4445249af2a44e3705e5b17251f109abe37fb0b6
+flogin[pip] @ git+https://github.com/cibere/flogin@478211372d3c7c95f9c242d4cadf763af0844b21
 favicon==0.7.0
 Wand==0.6.13
 aiohttp==3.11.11
