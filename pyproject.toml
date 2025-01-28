@@ -26,7 +26,6 @@ select = [
     "PLE", # https://docs.astral.sh/ruff/rules/#error-e_1
 ]
 ignore = [
-    "G004", # https://docs.astral.sh/ruff/rules/logging-f-string/
     "SIM105", # https://docs.astral.sh/ruff/rules/suppressible-exception/
     "E501", # https://docs.astral.sh/ruff/rules/line-too-long
     "ANN401", # https://docs.astral.sh/ruff/rules/any-type/
