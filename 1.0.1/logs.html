@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Quickstart" href="quickstart.html" /><link rel="prev" title="rtfm plugin" href="index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Changelog" href="changelog.html" />
 
     <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Installing - rtfm 1.0.1 documentation</title>
+        <title>Logs - rtfm 1.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -200,18 +200,18 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">First Steps</span></p>
-<ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Installing</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Info</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="presets.html">Presets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="favicons.html">Favicons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="main_keyword.html">Main Keyword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="settings.html">Plugin Settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logs.html">Logs</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Logs</a></li>
 </ul>
 
 </div>
@@ -232,7 +232,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/installing.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/logs.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -252,90 +252,39 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="installing">
-<h1>Installing<a class="headerlink" href="#installing" title="Link to this heading">¶</a></h1>
-<p>There are 3 main ways to install the plugin:</p>
-<ol class="arabic simple">
-<li><p><a class="reference external" href="#install-stable-release-from-manifest">Install Stable Release From Manifest</a></p></li>
-<li><p><a class="reference external" href="#install-specific-version">Install Specific Version</a></p></li>
-<li><p><a class="reference external" href="#install-from-source">Install from source</a></p></li>
-</ol>
-<section id="install-stable-release-from-manifest">
-<h2>Install Stable Release From Manifest<a class="headerlink" href="#install-stable-release-from-manifest" title="Link to this heading">¶</a></h2>
-<p>To install a stable release of the plugin from flow’s plugin manifest, use the following command:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pm<span class="w"> </span>install<span class="w"> </span>rtfm<span class="w"> </span>by<span class="w"> </span>cibere
-</pre></div>
-</div>
+          <section id="logs">
+<h1>Logs<a class="headerlink" href="#logs" title="Link to this heading">¶</a></h1>
+<p>The plugin has an extensive logging system builtin, however the majority of it is set to the debug level, which is disabled by default.</p>
+<section id="debug-mode">
+<h2>Debug Mode<a class="headerlink" href="#debug-mode" title="Link to this heading">¶</a></h2>
+<p>Debug mode is available for the cases where detailed logs are needed to debug an issue. Having this enabled can slow down the plugin to some degree, but it should only be somewhat noticeable when caching a large amount of manuals.</p>
 </section>
-<section id="install-specific-version">
-<h2>Install Specific Version<a class="headerlink" href="#install-specific-version" title="Link to this heading">¶</a></h2>
-<p>Want to install a specific version? Well you can by using the <a class="reference external" href="https://github.com/cibere/flow.Launcher.Plugin.rtfm/releases">github release page</a></p>
-<section id="find-the-version-you-want-to-download">
-<h3>1. Find the version you want to download<a class="headerlink" href="#find-the-version-you-want-to-download" title="Link to this heading">¶</a></h3>
-<p>To install a specific version, head over to the <a class="reference external" href="https://github.com/cibere/flow.Launcher.Plugin.rtfm/releases">releases page</a> and find the version that you want to install. In my case I’m going to install the <a class="reference external" href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm/releases/tag/v1.0.0a4">v1.0.0a4</a> prerelease.</p>
-<a class="reference external image-reference" href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm/releases/tag/v1.0.0a4"><img alt="_images/v1.0.0a4_prerelease.png" src="_images/v1.0.0a4_prerelease.png" />
-</a>
+<section id="what-gets-logged-without-debug-mode">
+<h2>What gets logged without debug mode?<a class="headerlink" href="#what-gets-logged-without-debug-mode" title="Link to this heading">¶</a></h2>
+<p>Disabling debug mode does not disable logs. When debug mode is disabled, entries that are info level and above are still logged, for example:</p>
+<ul class="simple">
+<li><p>Webserver startup info (like the port it is running on)</p></li>
+<li><p>Start-time settings info from <a class="reference external" href="https://github.com/cibere/flogin">flogin</a></p></li>
+<li><p>Webserver access logs from <a class="reference external" href="https://docs.aiohttp.org/en/stable/">aiohttp</a></p></li>
+<li><p>Warnings (ex: the port the webserver attempted to start on was already taken)</p></li>
+<li><p>Errors</p></li>
+</ul>
 </section>
-<section id="get-the-archive-link">
-<h3>2. Get the archive link<a class="headerlink" href="#get-the-archive-link" title="Link to this heading">¶</a></h3>
-<p>Now grab the link to the <code class="docutils literal notranslate"><span class="pre">zip</span></code> file in the assets section.</p>
-<a class="reference external image-reference" href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm/releases/tag/v1.0.0a4"><img alt="_images/copy_release_archive.png" src="_images/copy_release_archive.png" />
-</a>
+<section id="log-location">
+<h2>Log Location<a class="headerlink" href="#log-location" title="Link to this heading">¶</a></h2>
+<p>Logs are stored in a file called <code class="docutils literal notranslate"><span class="pre">flogin.log</span></code> in the plugin’s root directory. The file is capped at 1mb, however once that limit is reached, the contents will be moved to a file called <code class="docutils literal notranslate"><span class="pre">flogin.log.1</span></code>. The contents of <code class="docutils literal notranslate"><span class="pre">flogin.log.1</span></code> will never be moved, and will just be overriden once <code class="docutils literal notranslate"><span class="pre">flogin.log</span></code> fills up again.</p>
+<p>This file can also be accessed via the <code class="docutils literal notranslate"><span class="pre">Open</span> <span class="pre">Log</span> <span class="pre">File</span></code> result when using the <a class="reference internal" href="main_keyword.html"><span class="doc">Main Keyword</span></a> or in any context menu from a result that came from the plugin.</p>
 </section>
-<section id="install-the-plugin">
-<h3>3. Install the plugin<a class="headerlink" href="#install-the-plugin" title="Link to this heading">¶</a></h3>
-<p>Finally, install the zip using the package manager:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pm<span class="w"> </span>install<span class="w"> </span>&lt;your<span class="w"> </span>link&gt;
-
-<span class="c1"># so in my case it would be</span>
-
-pm<span class="w"> </span>install<span class="w"> </span>https://github.com/cibere/Flow.Launcher.Plugin.rtfm/releases/tag/v1.0.0a4
-</pre></div>
-</div>
-</section>
-</section>
-<section id="install-from-source">
-<h2>Install From Source<a class="headerlink" href="#install-from-source" title="Link to this heading">¶</a></h2>
-<p>If for whatever reason you want to build the plugin yourself, you can.</p>
-<section id="download-source-files">
-<h3>1. Download Source files<a class="headerlink" href="#download-source-files" title="Link to this heading">¶</a></h3>
-<p>First, download the source files from <a class="reference external" href="https://github.com/cibere/flow.Launcher.Plugin.rtfm">the github page</a>. This can be done by downloading it as a zip:</p>
-<a class="reference external image-reference" href="https://github.com/cibere/flow.Launcher.Plugin.rtfm"><img alt="_images/download_source.png" src="_images/download_source.png" />
-</a>
-<p>or by cloning it using <a class="reference external" href="https://git-scm.org">git</a>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cibere/flow.Launcher.Plugin.rtfm
-</pre></div>
-</div>
-</section>
-<section id="install-dependencies">
-<h3>2. Install Dependencies<a class="headerlink" href="#install-dependencies" title="Link to this heading">¶</a></h3>
-<p>Next, install the plugin’s dependencies to a folder called <code class="docutils literal notranslate"><span class="pre">lib</span></code>. This can be done with the following command:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span>-t<span class="w"> </span>lib
-</pre></div>
-</div>
-</section>
-<section id="build-the-plugin">
-<h3>3. Build the plugin<a class="headerlink" href="#build-the-plugin" title="Link to this heading">¶</a></h3>
-<p>Then build the plugin by running the <code class="docutils literal notranslate"><span class="pre">build_plugin.py</span></code> file while passing the name of the location. In my case, I’m going to name the built plugin <code class="docutils literal notranslate"><span class="pre">built_rtfm_plugin.zip</span></code>. That can be done by running:</p>
+<section id="disabling-logs">
+<h2>Disabling Logs<a class="headerlink" href="#disabling-logs" title="Link to this heading">¶</a></h2>
+<p>If you want to disable logs completely, head into your plugin’s directory and create a file called <code class="docutils literal notranslate"><span class="pre">.flogin.prod</span></code>.</p>
+<p>To find the plugin’s directory, open your flow launcher settings menu, head into the plugins tab, and find the <code class="docutils literal notranslate"><span class="pre">rtfm</span></code> plugin.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Make sure the name you pass ends with <code class="docutils literal notranslate"><span class="pre">.zip</span></code>, as the script will create an archive with the chosen name.</p>
+<p>This file is only checked for on startup, so you must restart flow after creating/deleting this file for the changes to take affect.</p>
 </div>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>py<span class="w"> </span>build_plugin.py<span class="w"> </span>built_rtfm_plugin.zip
-</pre></div>
-</div>
-</section>
-<section id="id1">
-<h3>4. Install the plugin<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<p>Now finally, install the plugin by using the package manager.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pm<span class="w"> </span>install<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>zip&gt;
-
-<span class="c1"># so in my case</span>
-
-pm<span class="w"> </span>install<span class="w"> </span>C:<span class="se">\U</span>sers<span class="se">\d</span>efault.MyPC<span class="se">\D</span>ownloads<span class="se">\f</span>low.launcher.plugin.rtfm<span class="se">\b</span>uilt_rtfm_plugin.zip
-</pre></div>
-</div>
-</section>
+<img alt="_images/plugin_folder_icon_darkmode.png" class="only-dark" src="_images/plugin_folder_icon_darkmode.png" />
+<img alt="_images/plugin_folder_icon_lightmode.png" class="only-light" src="_images/plugin_folder_icon_lightmode.png" />
 </section>
 </section>
 
@@ -344,23 +293,15 @@ pm<span class="w"> </span>install<span class="w"> </span>C:<span class="se">\U</
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="quickstart.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">Quickstart</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="index.html">
+          
+          <a class="prev-page" href="changelog.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Home</div>
+                <div class="title">Changelog</div>
                 
               </div>
             </a>
@@ -394,21 +335,11 @@ pm<span class="w"> </span>install<span class="w"> </span>C:<span class="se">\U</
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Installing</a><ul>
-<li><a class="reference internal" href="#install-stable-release-from-manifest">Install Stable Release From Manifest</a></li>
-<li><a class="reference internal" href="#install-specific-version">Install Specific Version</a><ul>
-<li><a class="reference internal" href="#find-the-version-you-want-to-download">1. Find the version you want to download</a></li>
-<li><a class="reference internal" href="#get-the-archive-link">2. Get the archive link</a></li>
-<li><a class="reference internal" href="#install-the-plugin">3. Install the plugin</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#install-from-source">Install From Source</a><ul>
-<li><a class="reference internal" href="#download-source-files">1. Download Source files</a></li>
-<li><a class="reference internal" href="#install-dependencies">2. Install Dependencies</a></li>
-<li><a class="reference internal" href="#build-the-plugin">3. Build the plugin</a></li>
-<li><a class="reference internal" href="#id1">4. Install the plugin</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">Logs</a><ul>
+<li><a class="reference internal" href="#debug-mode">Debug Mode</a></li>
+<li><a class="reference internal" href="#what-gets-logged-without-debug-mode">What gets logged without debug mode?</a></li>
+<li><a class="reference internal" href="#log-location">Log Location</a></li>
+<li><a class="reference internal" href="#disabling-logs">Disabling Logs</a></li>
 </ul>
 </li>
 </ul>

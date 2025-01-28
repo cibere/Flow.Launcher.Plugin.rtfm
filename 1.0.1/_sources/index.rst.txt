@@ -34,3 +34,4 @@ Credits
    main_keyword
    settings
    changelog
+   logs
