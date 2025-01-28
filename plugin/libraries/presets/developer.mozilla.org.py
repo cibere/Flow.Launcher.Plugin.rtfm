@@ -17,12 +17,15 @@ class DocEntry(msgspec.Struct):
     title: str
 
 
+doc_entry_decoder = json.Decoder(type=list[DocEntry])
+
+
 class MdnDocs(PresetLibrary, base_url="https://developer.mozilla.org"):
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
         async with session.get(self.url / "en-US" / "search-index.json") as res:
             raw_content: bytes = await res.content.read()
 
-        data = json.decode(raw_content, type=list[DocEntry])
+        data = doc_entry_decoder.decode(raw_content)
 
         self.cache = {
             entry.title: self._build_url(entry.url, webserver_port) for entry in data

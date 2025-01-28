@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar
 
 import msgspec
-from msgspec import json
 
 from .library import Library
 
@@ -22,6 +21,9 @@ class SearchIndexFile(msgspec.Struct):
     docs: list[DocEntry]
 
 
+search_file_decoder = msgspec.json.Decoder(type=SearchIndexFile)
+
+
 class Mkdocs(Library):
     typename: ClassVar[str] = "Mkdocs"
     is_preset: ClassVar[bool] = False
@@ -34,7 +36,7 @@ class Mkdocs(Library):
         async with session.get(url / "search" / "search_index.json") as res:
             raw_content: bytes = await res.content.read()
 
-        data = json.decode(raw_content, type=SearchIndexFile)
+        data = search_file_decoder.decode(raw_content)
 
         self.cache = {
             entry.title: self._build_url(entry.location, webserver_port)
