@@ -44,6 +44,10 @@ const elements = {
     addManualLoc: document.querySelector("#add-manual-loc"),
     /** @type {HTMLDialogElement} */
     loadingModal: document.querySelector("#loading-modal"),
+    /** @type {HTMLButtonElement} */
+    importBtn: document.querySelector("#import-btn"),
+    /** @type {HTMLButtonElement} */
+    exportBtn: document.querySelector("#export-btn"),
 };
 
 /**
@@ -131,6 +135,7 @@ elements.addManualButton.addEventListener("click", async () => {
             return;
         }
 
+        alert("Success!");
         addNewDoc(response.data);
     } catch (e) {
         hideLoadingModal();
@@ -170,5 +175,51 @@ elements.mainForm.addEventListener("click", e => {
         replaceIndexInAttribute(card, `label`, 'for', i);
         replaceIndexInAttribute(card, `input`, 'id', i);
         replaceIndexInAttribute(card, `input`, 'name', i);
+    }
+});
+
+elements.importBtn.addEventListener("click", () => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".txt";
+    fileInput.click();
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.addEventListener("load", async () => {
+            const data = reader.result;
+            try {
+                let response = await fetch("/api/import_settings", {
+                    body: JSON.stringify({data}),
+                    method: "POST",
+                });
+                console.log("Got Response from import settings endpoint", response);
+                alert("Settings imported successfully!");
+            } catch {
+                alert("Failed to import settings!");
+            }
+        });
+    });
+});
+
+elements.exportBtn.addEventListener("click", async () => {
+    try {
+        const data = await fetch("/api/export_settings").then(res => res.json());
+        if (!data.success) {
+            alert("Failed to export settings!");
+            return;
+        }
+        const file = new Blob([data.data], {type: "text/plain"});
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "rtfm_settings.txt";
+        a.click();
+        URL.revokeObjectURL(url);
+        alert("Settings exported successfully!");
+        location.reload();
+    } catch {
+        alert("Failed to export settings!");
     }
 });
