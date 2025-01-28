@@ -57,7 +57,7 @@ jobs:
         uses: tsickert/discord-webhook@v6.0.0
         with:
           webhook-url: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
-          content: https://github-artifact-downloader.cibere.dev/${{ github.event.repository.name }}/${{ steps.upload-artifact.outputs.artifact-id }}/plugin.zip
+          content: https://github-artifact-downloader.cibere.dev/${{ github.event.repository.name }}/${{ steps.upload-artifact.outputs.artifact-id }}/rtfm.zip
 
       - name: Upload Archive to release artifacts
         uses: softprops/action-gh-release@v2
