@@ -64,12 +64,12 @@ def build_google_favicon_url(domain: str) -> str:
 
 def get_local_icon(key: str, path: Path) -> str | None:
     raw_icons = get_favicon(path)
-    log.info(f"Found icons for {key} @ {path!r}: {raw_icons!r}")
+    log.debug("Found icons for %s @ %r: %r", key, path, raw_icons)
     for icon in raw_icons:
         icon_url = icon[0]
 
         fp = path.parent / icon_url
-        log.info(f"Chosen icon for {key} is {fp!r}")
+        log.debug("Chosen icon for %s is %r", key, fp)
         return str(fp)
 
 
@@ -96,14 +96,14 @@ def get_online_icon(key: str, url: URL) -> str | None:
         return handle_raw_icon(icon.content, url)
 
     raw_icons = get_favicon(url)
-    log.info(f"Found icons for {key} @ {url}: {raw_icons!r}")
+    log.debug("Found icons for %s @ %s: %r", key, url, raw_icons)
     for icon in raw_icons:
         icon_url = icon[0]
         format = icon[3]
 
         file = url_to_bytes(icon_url, format)
         filename = handle_raw_icon(file, url)
-        log.info(f"Saved icon for {key} at {filename}")
+        log.debug("Saved icon for %s at %s", key, filename)
         return filename
 
 

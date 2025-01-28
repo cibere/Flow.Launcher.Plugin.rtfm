@@ -40,7 +40,7 @@ class Github(
             resp = search_decoder.decode(raw)
         except msgspec.ValidationError:
             error = error_decoder.decode(raw)
-            log.exception(f"Received error from github: {error!r}")
+            log.exception("Received error from github: %r", error)
             self.cache = {}
             return
 

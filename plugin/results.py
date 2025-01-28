@@ -104,7 +104,7 @@ class OpenRtfmResult(BaseResult):
         assert self.plugin
 
         if self.library.path:
-            log.info(f"Opening URL: {self.url!r}")
+            log.debug("Opening URL: %r", self.url)
             await asyncio.to_thread(webbrowser.open, self.url)
         else:
             await self.plugin.api.open_url(self.url)

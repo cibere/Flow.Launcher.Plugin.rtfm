@@ -20,7 +20,7 @@ def built_presets() -> Iterator[type[PresetLibrary]]:
 
         if file.name.startswith("_"):
             pass
-        log.info(f"Builting {file.name!r} at {file!r}")
+        log.debug("Builting %r at %r", file.name, file)
         spec = importlib.util.spec_from_file_location(typename, file)
         assert spec
         module = importlib.util.module_from_spec(spec)

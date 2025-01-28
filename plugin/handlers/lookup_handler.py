@@ -26,8 +26,8 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
             )
 
         if not library.use_cache:
-            log.info(
-                f"Library {library.name!r} not set to use cache, rebuilding for request"
+            log.debug(
+                "Library %r not set to use cache, rebuilding for request", library.name
             )
             msg = await self.plugin.refresh_library_cache(
                 library, send_noti=False, txt=query.text, wait=True
@@ -36,7 +36,7 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
                 return Result(msg, icon=library.icon)
 
         if library.cache is None:
-            log.info("Cache is `None`, refreshing")
+            log.debug("Cache is `None`, refreshing")
             await self.plugin.refresh_library_cache(library)
             if library.cache is None:
                 return Result(
