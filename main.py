@@ -12,14 +12,18 @@ lib_dir = prod_dir if prod_dir.exists() else dev_dir
 sys.path.extend([root.as_posix(), lib_dir.as_posix()])
 
 from flogin import Pip
-from flogin.utils import setup_logging
 
-setup_logging()
+from plugin.logs import Logs
+
+logs = Logs()
+logs.setup()
 
 with Pip(lib_dir) as pip:
     pip.ensure_installed("msgspec==0.19.0", module="msgspec._core")
 
 from plugin.plugin import RtfmPlugin
 
-if __name__ == "__main__":
-    RtfmPlugin().run(setup_default_log_handler=False)
+plugin = RtfmPlugin()
+plugin.logs = logs
+logs.update_debug(plugin.debug_mode)
+plugin.run(setup_default_log_handler=False)
