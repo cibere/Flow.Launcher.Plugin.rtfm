@@ -23,11 +23,18 @@ Saving your settings
 --------------------
 Your settings will not automatically save, you have to save them manually. To save your settings and trigger a cache reload, press the ``Save Settings & Reload Cache`` button under the ``Plugin Settings`` section in the website. This button is the only method to save any of your settings.
 
+.. NOTE::
+    The cache reload is asynchronous, so the button will trigger it, but won't wait for it to finish. Because of this, any cache failures will be shown to you via a windows notification.
+
 .. image:: /_static/images/save_settings_example_darkmode.png
     :class: only-dark
 
 .. image:: /_static/images/save_settings_example_lightmode.png
     :class: only-light
+
+Backups
+--------
+If you would like, you can create backups by using the ``Export Settings`` and ``Import Settings`` buttons. When exporting your settings, a file called ``rtfm_settings.txt`` will be downloaded to your downloads folder.
 
 Adding a manual/doc
 -------------------

@@ -270,8 +270,16 @@
 <section id="saving-your-settings">
 <span id="save-settings"></span><h2>Saving your settings<a class="headerlink" href="#saving-your-settings" title="Link to this heading">¶</a></h2>
 <p>Your settings will not automatically save, you have to save them manually. To save your settings and trigger a cache reload, press the <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Settings</span> <span class="pre">&amp;</span> <span class="pre">Reload</span> <span class="pre">Cache</span></code> button under the <code class="docutils literal notranslate"><span class="pre">Plugin</span> <span class="pre">Settings</span></code> section in the website. This button is the only method to save any of your settings.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The cache reload is asynchronous, so the button will trigger it, but won’t wait for it to finish. Because of this, any cache failures will be shown to you via a windows notification.</p>
+</div>
 <img alt="_images/save_settings_example_darkmode.png" class="only-dark" src="_images/save_settings_example_darkmode.png" />
 <img alt="_images/save_settings_example_lightmode.png" class="only-light" src="_images/save_settings_example_lightmode.png" />
+</section>
+<section id="backups">
+<h2>Backups<a class="headerlink" href="#backups" title="Link to this heading">¶</a></h2>
+<p>If you would like, you can create backups by using the <code class="docutils literal notranslate"><span class="pre">Export</span> <span class="pre">Settings</span></code> and <code class="docutils literal notranslate"><span class="pre">Import</span> <span class="pre">Settings</span></code> buttons. When exporting your settings, a file called <code class="docutils literal notranslate"><span class="pre">rtfm_settings.txt</span></code> will be downloaded to your downloads folder.</p>
 </section>
 <section id="adding-a-manual-doc">
 <h2>Adding a manual/doc<a class="headerlink" href="#adding-a-manual-doc" title="Link to this heading">¶</a></h2>
@@ -383,6 +391,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#saving-your-settings">Saving your settings</a></li>
+<li><a class="reference internal" href="#backups">Backups</a></li>
 <li><a class="reference internal" href="#adding-a-manual-doc">Adding a manual/doc</a><ul>
 <li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
