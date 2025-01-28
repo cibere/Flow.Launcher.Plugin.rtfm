@@ -11,11 +11,12 @@ def main(archive_name: str):
             "SettingsTemplate.yaml",
             "plugin.json",
             "main.py",
-            "assets/app.png",
         )
     ]
     ignore_exts = (".dist-info", ".pyc", "__pycache__")
     plugin_include_exts = ("py", "html", "css", "js")
+
+    files.extend(Path("assets").iterdir())
 
     plugin_dir = Path("plugin")
     for ext in plugin_include_exts:
