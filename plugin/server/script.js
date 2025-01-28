@@ -195,7 +195,8 @@ elements.importBtn.addEventListener("click", () => {
                     method: "POST",
                 });
                 console.log("Got Response from import settings endpoint", response);
-                alert("Settings imported successfully!");
+                alert("Settings imported successfully! A full restart of flow launcher is needed for all new settings to take affect.");
+                window.location.reload();
             } catch {
                 alert("Failed to import settings!");
             }

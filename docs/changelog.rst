@@ -4,6 +4,11 @@ Changelog
 New Features
 ------------
 - Add the ability to import and export settings
+- Logging System Overhall
+    - Added a ``Debug Mode`` to disable 99% of logs
+    - Demote most log entries to debug level
+    - Add a logs section to the documentation
+    - Add a way to disable logs entirely
 
 Bug Fixes
 ----------
