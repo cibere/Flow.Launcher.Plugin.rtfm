@@ -30,6 +30,7 @@ Credits
    :hidden:
 
    presets
+   doctypes
    favicons
    main_keyword
    settings
