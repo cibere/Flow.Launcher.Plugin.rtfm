@@ -50,3 +50,9 @@ exclude_dirs  = [
 skips = [
     "B101" # skip asssets as they are used for typing purposes
 ]
+
+[tool.pyright]
+include = [
+    "plugin","build_plugin.py", "main.py"
+]
+pythonPlatform = "Windows"
