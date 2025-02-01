@@ -26,6 +26,10 @@ class MathWorksDoc(
         super().__init__(name, use_cache=False)
 
     async def make_request(self, session: ClientSession, query: str) -> None:
+        if not query.strip():
+            self.cache = {"Index Page": "https://www.mathworks.com/help/"}
+            return
+
         url = "https://www.mathworks.com/help/search/suggest/doccenter/en/R2024b"
         params = {"q": query, "selectedsource": "mw", "width": "785.667"}
         headers = {"User-Agent": "python-flow.launcher.plugin.rtfm/1.0.0"}
