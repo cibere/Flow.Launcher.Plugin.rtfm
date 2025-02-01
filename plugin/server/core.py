@@ -93,7 +93,7 @@ def build_app(
     return app
 
 
-async def start_runner(app: web.Application, host: str, port: int):
+async def start_runner(app: web.Application, host: str, port: int) -> int:
     runner = web.AppRunner(app)
     await runner.setup()
 

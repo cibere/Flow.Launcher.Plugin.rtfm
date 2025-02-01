@@ -12,7 +12,7 @@ TYPE_CHECKING = False
 if TYPE_CHECKING:
     from typing import TYPE_CHECKING, Any, Unpack
 
-    from flogin.jsonrpc.results import ResultConstructorArgs  # noqa: TC002
+    from flogin.jsonrpc.results import ResultConstructorKwargs  # noqa: TC002
 
     from .libraries.library import Library  # noqa: TC001
     from .plugin import RtfmPlugin  # noqa: F401
@@ -118,7 +118,7 @@ class OpenRtfmResult(BaseResult):
 
 
 class CopyResult(BaseResult):
-    def __init__(self, text: str, **kwargs: Unpack[ResultConstructorArgs]) -> None:
+    def __init__(self, text: str, **kwargs: Unpack[ResultConstructorKwargs]) -> None:
         super().__init__(**kwargs)
         self.text = text
 
