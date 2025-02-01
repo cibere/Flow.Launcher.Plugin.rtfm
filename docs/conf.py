@@ -40,7 +40,7 @@ sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
 sys.path.append(os.path.abspath("extensions"))
 
 extensions = [
-    "list_presets",
+    "list_fetch_entries",
     "sphinx_copybutton",
 ]
 
