@@ -27,3 +27,4 @@ jobs:
           ruff-formatter: 'true'
           bandit: 'true'
           python-version: ${{ matrix.python-version }}
+          requirements: 'requirements.txt'
