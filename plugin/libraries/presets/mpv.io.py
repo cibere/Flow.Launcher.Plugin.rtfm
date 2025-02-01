@@ -19,4 +19,4 @@ class MpvIoStable(
 ): ...
 
 
-presets = (MpvIoMaster, MpvIoStable)
+preset = (MpvIoMaster, MpvIoStable)

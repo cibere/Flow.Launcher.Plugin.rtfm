@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import msgspec
 
 TYPE_REPLACEMENTS = {
@@ -37,5 +39,5 @@ class DocEntry(msgspec.Struct):
         return ".".join(parts)
 
 
-class GtkIndex(msgspec.Struct):
+class GiDocGenIndex(msgspec.Struct):
     symbols: list[DocEntry]

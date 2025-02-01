@@ -4,9 +4,7 @@ from typing import TYPE_CHECKING
 
 from yarl import URL
 
-from .intersphinx import SphinxLibrary
-from .mkdocs import Mkdocs
-from .presets._loader import built_presets
+from . import doctypes, presets
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -14,11 +12,8 @@ if TYPE_CHECKING:
     from .library import Library, PartialLibrary
     from .preset import PresetLibrary
 
-doc_types: Iterable[type[Library]] = (
-    Mkdocs,
-    SphinxLibrary,
-)
-preset_docs: Iterable[type[PresetLibrary]] = list(built_presets())
+doc_types: Iterable[type[Library]] = list(doctypes.fetch())
+preset_docs: Iterable[type[PresetLibrary]] = list(presets.fetch())
 
 
 def library_from_partial(lib: PartialLibrary) -> Library:

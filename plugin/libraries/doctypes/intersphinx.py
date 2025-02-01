@@ -10,7 +10,7 @@ import re
 import zlib
 from typing import TYPE_CHECKING, ClassVar
 
-from .library import Library
+from plugin.libraries.library import Library
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -140,3 +140,6 @@ class SphinxLibrary(Library):
             cache[f"{prefix}{key}"] = self._build_url(location, webserver_port)
 
         self.cache = cache
+
+
+doctype = SphinxLibrary

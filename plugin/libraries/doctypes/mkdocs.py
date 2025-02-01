@@ -4,22 +4,11 @@ from typing import TYPE_CHECKING, ClassVar
 
 import msgspec
 
-from .library import Library
+from plugin.libraries.doctypes._structs.mkdocs import SearchIndexFile
+from plugin.libraries.library import Library
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
-
-
-class DocEntry(msgspec.Struct):
-    location: str
-    text: str
-    title: str
-
-
-class SearchIndexFile(msgspec.Struct):
-    config: dict
-    docs: list[DocEntry]
-
 
 search_file_decoder = msgspec.json.Decoder(type=SearchIndexFile)
 
@@ -42,3 +31,6 @@ class Mkdocs(Library):
             entry.title: self._build_url(entry.location, webserver_port)
             for entry in data.docs
         }
+
+
+doctype = Mkdocs
