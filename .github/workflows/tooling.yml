@@ -1,0 +1,29 @@
+name: Tooling
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  tooling:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ '3.11', '3.12', '3.13' ]
+
+    name: tooling on ${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Run Tools
+        uses: cibere/python-action@master
+        with:
+          pyright: 'true'
+          ruff-linter: 'true'
+          ruff-formatter: 'true'
+          bandit: 'true'
+          python-version: ${{ matrix.python-version }}
