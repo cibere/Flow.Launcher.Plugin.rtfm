@@ -65,7 +65,7 @@ The list of manuals/docs that you have currently added will be at the bottom of 
 
 Keyword
 ~~~~~~~
-This is the keyword that you use to query the doc/manual. Please ensure that this does not conflict with any keywords from other plugins, as that can cause complications.
+This is the keyword that you use to query the doc/manual.
 
 If you do not want to use a keyword, setting the keyword to ``*`` will make it work without a keyword.
 
