@@ -1,8 +1,11 @@
 rtfm plugin
 ===========
-.. image:: https://img.shields.io/badge/Documentation-Dev/Latest-blue
-   :target: https://rtfm.cibere.dev/latest
-   :alt: Latest Documentation
+.. image:: https://img.shields.io/badge/Documentation-Dev-blue
+   :target: https://rtfm.cibere.dev/dev
+   :alt: Dev Documentation
+.. image:: https://img.shields.io/badge/Documentation-Stable-blue
+   :target: https://rtfm.cibere.dev/stable
+   :alt: Stable Documentation
    
 The rtfm plugin for `flow launcher <https://www.flowlauncher.com/>`__ makes it easy to query docs or manuals.
 
