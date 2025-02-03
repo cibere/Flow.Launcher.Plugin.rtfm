@@ -14,9 +14,10 @@ if TYPE_CHECKING:
 
 
 class LuaManualParser:
+    soup: bs4.BeautifulSoup
+
     def __init__(self, data: bytes, url_builder: Callable[[str], str]) -> None:
         self.data = data
-        self.soup = bs4.BeautifulSoup(data, "html.parser")
         self.cache: dict[str, str] = {}
         self.url_builder = url_builder
 
@@ -44,6 +45,7 @@ class LuaManualParser:
     def parse(
         self,
     ) -> dict[str, str]:
+        self.soup = bs4.BeautifulSoup(self.data, "html.parser")
         self.parse_nav()
         self.parse_index()
         return self.cache

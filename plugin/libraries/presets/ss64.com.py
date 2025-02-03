@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 
 class SS64Parser:
+    soup: bs4.BeautifulSoup
+
     def __init__(
         self,
         data: bytes,
@@ -21,12 +23,13 @@ class SS64Parser:
         is_powershell: bool = False,
     ) -> None:
         self.data = data
-        self.soup = bs4.BeautifulSoup(data, "html.parser")
         self.cache: dict[str, str] = {}
         self.url_builder = url_builder
         self.is_powershell = is_powershell
 
     def parse(self) -> dict[str, str]:
+        self.soup = bs4.BeautifulSoup(self.data, "html.parser")
+
         container = self.soup.find_all("table")[-1]
         assert isinstance(container, bs4.Tag)
 
