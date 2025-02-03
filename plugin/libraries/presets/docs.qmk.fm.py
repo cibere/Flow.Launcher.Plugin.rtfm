@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import re
 from typing import TYPE_CHECKING
 
 import bs4
@@ -14,6 +15,9 @@ if TYPE_CHECKING:
 
 response_decoder = msgspec.json.Decoder(type=QmkLocalSearchData)
 
+THEME_FILE_PARSER_PATTERN = re.compile(r"([^\"]+VPLocalSearchBox[^\"]+)")
+SEARCHBOX_FILE_PARSER_PATTERN = re.compile(r"([^\"]+localSearchIndexroot[^\"]+)")
+
 
 class QmkDocs(PresetLibrary, base_url="https://docs.qmk.fm"):
     def qmk_get_theme(self, text: bytes) -> list[str]:
@@ -23,33 +27,6 @@ class QmkDocs(PresetLibrary, base_url="https://docs.qmk.fm"):
             for tag in soup.find_all("link", rel="modulepreload")
             if isinstance(tag, bs4.Tag)
         ]
-
-    async def qmk_parse_theme_file(
-        self, session: ClientSession, url: str
-    ) -> str | None:
-        async with session.get(self.loc.with_path(url)) as res:
-            raw_content = await res.content.read()
-        data = raw_content.decode()
-        if not data.startswith("const __vite__fileDeps=["):
-            return
-        return data.removeprefix('const __vite__fileDeps=["').split('"')[0]
-
-    async def qmk_parse_search_box_file(
-        self, session: ClientSession, url: str
-    ) -> str | None:
-        async with session.get(self.loc.with_path(url)) as res:
-            raw_content = await res.content.read()
-        data = raw_content.decode()
-
-        for line in data.splitlines():
-            if not line.startswith(
-                'const localSearchIndex = { "root": () => __vitePreload(() => import'
-            ):
-                continue
-
-            return line.removeprefix(
-                'const localSearchIndex = { "root": () => __vitePreload(() => import(".'
-            ).split('"')[0]
 
     async def parse_index(
         self, session: ClientSession, filename: str, webserver_port: int
@@ -73,16 +50,29 @@ class QmkDocs(PresetLibrary, base_url="https://docs.qmk.fm"):
 
         return cache
 
+    async def find_match_from_url(
+        self, session: ClientSession, *, url: str, pattern: re.Pattern[str]
+    ) -> str | None:
+        async with session.get(self.loc.with_path(url)) as res:
+            raw_content = await res.content.read()
+
+        for match in pattern.finditer(raw_content.decode()):
+            return match.group(0)
+
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
         async with session.get(self.url) as res:
             raw_content: bytes = await res.content.read()
         tags = await asyncio.to_thread(self.qmk_get_theme, raw_content)
 
         for tag in tags:
-            search_box_url = await self.qmk_parse_theme_file(session, tag)
+            search_box_url = await self.find_match_from_url(
+                session, url=tag, pattern=THEME_FILE_PARSER_PATTERN
+            )
             if search_box_url is None:
                 continue
-            index_name = await self.qmk_parse_search_box_file(session, search_box_url)
+            index_name = await self.find_match_from_url(
+                session, url=search_box_url, pattern=SEARCHBOX_FILE_PARSER_PATTERN
+            )
             if index_name is None:
                 continue
             self.cache = await self.parse_index(
