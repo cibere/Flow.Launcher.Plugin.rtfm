@@ -56,3 +56,6 @@ include = [
     "plugin","build_plugin.py", "main.py"
 ]
 pythonPlatform = "Windows"
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
