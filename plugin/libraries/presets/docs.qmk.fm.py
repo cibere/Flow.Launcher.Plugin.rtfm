@@ -18,7 +18,11 @@ response_decoder = msgspec.json.Decoder(type=QmkLocalSearchData)
 class QmkDocs(PresetLibrary, base_url="https://docs.qmk.fm"):
     def qmk_get_theme(self, text: bytes) -> list[str]:
         soup = bs4.BeautifulSoup(text.decode(), "html.parser")
-        return [tag.attrs["href"] for tag in soup.find_all("link", rel="modulepreload")]
+        return [
+            str(tag.attrs["href"])
+            for tag in soup.find_all("link", rel="modulepreload")
+            if isinstance(tag, bs4.Tag)
+        ]
 
     async def qmk_parse_theme_file(
         self, session: ClientSession, url: str

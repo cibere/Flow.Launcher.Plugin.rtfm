@@ -10,6 +10,7 @@ from plugin.libraries.preset import PresetLibrary
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
+    from bs4._typing import _QueryResults
 
 
 class LuaManualParser:
@@ -19,19 +20,26 @@ class LuaManualParser:
         self.cache: dict[str, str] = {}
         self.url_builder = url_builder
 
-    def parse_atags(self, tags: list[bs4.Tag]) -> None:
+    def parse_atags(self, tags: _QueryResults) -> None:
         for tag in tags:
+            if not isinstance(tag, bs4.Tag):
+                continue
+
             href = tag.attrs.get("href")
             if href:
-                self.cache[tag.get_text()] = self.url_builder(href).replace("%23", "#")
+                self.cache[tag.get_text()] = self.url_builder(str(href)).replace(
+                    "%23", "#"
+                )
 
     def parse_nav(self) -> None:
-        container: bs4.Tag = self.soup.find_all("ul", class_="contents menubar")[0]
-        self.parse_atags(container.find_all("a"))
+        container = self.soup.find_all("ul", class_="contents menubar")[0]
+        if isinstance(container, bs4.Tag):
+            self.parse_atags(container.find_all("a"))
 
     def parse_index(self) -> None:
-        container: bs4.Tag = self.soup.find_all("table", class_="menubar")[0]
-        self.parse_atags(container.find_all("a"))
+        container = self.soup.find_all("table", class_="menubar")[0]
+        if isinstance(container, bs4.Tag):
+            self.parse_atags(container.find_all("a"))
 
     def parse(
         self,
