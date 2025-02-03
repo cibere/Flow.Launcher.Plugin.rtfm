@@ -83,6 +83,7 @@ def update_stable_symlink(versions: list[VersionInfo]):
         os.replace(temp_path, actual_path)
 
         print(f"Stable symlink now links to {version}")
+        return
 
 
 def main():
