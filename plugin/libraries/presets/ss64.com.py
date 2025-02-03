@@ -27,20 +27,30 @@ class SS64Parser:
         self.is_powershell = is_powershell
 
     def parse(self) -> dict[str, str]:
-        container: bs4.Tag = self.soup.find_all("table")[-1]
-        rows: list[bs4.Tag] = container.find_all("tr")
+        container = self.soup.find_all("table")[-1]
+        assert isinstance(container, bs4.Tag)
+
+        rows = container.find_all("tr")
         for row in rows:
-            tds: list[bs4.Tag] = row.find_all("td")
+            if not isinstance(row, bs4.Tag):
+                continue
+
+            tds = row.find_all("td")
             if not tds:
                 continue
-            if tds[0].attrs.get("class") == "ix":
+
+            tds0 = tds[0]
+            if not isinstance(tds0, bs4.Tag) or tds0.attrs.get("class") == "ix":
                 continue
 
             cmd_name_td = tds[1]
+            if not isinstance(cmd_name_td, bs4.Tag):
+                continue
+
             atag = cmd_name_td.find("a")
             if isinstance(atag, bs4.Tag):
                 command_name = atag.text.strip()
-                path = atag.attrs.get("href", "").strip()
+                path = str(atag.attrs.get("href", "")).strip()
             else:
                 command_name = cmd_name_td.text.strip()
                 path = ""
