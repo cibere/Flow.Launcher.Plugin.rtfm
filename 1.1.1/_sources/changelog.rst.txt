@@ -14,3 +14,4 @@ Documentation
 - Some minor changes
 - Rename the ``latest`` version to ``dev``
 - Fix bug with the ``stable`` version not appearing in index page
+- Fix bug with ``stable`` version linking to the wrong version
