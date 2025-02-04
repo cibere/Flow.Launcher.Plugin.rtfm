@@ -9,7 +9,9 @@ if TYPE_CHECKING:
     from aiohttp import ClientSession
 
 
-class AutoHotkeyDocs(PresetLibrary, is_variant=True):
+class AutoHotkeyDocs(
+    PresetLibrary, is_variant=True, favicon_url="https://www.autohotkey.com/favicon.ico"
+):
     autohotkey_version: ClassVar[int]
     inventory_url: ClassVar[str]
 
