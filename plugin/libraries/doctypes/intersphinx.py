@@ -10,7 +10,9 @@ import re
 import zlib
 from typing import TYPE_CHECKING, ClassVar
 
+from plugin.libraries.entry import Entry
 from plugin.libraries.library import Library
+from plugin.results import OpenRtfmResult
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -90,7 +92,7 @@ class SphinxLibrary(Library):
         file = await self.fetch_file(session)
 
         # key: URL
-        cache: dict[str, str] = {}
+        cache: dict[str, str | Entry] = {}
 
         # first line is version info
         inv_version = file.readline().rstrip()
@@ -135,11 +137,31 @@ class SphinxLibrary(Library):
                 location = location[:-1] + name
 
             key = name if dispname == "-" else dispname
-            prefix = f"{subdirective}:" if domain == "std" else ""
+            url = self._build_url(location, webserver_port)
 
-            cache[f"{prefix}{key}"] = self._build_url(location, webserver_port)
+            prefix = f"{subdirective}:" if domain == "std" else ""
+            label = f"{prefix}{key}"
+
+            cache[label] = Entry(
+                label,
+                url,
+                options={"sub": f"{directive} | priority: {prio}"},
+                ctx_menu_factory=self.entry_ctx_menu_factory,
+            )
 
         self.cache = cache
+
+    def entry_ctx_menu_factory(self, entry: Entry):
+        if not self.cache:
+            return
+
+        for key, value in self.cache.items():
+            if key.startswith(entry.text):
+                yield OpenRtfmResult(
+                    library=self,
+                    entry=Entry(key, value) if isinstance(value, str) else value,
+                    score=0,
+                )
 
 
 doctype = SphinxLibrary
