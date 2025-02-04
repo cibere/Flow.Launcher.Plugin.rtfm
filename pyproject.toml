@@ -35,6 +35,7 @@ ignore = [
     "PGH003", # https://docs.astral.sh/ruff/rules/blanket-type-ignore
     "ANN202", # https://docs.astral.sh/ruff/rules/missing-return-type-private-function
     "RUF006", # https://docs.astral.sh/ruff/rules/asyncio-dangling-task
+    "F403", # https://docs.astral.sh/ruff/rules/undefined-local-with-import-star
 ]
 
 [tool.ruff.format]
