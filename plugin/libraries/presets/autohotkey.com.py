@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
 from typing import TYPE_CHECKING, ClassVar
 
 import msgspec
@@ -8,6 +7,8 @@ import msgspec
 from plugin.libraries.preset import PresetLibrary
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from aiohttp import ClientSession
 
 DATA_INDEX_URL = "https://raw.githubusercontent.com/AutoHotkey/AutoHotkeyDocs/refs/heads/v{0}/docs/static/source/data_index.js"
