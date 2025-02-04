@@ -18,8 +18,6 @@ if TYPE_CHECKING:
 
 BuilderType = Callable[[str, int], str]
 
-__all__ = "Library", "PartialLibrary"
-
 
 class PartialLibrary(msgspec.Struct):
     name: str
