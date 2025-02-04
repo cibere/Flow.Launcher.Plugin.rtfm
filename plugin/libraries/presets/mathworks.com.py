@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, ClassVar
 import msgspec
 from aiohttp import ClientSession
 
-from plugin.libraries.preset import PresetLibrary
+from plugin.libraries import Entry, PresetLibrary
 from plugin.libraries.presets._structs.mathworks import Response
 
 if TYPE_CHECKING:
@@ -45,7 +45,11 @@ class MathWorksDoc(
 
         for page in resp.pages:
             for entry in page.suggestions:
-                cache[entry.label] = str(self.base_url / entry.path)
+                cache[entry.label] = Entry(
+                    entry.label,
+                    url=str(self.base_url / entry.path),
+                    options={"sub": f"type: {entry.type} | {entry.product}"},
+                )
 
         self.cache = cache
 
