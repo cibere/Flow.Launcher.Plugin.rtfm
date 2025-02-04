@@ -4,6 +4,8 @@ from yarl import URL
 
 from .library import Library
 
+__all__ = ("PresetLibrary",)
+
 
 class PresetLibrary(Library):
     is_preset: ClassVar[bool] = True

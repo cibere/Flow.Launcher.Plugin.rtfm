@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
     from .library import Library
 
+__all__ = ("Entry",)
+
 
 class CtxMenuFactory(Protocol):
     def __call__(self, entry: Entry) -> Sequence[Result] | Iterator[Result]: ...
