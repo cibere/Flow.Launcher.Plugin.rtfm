@@ -55,8 +55,8 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
             yield Result("Could not find anything. Sorry.", icon=library.icon)
             return
 
-        for idx, (name, entry) in enumerate(matches):
+        for idx, (name, entry) in enumerate(reversed(matches)):
             if isinstance(entry, str):
                 entry = Entry(name, entry)
 
-            yield OpenRtfmResult(library=library, entry=entry, score=100 - idx)
+            yield OpenRtfmResult(library=library, entry=entry, score=idx)
