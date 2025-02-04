@@ -1,4 +1,3 @@
-import json
 import logging
 import pathlib
 from collections.abc import AsyncGenerator, Iterator
@@ -6,6 +5,7 @@ from typing import Any
 
 import aiohttp
 import flogin
+import msgspec
 import pytest
 import pytest_asyncio
 
@@ -25,8 +25,7 @@ def _dump(lib: PresetLibrary, pytestconfig: pytest.Config):
     if pytestconfig.getoption("dump"):
         caches_dir.mkdir(exist_ok=True)
         path = caches_dir / f"{lib.__class__.__name__}.json"
-        with path.open("w") as f:
-            json.dump(lib.cache, f, indent=4)
+        path.write_bytes(msgspec.json.format(msgspec.json.encode(lib.cache)))
 
 
 for PresetClass in fetch_presets():

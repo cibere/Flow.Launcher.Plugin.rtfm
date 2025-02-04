@@ -10,7 +10,11 @@ from yarl import URL
 from ..icons import get_icon as _get_icon
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from aiohttp import ClientSession
+
+    from .entry import Entry
 
 BuilderType = Callable[[str, int], str]
 
@@ -48,13 +52,14 @@ class Library:
     is_preset: ClassVar[bool]
     favicon_url: ClassVar[str] | None = None
     is_api: ClassVar[bool] = False
+    cache: Mapping[str, Entry | str] | None
     supports_local: ClassVar[bool] = False
 
     def __init__(self, name: str, loc: URL | Path, *, use_cache: bool) -> None:
         self.name = name
         self.loc = loc
         self.icon: str | None = None
-        self.cache: dict[str, str] | None = None
+        self.cache = None
         self.use_cache = use_cache
 
     @property
