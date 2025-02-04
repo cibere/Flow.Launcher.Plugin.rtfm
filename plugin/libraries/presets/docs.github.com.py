@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import html
 import logging
 from typing import TYPE_CHECKING, ClassVar
 
 import msgspec
 from aiohttp import ClientSession
 
+from plugin.libraries.entry import Entry
 from plugin.libraries.preset import PresetLibrary
 from plugin.libraries.presets._structs.github import ErrorResponse, SearchResponse
 
@@ -44,12 +46,21 @@ class Github(
             self.cache = {}
             return
 
-        cache = {}
-
-        for hit in resp.hits:
-            cache[hit.title] = self._build_url(hit.url, 0)
-
-        self.cache = cache
+        self.cache = {
+            hit.title: Entry(
+                f"{hit.title} / {hit.breadcrumbs}",
+                self._build_url(hit.url, 0),
+                {
+                    "sub": html.unescape(
+                        hit.highlights.content[0]
+                        .replace("<mark>", "")
+                        .replace("</mark>", "")
+                        .replace("\n", " ")
+                    )
+                },
+            )
+            for hit in resp.hits
+        }
 
 
 preset = Github
