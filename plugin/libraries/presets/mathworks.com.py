@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, ClassVar
 import msgspec
 from aiohttp import ClientSession
 
-from plugin.libraries import Entry, PresetLibrary
+from plugin.libraries.entry import Entry
+from plugin.libraries.preset import PresetLibrary
 from plugin.libraries.presets._structs.mathworks import Response
 
 if TYPE_CHECKING:
