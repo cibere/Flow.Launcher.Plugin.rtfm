@@ -113,8 +113,8 @@ class OpenRtfmResult(BaseResult):
 
         yield CopyResult(self.url, title="Copy URL", icon="assets/copy.png", score=100)
 
-        for item in self.entry.ctx_menu:
-            yield OpenRtfmResult(library=self.library, entry=item, score=0)
+        for result in self.entry.ctx_menu_factory(self.entry):
+            yield result
 
 
 class CopyResult(BaseResult):
