@@ -17,7 +17,7 @@ Need help? Either create an `issue request on github <https://github.com/cibere/
 
 Demo
 -----
-.. image:: docs/_static/images/demo.gif
+.. image:: docs/_static/images/demo.avif
 
 Credits
 -------
