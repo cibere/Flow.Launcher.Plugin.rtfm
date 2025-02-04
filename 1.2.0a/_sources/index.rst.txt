@@ -10,7 +10,7 @@ Need help? Either create an `issue request on github <https://github.com/cibere/
 
 Demo
 -----
-.. image:: /_static/images/demo.gif
+.. image:: /_static/images/demo.avif
 
 Credits
 -------
