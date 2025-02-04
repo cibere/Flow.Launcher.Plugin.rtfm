@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Callable, ClassVar
 
 import bs4
 
+from plugin.libraries.entry import Entry
 from plugin.libraries.preset import PresetLibrary
 
 if TYPE_CHECKING:
@@ -23,11 +24,11 @@ class SS64Parser:
         is_powershell: bool = False,
     ) -> None:
         self.data = data
-        self.cache: dict[str, str] = {}
+        self.cache: dict[str, str | Entry] = {}
         self.url_builder = url_builder
         self.is_powershell = is_powershell
 
-    def parse(self) -> dict[str, str]:
+    def parse(self) -> dict[str, str | Entry]:
         self.soup = bs4.BeautifulSoup(self.data, "html.parser")
 
         container = self.soup.find_all("table")[-1]
@@ -64,13 +65,20 @@ class SS64Parser:
                 if raw_aliases:
                     aliases = raw_aliases.split("/")
 
+            short_description = tds[-1].text
+            url = self.url_builder(path)
+
             if command_name:
-                short_description = tds[-1].text
-                url = self.url_builder(path)
-                name = f"{command_name} - {short_description}"
-                self.cache[name] = url
-                for alias in aliases:
-                    self.cache[f"{alias} - {name}"] = url
+                name = f"{command_name}"
+                self.cache[name] = Entry(name, url, {"sub": short_description})
+                alias_sub_prefix = f"Alias of: {name} | "
+            else:
+                alias_sub_prefix = ""
+
+            for alias in aliases:
+                self.cache[alias] = Entry(
+                    alias, url, {"sub": f"{alias_sub_prefix}{short_description}"}
+                )
 
         return self.cache
 
