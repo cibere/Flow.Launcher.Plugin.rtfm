@@ -37,6 +37,14 @@
                         {% if debug_mode %}checked{% endif %}
                     >
                 {% endcall %}
+                {% call checkbox(label="Simple View", id="main-simple-view-input", description="If checked, the plugin will remove subtitles from the results it returns") %}
+                    <input
+                        id="main-simple-view-input"
+                        type="checkbox"
+                        name="plugin.simple"
+                        {% if simple_view %}checked{% endif %}
+                    >
+                {% endcall %}
             </div>
             {% call actions() %}
                 <button>Save Settings & Reload Cache</button>

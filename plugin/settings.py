@@ -13,6 +13,7 @@ class RtfmBetterSettings(msgspec.Struct):
         None  # For backwards compatible settings in the future. Incase the format changes again, this key can be used to determine which format to parse.
     )
     debug_mode: bool = False
+    simple_view: bool = False
 
     @classmethod
     def decode(cls, data: str) -> RtfmBetterSettings:

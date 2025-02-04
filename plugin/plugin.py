@@ -3,26 +3,26 @@ from __future__ import annotations
 import asyncio
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable, ParamSpec
 
 import aiohttp
-from flogin import Plugin, QueryResponse
+from flogin import ErrorResponse, Plugin, QueryResponse
 from yarl import URL
 
 from .better_lock import BetterLock
 from .libraries import doc_types, library_from_partial, preset_docs
-from .results import OpenLogFileResult, OpenSettingsResult, ReloadCacheResult
 from .server.core import run_app as start_webserver
 from .settings import RtfmBetterSettings
 
 if TYPE_CHECKING:
-    from collections.abc import Coroutine
+    from collections.abc import Awaitable, Coroutine
 
     from .libraries.library import Library, PartialLibrary
     from .libraries.preset import PresetLibrary
     from .logs import Logs
 
 log = logging.getLogger("rtfm")
+P = ParamSpec("P")
 
 
 class RtfmPlugin(Plugin[None]):  # type: ignore
@@ -41,10 +41,16 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         from .handlers.settings_handler import SettingsHandler
 
         self.register_search_handlers(SettingsHandler(), LookupHandler())
-        self.register_event(self.on_context_menu)
         self.register_event(self.init, "on_initialization")
         self.load_settings()
         self.cache_lock = BetterLock()
+
+        self.process_context_menus = self._simple_view_converter(
+            self.process_context_menus
+        )
+        self.process_search_handlers = self._simple_view_converter(
+            self.process_search_handlers
+        )
 
     @property
     def better_settings_file(self) -> Path:
@@ -78,10 +84,17 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     @property
     def libraries(self) -> dict[str, Library]:
         if self._library_cache is None:
-            self._library_cache = libs = {
-                lib.name: library_from_partial(lib)
-                for lib in self.better_settings.libraries
-            }
+            self._library_cache = libs = {}
+            for lib in self.better_settings.libraries:
+                try:
+                    libs[lib.name] = library_from_partial(lib)
+                except ValueError as e:  # noqa: PERF203
+                    asyncio.create_task(
+                        self.api.show_error_message(
+                            "rtfm",
+                            f"The {lib.name!r} manual is being removed due to an error while attempting to load it: {e}",
+                        )
+                    )
         else:
             libs = self._library_cache
 
@@ -121,6 +134,15 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             self.logs.update_debug(value)
             self.better_settings.debug_mode = value
             self.dump_settings()
+
+    @property
+    def simple_view(self) -> bool:
+        return self.better_settings.simple_view
+
+    @simple_view.setter
+    def simple_view(self, value: bool) -> None:
+        self.better_settings.simple_view = value
+        self.dump_settings()
 
     async def build_rtfm_lookup_tables(self) -> None:
         log.debug("Starting to build cache...")
@@ -176,14 +198,6 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             self.session = cs
             asyncio.create_task(self.start_webserver())
             await super().start()
-
-    async def on_context_menu(self, data: list[str]):
-        resp = await self.process_context_menus(data)
-        if isinstance(resp, QueryResponse):
-            for res in (ReloadCacheResult(), OpenSettingsResult(), OpenLogFileResult()):
-                self._results[res.slug] = res
-                resp.results.append(res)
-        return resp
 
     async def update_libraries(self, libs: list[PartialLibrary]) -> None:
         cache: dict[str, Library] = {}
@@ -270,3 +284,17 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
                 log.exception("Failed to build cache for library: %r", name, exc_info=e)
             else:
                 return lib
+
+    def _simple_view_converter(
+        self, original: Callable[P, Awaitable[QueryResponse | ErrorResponse]]
+    ) -> Callable[P, Coroutine[Any, Any, QueryResponse | ErrorResponse]]:
+        async def inner(
+            *args: P.args, **kwargs: P.kwargs
+        ) -> QueryResponse | ErrorResponse:
+            resp = await original(*args, **kwargs)
+            if isinstance(resp, QueryResponse) and self.simple_view:
+                for res in resp.results:
+                    res.sub = None
+            return resp
+
+        return inner

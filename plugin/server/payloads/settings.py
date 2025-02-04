@@ -16,6 +16,7 @@ class PluginSettings(Payload):
     keyword: str
     libraries: list[PartialLibrary]
     debug: bool = False
+    simple: bool = False
 
     @classmethod
     def parse_form_data(cls, data: dict[str, str]) -> PluginSettings:
@@ -33,6 +34,8 @@ class PluginSettings(Payload):
                             kwargs["keyword"] = value or "*"
                         case "debug":
                             kwargs["debug"] = True
+                        case "simple":
+                            kwargs["simple"] = True
                 case "doc":
                     idx = int(parts[1])
                     match parts[2]:
@@ -52,6 +55,7 @@ class PluginSettings(Payload):
         plugin.static_port = self.port
         plugin.main_kw = self.keyword
         plugin.debug_mode = self.debug
+        plugin.simple_view = self.simple
 
         await plugin.update_libraries(self.libraries)
         asyncio.create_task(plugin.build_rtfm_lookup_tables())
@@ -62,6 +66,7 @@ class PluginSettings(Payload):
             port=plugin.static_port,
             keyword=plugin.main_kw,
             debug=plugin.debug_mode,
+            simple=plugin.simple_view,
             libraries=[lib.to_partial() for lib in plugin.libraries.values()],
         )
 
