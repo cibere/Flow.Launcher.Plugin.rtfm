@@ -49,7 +49,7 @@ decoder = msgspec.json.Decoder(type=PartialLibrary)
 
 class Library:
     typename: ClassVar[str]
-    is_preset: ClassVar[bool]
+    is_preset: ClassVar[bool] = False
     favicon_url: ClassVar[str] | None = None
     is_api: ClassVar[bool] = False
     cache: Mapping[str, Entry | str] | None

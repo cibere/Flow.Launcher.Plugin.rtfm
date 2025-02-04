@@ -15,7 +15,6 @@ search_file_decoder = msgspec.json.Decoder(type=SearchIndexFile)
 
 class Mkdocs(Library):
     typename: ClassVar[str] = "Mkdocs"
-    is_preset: ClassVar[bool] = False
 
     async def build_cache(self, session: ClientSession, webserver_port: int) -> None:
         url = self.url

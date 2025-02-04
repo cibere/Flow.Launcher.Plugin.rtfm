@@ -76,7 +76,6 @@ class SphinxObjectFileReader:
 
 class SphinxLibrary(Library):
     typename: ClassVar[str] = "Intersphinx"
-    is_preset: ClassVar[bool] = False
     supports_local: ClassVar[bool] = True
 
     async def fetch_file(self, session: ClientSession) -> SphinxObjectFileReader:
