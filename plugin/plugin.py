@@ -250,7 +250,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     async def get_library_from_url(
         self, name: str, raw_url: str
     ) -> Library | PresetLibrary | None:
-        loc = self.convert_raw_loc(raw_url)
+        loc = self.convert_raw_loc(raw_url.rstrip("/"))
         log.debug("Getting library from url: %r", loc)
         is_path: bool = True
         if isinstance(loc, URL):
