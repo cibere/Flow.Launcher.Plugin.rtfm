@@ -49,7 +49,10 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
                 return
 
         cache = list(library.cache.items())
-        matches = fuzzy_finder(text, cache, key=lambda t: t[0])
+        if library.is_api:
+            matches = cache
+        else:
+            matches = fuzzy_finder(text, cache, key=lambda t: t[0])
 
         if len(matches) == 0:
             yield Result("Could not find anything. Sorry.", icon=library.icon)

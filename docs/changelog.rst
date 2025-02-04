@@ -9,3 +9,4 @@ Changelog
 - Add a ``simple view`` setting to get results that look like they used to
 - Parse the table of contents in the autohotkey preset, adds ~400 more entries
 - Fix bug with some entries in the ss64 powershell preset not being added to the cache
+- Fix bug with API presets having some results being removed due to fuzzy logic being applied to them
