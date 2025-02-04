@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
     from flogin.jsonrpc.results import ResultConstructorKwargs  # noqa: TC002
 
+    from .libraries.entry import Entry  # noqa: TC001
     from .libraries.library import Library  # noqa: TC001
     from .plugin import RtfmPlugin  # noqa: F401
 
@@ -89,16 +90,12 @@ class OpenLogFileResult(BaseResult):
 
 
 class OpenRtfmResult(BaseResult):
-    def __init__(self, *, library: Library, url: str, text: str, score: int) -> None:
+    def __init__(self, *, library: Library, entry: Entry, score: int) -> None:
         self.library = library
-        self.url = url
-        self.text = text
+        self.url = entry.url.replace("%23", "#")
+        self.entry = entry
 
-        super().__init__(
-            title=text,
-            score=score,
-            icon=library.icon,
-        )
+        super().__init__(**entry.get_result_kwargs(library, score))
 
     async def callback(self) -> ExecuteResponse:
         assert self.plugin
@@ -114,7 +111,10 @@ class OpenRtfmResult(BaseResult):
     async def context_menu(self):
         assert self.plugin
 
-        return CopyResult(self.url, title="Copy URL", icon="assets/copy.png")
+        yield CopyResult(self.url, title="Copy URL", icon="assets/copy.png", score=100)
+
+        for item in self.entry.ctx_menu:
+            yield OpenRtfmResult(library=self.library, entry=item, score=0)
 
 
 class CopyResult(BaseResult):
