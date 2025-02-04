@@ -66,6 +66,17 @@ async def session() -> AsyncGenerator[aiohttp.ClientSession, Any]:
         yield cs
 
 
+async def _test_preset(session: aiohttp.ClientSession, preset: PresetLibrary) -> None:
+    assert preset.is_preset is True
+    assert preset.typename == "Preset"
+    assert preset.base_url
+
+    assert preset.icon is None
+    icon = await preset.fetch_icon()
+    assert preset.icon is not None
+    assert preset.icon == icon
+
+
 @pytest.mark.asyncio
 async def test_cached_preset(
     session: aiohttp.ClientSession, cached_preset: PresetLibrary
@@ -75,6 +86,8 @@ async def test_cached_preset(
     assert cached_preset.cache is not None
     assert cached_preset.cache != {}
 
+    await _test_preset(session, cached_preset)
+
 
 @pytest.mark.asyncio
 async def test_api_preset(
@@ -83,3 +96,6 @@ async def test_api_preset(
     await api_preset.make_request(session, "foo")
 
     assert api_preset.cache is not None
+    assert api_preset.use_cache is False
+
+    await _test_preset(session, api_preset)
