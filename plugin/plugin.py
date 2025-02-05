@@ -242,7 +242,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             lib = cls.from_partial(data)
             try:
                 await lib.build_cache(self.session, self.webserver_port)
-            except:  # noqa: E722 #nosec
+            except:  # noqa: E722, S110
                 pass
             else:
                 return lib

@@ -24,6 +24,7 @@ select = [
     "PGH", # https://docs.astral.sh/ruff/rules/#pygrep-hooks-pgh
     "RET", # https://docs.astral.sh/ruff/rules/#flake8-return-ret
     "PLE", # https://docs.astral.sh/ruff/rules/#error-e_1
+    "S", # https://docs.astral.sh/ruff/rules/#flake8-bandit-s
 ]
 ignore = [
     "SIM105", # https://docs.astral.sh/ruff/rules/suppressible-exception/
@@ -36,6 +37,7 @@ ignore = [
     "ANN202", # https://docs.astral.sh/ruff/rules/missing-return-type-private-function
     "RUF006", # https://docs.astral.sh/ruff/rules/asyncio-dangling-task
     "F403", # https://docs.astral.sh/ruff/rules/undefined-local-with-import-star
+    "S101" # https://docs.astral.sh/ruff/rules/assert
 ]
 
 [tool.ruff.format]
@@ -43,14 +45,6 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
-
-[tool.bandit]
-exclude_dirs  = [
-    ".github", "venv", "docs", "lib"
-]
-skips = [
-    "B101" # skip asssets as they are used for typing purposes
-]
 
 [tool.pyright]
 include = [
