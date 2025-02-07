@@ -44,6 +44,11 @@ def cached_preset(
     request: pytest.FixtureRequest, pytestconfig: pytest.Config
 ) -> Iterator[PresetLibrary]:
     cls: type[PresetLibrary] = request.param
+
+    match = pytestconfig.getoption("--preset-domain")
+    if match and str(match) not in str(cls.base_url.host):
+        pytest.skip(f"Preset Domain match did not match preset url: {cls.base_url!r}")
+
     lib = cls("test", use_cache=True)
 
     yield lib
@@ -56,6 +61,11 @@ def api_preset(
     request: pytest.FixtureRequest, pytestconfig: pytest.Config
 ) -> Iterator[PresetLibrary]:
     cls: type[PresetLibrary] = request.param
+
+    match = pytestconfig.getoption("--preset-domain")
+    if match and str(match) not in str(cls.base_url.host):
+        pytest.skip(f"Preset Domain match did not match preset url: {cls.base_url!r}")
+
     lib = cls("test", use_cache=True)
 
     yield lib
