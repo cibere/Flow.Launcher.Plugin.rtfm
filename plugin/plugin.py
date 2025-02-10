@@ -201,16 +201,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
     async def update_libraries(self, libs: list[PartialLibrary]) -> None:
         cache: dict[str, Library] = {}
         for lib in libs:
-            if lib.type == "auto":
-                obj = await self.handle_auto_doctype(lib)
-                if obj is None:
-                    await self.api.show_error_message(
-                        "rtfm", f"Could not figure out how to parse {lib.name!r}"
-                    )
-                else:
-                    cache[lib.name] = obj
-            else:
-                cache[lib.name] = library_from_partial(lib)
+            cache[lib.name] = library_from_partial(lib)
         self._library_cache = cache
         self.better_settings.libraries = [lib.to_partial() for lib in cache.values()]
         self.dump_settings()
