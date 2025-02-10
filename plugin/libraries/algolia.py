@@ -1,104 +1,103 @@
-from __future__ import annotations
+# from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+# from typing import TYPE_CHECKING, ClassVar
 
-import msgspec
-from aiohttp import ClientSession
+# import msgspec
+# from aiohttp import ClientSession
+# from yarl import URL
+# from .library import Library
 
-from .preset import PresetLibrary
-
-if TYPE_CHECKING:
-    from aiohttp import ClientSession
-
-
-class SearchHitHierarchy(msgspec.Struct):
-    lvl0: str | None
-    lvl1: str | None
-    lvl2: str | None
-    lvl3: str | None
-    lvl4: str | None
-    lvl5: str | None
-    lvl6: str | None
-
-    def to_text(self) -> str:
-        return " - ".join(
-            [
-                lvl
-                for lvl in reversed(
-                    (
-                        self.lvl0,
-                        self.lvl1,
-                        self.lvl2,
-                        self.lvl3,
-                        self.lvl4,
-                        self.lvl5,
-                        self.lvl6,
-                    )
-                )
-                if lvl is not None
-            ]
-        )
+# if TYPE_CHECKING:
+#     from aiohttp import ClientSession
 
 
-class SearchHit(msgspec.Struct):
-    url: str
-    hierarchy: SearchHitHierarchy
+# class SearchHitHierarchy(msgspec.Struct):
+#     lvl0: str | None
+#     lvl1: str | None
+#     lvl2: str | None
+#     lvl3: str | None
+#     lvl4: str | None
+#     lvl5: str | None
+#     lvl6: str | None
+
+#     def to_text(self) -> str:
+#         return " - ".join(
+#             [
+#                 lvl
+#                 for lvl in reversed(
+#                     (
+#                         self.lvl0,
+#                         self.lvl1,
+#                         self.lvl2,
+#                         self.lvl3,
+#                         self.lvl4,
+#                         self.lvl5,
+#                         self.lvl6,
+#                     )
+#                 )
+#                 if lvl is not None
+#             ]
+#         )
 
 
-class SearchResult(msgspec.Struct):
-    hits: list[SearchHit]
+# class SearchHit(msgspec.Struct):
+#     url: str
+#     hierarchy: SearchHitHierarchy
 
 
-class SearchResponse(msgspec.Struct):
-    results: list[SearchResult]
+# class SearchResult(msgspec.Struct):
+#     hits: list[SearchHit]
 
 
-response_decoder = msgspec.json.Decoder(type=SearchResponse)
-Jsonable = dict[str, "Jsonable"] | list["Jsonable"] | int | str
+# class SearchResponse(msgspec.Struct):
+#     results: list[SearchResult]
 
 
-class AlgoliaConfig(msgspec.Struct):
-    url: str
-    index_name: str
-    kwargs: dict[str, Jsonable] = {}
+# response_decoder = msgspec.json.Decoder(type=SearchResponse)
+# Jsonable = dict[str, "Jsonable"] | list["Jsonable"] | int | str
 
 
-class AlgoliaBase(PresetLibrary):
-    is_preset: ClassVar[bool] = True
-    is_api: ClassVar[bool] = True
-    algolia_config: ClassVar[AlgoliaConfig]
+# class AlgoliaConfig(msgspec.Struct):
+#     url: str
+#     index_name: str
+#     kwargs: dict[str, Jsonable] = {}
 
-    def __init__(self, name: str, *, use_cache: bool) -> None:
-        super().__init__(name, use_cache=False)
 
-    def __init_subclass__(
-        cls,
-        config: AlgoliaConfig,
-        base_url: str | None = None,
-        favicon_url: str | None = None,
-    ) -> None:
-        cls.algolia_config = config
-        return super().__init_subclass__(base_url, favicon_url)
+# class AlgoliaBase(Library):
+#     is_api: ClassVar[bool] = True
+#     algolia_config: ClassVar[AlgoliaConfig]
 
-    async def make_request(self, session: ClientSession, query: str) -> None:
-        payload = {
-            "requests": [
-                {
-                    "query": query,
-                    "indexName": self.algolia_config.index_name,
-                }
-                | self.algolia_config.kwargs
-            ]
-        }
-        async with session.post(self.algolia_config.url, json=payload) as res:
-            raw = await res.content.read()
+#     def __init__(self, name: str, *, use_cache: bool) -> None:
+#         super().__init__(name, URL(self.base_url), use_cache=False)
 
-        resp = response_decoder.decode(raw)
+#     def __init_subclass__(
+#         cls,
+#         config: AlgoliaConfig,
+#         base_url: str | None = None,
+#         favicon_url: str | None = None,
+#     ) -> None:
+#         cls.algolia_config = config
+#         return super().__init_subclass__(base_url, favicon_url)
 
-        cache = {}
+#     async def make_request(self, session: ClientSession, query: str) -> None:
+#         payload = {
+#             "requests": [
+#                 {
+#                     "query": query,
+#                     "indexName": self.algolia_config.index_name,
+#                 }
+#                 | self.algolia_config.kwargs
+#             ]
+#         }
+#         async with session.post(self.algolia_config.url, json=payload) as res:
+#             raw = await res.content.read()
 
-        for result in resp.results:
-            for hit in result.hits:
-                cache[hit.hierarchy.to_text()] = hit.url
+#         resp = response_decoder.decode(raw)
 
-        self.cache = cache
+#         cache = {}
+
+#         for result in resp.results:
+#             for hit in result.hits:
+#                 cache[hit.hierarchy.to_text()] = hit.url
+
+#         self.cache = cache

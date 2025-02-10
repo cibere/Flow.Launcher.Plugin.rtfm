@@ -10,7 +10,7 @@ from flogin import ErrorResponse, Plugin, QueryResponse
 from yarl import URL
 
 from .better_lock import BetterLock
-from .libraries import doc_types, library_from_partial, preset_docs
+from .libraries import doc_types, library_from_partial
 from .server.core import run_app as start_webserver
 from .settings import RtfmBetterSettings
 
@@ -18,7 +18,6 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Coroutine
 
     from .libraries.library import Library, PartialLibrary
-    from .libraries.preset import PresetLibrary
     from .logs import Logs
 
 log = logging.getLogger("rtfm")
@@ -261,18 +260,11 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         parts = loc.split("/")
         return URL.build(scheme="https", host=parts.pop(0), path="/" + "/".join(parts))
 
-    async def get_library_from_url(
-        self, name: str, raw_url: str
-    ) -> Library | PresetLibrary | None:
+    async def get_library_from_url(self, name: str, raw_url: str) -> Library | None:
         loc = self.convert_raw_loc(raw_url.rstrip("/"))
         log.debug("Getting library from url: %r", loc)
-        is_path: bool = True
-        if isinstance(loc, URL):
-            is_path = False
-            for preset in preset_docs:
-                log.debug("Trying Preset: %r", preset)
-                if preset.validate_url(loc):
-                    return preset(name, use_cache=True)
+        is_path: bool = isinstance(loc, Path)
+
         for doctype in doc_types:
             if is_path is True and doctype.supports_local is False:
                 continue

@@ -3,11 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol
 
 import msgspec
+from flogin import Result, ResultConstructorKwargs  # noqa: TC002
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
-
-    from flogin import Result, ResultConstructorKwargs
 
     from .library import Library
 

@@ -49,9 +49,8 @@ decoder = msgspec.json.Decoder(type=PartialLibrary)
 
 class Library:
     typename: ClassVar[str]
-    is_preset: ClassVar[bool] = False
     favicon_url: ClassVar[str] | None = None
-    is_api: ClassVar[bool] = False
+    is_api: bool = False
     cache: Mapping[str, Entry | str] | None
     supports_local: ClassVar[bool] = False
 
@@ -71,7 +70,7 @@ class Library:
         return self.loc if isinstance(self.loc, Path) else None
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {self.name=} {self.url=} {self.icon=} {self.use_cache=} {self.typename=} {self.is_api=} {self.is_preset=}>"
+        return f"<{self.__class__.__name__} {self.name=} {self.url=} {self.icon=} {self.use_cache=} {self.typename=} {self.is_api=}>"
 
     async def fetch_icon(self) -> str | None:
         if self.favicon_url is None:
@@ -107,17 +106,16 @@ class Library:
     def from_partial(cls: type[Self], data: PartialLibrary) -> Self:
         kwargs = {"name": data.name, "use_cache": data.use_cache}
 
-        if data.type != "Preset":
-            loc: str = data.loc
+        loc: str = data.loc
 
-            if loc.startswith(("http://", "https://")):
-                kwargs["loc"] = URL(loc)
-            else:
-                if not cls.supports_local:
-                    raise RuntimeError(
-                        f"{cls.__name__} does not support local docs. {loc!r} seems to be a local path."
-                    )
-                kwargs["loc"] = Path(loc)
+        if loc.startswith(("http://", "https://")):
+            kwargs["loc"] = URL(loc)
+        else:
+            if not cls.supports_local:
+                raise RuntimeError(
+                    f"{cls.__name__} does not support local docs. {loc!r} seems to be a local path."
+                )
+            kwargs["loc"] = Path(loc)
 
         return cls(**kwargs)
 
