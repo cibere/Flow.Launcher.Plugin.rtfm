@@ -5,6 +5,8 @@ from msgspec import Struct
 
 from ...entry import Entry
 
+Cache = Mapping[str, str | Entry]
+
 
 class BaseIndex(Struct):
     name: str
@@ -13,14 +15,12 @@ class BaseIndex(Struct):
 
 class ApiIndex(BaseIndex, tag="api-index"):
     url: str
-    api_type: str
-    headers: dict[str, str]
     options: dict[str, Any]
     version: str = "2.0"
 
 
 class CacheIndex(BaseIndex, tag="cache-index"):
-    cache: Mapping[str, str | Entry]
+    cache: Cache
     version: str = "2.0"
 
 
