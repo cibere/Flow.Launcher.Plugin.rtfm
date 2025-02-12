@@ -21,7 +21,7 @@ CidexResponse = CacheIndex | VariantManifest | ApiIndex
 msgpack = msgspec.msgpack.Decoder(type=CidexResponse)
 api_decoder = msgspec.json.Decoder(type=Cache)
 INDEX_URL = (
-    "https://github.com/cibere/Rtfm-Indexes/raw/refs/heads/master/indexes_v2/{}.cidex"
+    "https://github.com/cibere/Rtfm-Indexes/raw/refs/heads/indexes-v2/indexes_v2/{}.cidex"
 )
 
 
@@ -113,7 +113,7 @@ class CidexDoctype(CidexBase):
         url = self.url
         if url is None:
             raise ValueError("Local cidex docs are not supported")
-        return url / "index.cidex"
+        return url.with_path("index.cidex")
 
 
 doctype = PresetDoctype, CidexDoctype
