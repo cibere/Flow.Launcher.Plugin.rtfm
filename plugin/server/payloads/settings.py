@@ -39,7 +39,7 @@ class PluginSettings(Payload):
                 case "doc":
                     idx = int(parts[1])
                     match parts[2]:
-                        case "use_cache":
+                        case "cache_results":
                             value = True
                         case "keyword":
                             parts[2] = "name"

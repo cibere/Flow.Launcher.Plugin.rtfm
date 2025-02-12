@@ -9,7 +9,7 @@
 </head>
 <body>
 <template id="docs-template">
-    {{ doc(location="{{LOCATION}}", index="{{INDEX}}", type="{{TYPE}}", name="{{NAME}}", use_cache=False, is_api=False) }}
+    {{ doc(location="{{LOCATION}}", index="{{INDEX}}", type="{{TYPE}}", name="{{NAME}}", cache_results=False, is_api=False) }}
 </template>
 <main>
     {% call card("Rtfm Plugin") %}
@@ -67,7 +67,7 @@
         </div>
 
         {% for lib in libs %}
-            {{ doc(location=lib.loc, index=loop.index, type=lib.typename, name=lib.name, use_cache=lib.use_cache, is_api=lib.is_api) }}
+            {{ doc(location=lib.loc, index=loop.index, type=lib.typename, name=lib.name, cache_results=lib.cache_results, is_api=lib.is_api) }}
         {% endfor %}
     </form>
 </main>

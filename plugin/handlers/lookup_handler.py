@@ -22,31 +22,28 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
         try:
             library = self.plugin.libraries[keyword]
         except KeyError:
-            yield Result(
+            return Result(
                 f"Library '{keyword}' not found in settings", icon="Images/error.png"
             )
-            return
 
-        if not library.use_cache:
-            log.debug(
-                "Library %r not set to use cache, rebuilding for request", library.name
-            )
-            msg = await self.plugin.refresh_library_cache(
-                library, send_noti=False, txt=query.text, wait=True
-            )
-            if msg is not None:
-                yield Result(msg, icon=library.icon)
-                return
+        if library.cache_results and (
+            cached_results := library.result_cache.get(query.text)
+        ):
+            log.debug("Returning results from result cache")
+
+            return cached_results
 
         if library.cache is None:
-            log.debug("Cache is `None`, refreshing")
+            log.debug("Refreshing cache for %r, cache or `None`", library.name)
             await self.plugin.refresh_library_cache(library)
             if library.cache is None:
-                yield Result(
+                return Result(
                     f"Library '{library.name}' not found in cache, and I was unable to build the cache.",
                     icon="Images/error.png",
                 )
-                return
+
+        if library.is_api:
+            await library.make_request(self.plugin.session, query.text)
 
         cache = list(library.cache.items())
         if library.is_api:
@@ -55,11 +52,18 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
             matches = fuzzy_finder(text, cache, key=lambda t: t[0])
 
         if len(matches) == 0:
-            yield Result("Could not find anything. Sorry.", icon=library.icon)
-            return
+            return Result("Could not find anything. Sorry.", icon=library.icon)
 
-        for idx, (name, entry) in enumerate(reversed(matches)):
-            if isinstance(entry, str):
-                entry = Entry(name, entry)
+        results = [
+            OpenRtfmResult(
+                library=library,
+                entry=(entry if isinstance(entry, Entry) else Entry(name, entry)),
+                score=idx,
+            )
+            for idx, (name, entry) in enumerate(reversed(matches))
+        ]
 
-            yield OpenRtfmResult(library=library, entry=entry, score=idx)
+        if library.cache_results:
+            library.result_cache[query.text] = results
+
+        return results

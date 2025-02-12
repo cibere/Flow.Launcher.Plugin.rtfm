@@ -162,26 +162,18 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         library: Library,
         *,
         send_noti: bool = True,
-        txt: str | None = None,
         wait: bool = False,
     ) -> str | None:
         log.debug("Building cache for %r", library)
+        library.result_cache = {}
 
         async def run(coro: Coroutine[Any, Any, Any]):
             if wait:
                 return await coro
             asyncio.create_task(coro)
 
-        if library.is_api is True:
-            if txt is None:
-                await run(library.fetch_icon())
-                return
-            coro = library.make_request(self.session, txt)
-        else:
-            coro = library.build_cache(self.session, self.webserver_port)
-
         try:
-            await coro
+            await library.build_cache(self.session, self.webserver_port)
         except Exception as e:
             log.exception(
                 "Sending could not be parsed notification for %r", library, exc_info=e
@@ -256,12 +248,12 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         log.debug("Getting library from url: %r", loc)
         is_path: bool = isinstance(loc, Path)
 
-        for doctype in doc_types:
-            if is_path is True and doctype.supports_local is False:
+        for Doctype in doc_types:
+            if is_path is True and Doctype.supports_local is False:
                 continue
-            lib = doctype(name, loc, use_cache=True)
+            lib = Doctype(name, loc, cache_results=True)
             try:
-                log.debug("Trying doctype: %r", doctype)
+                log.debug("Trying doctype: %r", Doctype)
                 await lib.build_cache(self.session, self.webserver_port)
             except Exception as e:
                 log.exception("Failed to build cache for library: %r", name, exc_info=e)

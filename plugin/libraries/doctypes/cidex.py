@@ -20,9 +20,7 @@ if TYPE_CHECKING:
 CidexResponse = CacheIndex | VariantManifest | ApiIndex
 msgpack = msgspec.msgpack.Decoder(type=CidexResponse)
 api_decoder = msgspec.json.Decoder(type=Cache)
-INDEX_URL = (
-    "https://github.com/cibere/Rtfm-Indexes/raw/refs/heads/indexes-v2/indexes_v2/{}.cidex"
-)
+INDEX_URL = "https://github.com/cibere/Rtfm-Indexes/raw/refs/heads/indexes-v2/indexes_v2/{}.cidex"
 
 
 class CidexBase(Library):
@@ -79,6 +77,7 @@ class CidexBase(Library):
         if isinstance(index, ApiIndex):
             self.is_api = True
             self._api_info = index
+            self.cache = {}
         else:
             self.cache = index.cache
 

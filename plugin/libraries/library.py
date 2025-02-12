@@ -10,9 +10,10 @@ from yarl import URL
 from ..icons import get_icon as _get_icon
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Iterable, Mapping
 
     from aiohttp import ClientSession
+    from flogin import Result
 
     from .entry import Entry
 
@@ -23,7 +24,7 @@ class PartialLibrary(msgspec.Struct):
     name: str
     type: str
     loc: str
-    use_cache: bool = False
+    cache_results: bool = False
     is_api: bool = False
 
     def to_dict(self):
@@ -31,7 +32,7 @@ class PartialLibrary(msgspec.Struct):
             "name": self.name,
             "type": self.type,
             "loc": self.loc,
-            "use_cache": self.use_cache,
+            "cache_results": self.cache_results,
             "is_api": self.is_api,
         }
 
@@ -53,13 +54,15 @@ class Library:
     is_api: bool = False
     cache: Mapping[str, Entry | str] | None
     supports_local: ClassVar[bool] = False
+    result_cache: dict[str, Iterable[Result]]
 
-    def __init__(self, name: str, loc: URL | Path, *, use_cache: bool) -> None:
+    def __init__(self, name: str, loc: URL | Path, *, cache_results: bool) -> None:
         self.name = name
         self.loc = loc
         self.icon: str | None = None
         self.cache = None
-        self.use_cache = use_cache
+        self.cache_results = cache_results
+        self.result_cache = {}
 
     @property
     def url(self) -> URL | None:
@@ -70,7 +73,7 @@ class Library:
         return self.loc if isinstance(self.loc, Path) else None
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {self.name=} {self.url=} {self.icon=} {self.use_cache=} {self.typename=} {self.is_api=}>"
+        return f"<{self.__class__.__name__} {self.name=} {self.url=} {self.icon=} {self.cache_results=} {self.typename=} {self.is_api=}>"
 
     async def fetch_icon(self) -> str | None:
         if self.favicon_url is None:
@@ -104,7 +107,7 @@ class Library:
 
     @classmethod
     def from_partial(cls: type[Self], data: PartialLibrary) -> Self:
-        kwargs = {"name": data.name, "use_cache": data.use_cache}
+        kwargs = {"name": data.name, "cache_results": data.cache_results}
 
         loc: str = data.loc
 
@@ -124,6 +127,6 @@ class Library:
             self.name,
             type=self.typename,
             loc=str(self.loc),
-            use_cache=self.use_cache,
+            cache_results=self.cache_results,
             is_api=self.is_api,
         )

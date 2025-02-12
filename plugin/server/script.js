@@ -21,7 +21,7 @@
  * @property {string} name
  * @property {string} type
  * @property {string} loc
- * @property {boolean} use_cache
+ * @property {boolean} cache_results
  * @property {boolean} is_api
  */
 
@@ -65,9 +65,8 @@ function addNewDoc(data) {
         .replaceAll("{{NAME}}", data.name)
         .replaceAll("{{TYPE}}", data.type);
 
-    const useCacheInput = card.querySelector('input[name$="use_cache"]');
-    useCacheInput.checked = data.use_cache;
-    useCacheInput.disabled = data.is_api;
+    const useCacheInput = card.querySelector('input[name$="cache_results"]');
+    useCacheInput.checked = data.cache_results;
 
     const isApiInput = card.querySelector('input[name$="is_api"]');
     isApiInput.checked = data.is_api;
