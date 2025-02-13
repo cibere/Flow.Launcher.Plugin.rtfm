@@ -23,6 +23,7 @@ jobs:
         uses: cibere/python-action@master
         with:
           pyright: 'true'
+          pyright-version: '1.1.393'
           ruff-linter: 'true'
           ruff-formatter: 'true'
           python-version: ${{ matrix.python-version }}
