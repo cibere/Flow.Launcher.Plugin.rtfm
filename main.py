@@ -25,5 +25,5 @@ from plugin.plugin import RtfmPlugin
 
 plugin = RtfmPlugin()
 plugin.logs = logs
-logs.update_debug(plugin.debug_mode)
+logs.update_debug(plugin.better_settings.debug_mode)
 plugin.run(setup_default_log_handler=False)

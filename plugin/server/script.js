@@ -189,7 +189,7 @@ elements.importBtn.addEventListener("click", () => {
         reader.addEventListener("load", async () => {
             const data = reader.result;
             try {
-                let response = await fetch("/api/import_settings", {
+                let response = await fetch("/api/settings/import", {
                     body: JSON.stringify({data}),
                     method: "POST",
                 });
@@ -205,7 +205,7 @@ elements.importBtn.addEventListener("click", () => {
 
 elements.exportBtn.addEventListener("click", async () => {
     try {
-        const data = await fetch("/api/export_settings").then(res => res.json());
+        const data = await fetch("/api/settings/export").then(res => res.json());
         if (!data.success) {
             alert("Failed to export settings!");
             return;

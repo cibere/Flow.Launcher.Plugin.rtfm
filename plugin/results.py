@@ -107,7 +107,7 @@ class OpenRtfmResult(BaseResult):
         else:
             await self.plugin.api.open_url(self.url)
 
-        if self.plugin.reset_query:
+        if self.plugin.better_settings.reset_query:
             await self.plugin.last_query.update(text="")
 
         return ExecuteResponse()

@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING
 import msgspec
 from aiohttp import web
 
+from ..settings import RtfmBetterSettings
 from .payloads.error import ErrorResponse
 from .payloads.get_library import GetLibraryPayload, GetLibraryResponse
 from .payloads.settings import (
     ExportSettingsResponse,
     ImportSettingsRequest,
-    PluginSettings,
 )
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ def build_api(
     async def save_settings(request: web.Request):
         try:
             form_data = decoder.decode(await request.content.read())
-            payload = PluginSettings.parse_form_data(form_data)
+            payload = RtfmBetterSettings.parse_form_data(form_data)
         except msgspec.DecodeError:
             return web.Response(
                 body=ErrorResponse("Invalid Data Received").encode(), status=400
@@ -64,17 +64,18 @@ def build_api(
         response = GetLibraryResponse(lib.to_partial())
         return web.Response(body=response.encode(), headers=no_cache_headers)
 
-    @routes.get("/api/export_settings")
+    @routes.get("/api/settings/export")
     async def export_settings(request: web.Request):
-        obj = PluginSettings.from_plugin(plugin)
-        response = ExportSettingsResponse(base64.b64encode(obj.encode()).decode())
+        response = ExportSettingsResponse(
+            base64.b64encode(plugin.better_settings.encode()).decode()
+        )
         return web.Response(body=response.encode(), headers=no_cache_headers)
 
-    @routes.post("/api/import_settings")
+    @routes.post("/api/settings/import")
     async def import_settings(request: web.Request):
         try:
             data = ImportSettingsRequest.decode(await request.read())
-            settings = PluginSettings.decode(base64.b64decode(data.data))
+            settings = RtfmBetterSettings.decode(base64.b64decode(data.data))
         except msgspec.DecodeError as e:
             log.exception("Error while import settings", exc_info=e)
             return web.Response(

@@ -102,55 +102,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
 
     @property
     def keywords(self):
-        return [*list(self.libraries.keys()), self.main_kw]
-
-    @property
-    def main_kw(self) -> str:
-        return self.better_settings.main_kw
-
-    @main_kw.setter
-    def main_kw(self, value: str) -> None:
-        self.better_settings.main_kw = value
-        self.dump_settings()
-
-    @property
-    def static_port(self) -> int:
-        return self.better_settings.static_port
-
-    @static_port.setter
-    def static_port(self, value: int) -> None:
-        self.better_settings.static_port = value
-        self.dump_settings()
-
-    @property
-    def debug_mode(self) -> bool:
-        return self.better_settings.debug_mode
-
-    @debug_mode.setter
-    def debug_mode(self, value: bool) -> None:
-        log.debug("Debug Mode Set To: %r", value)
-        if value != self.better_settings.debug_mode:
-            self.logs.update_debug(value)
-            self.better_settings.debug_mode = value
-            self.dump_settings()
-
-    @property
-    def simple_view(self) -> bool:
-        return self.better_settings.simple_view
-
-    @simple_view.setter
-    def simple_view(self, value: bool) -> None:
-        self.better_settings.simple_view = value
-        self.dump_settings()
-
-    @property
-    def reset_query(self) -> bool:
-        return self.better_settings.reset_query
-
-    @reset_query.setter
-    def reset_query(self, value: bool) -> None:
-        self.better_settings.reset_query = value
-        self.dump_settings()
+        return [*list(self.libraries.keys()), self.better_settings.main_kw]
 
     async def build_rtfm_lookup_tables(self) -> None:
         log.debug("Starting to build cache...")
@@ -276,7 +228,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             *args: P.args, **kwargs: P.kwargs
         ) -> QueryResponse | ErrorResponse:
             resp = await original(*args, **kwargs)
-            if isinstance(resp, QueryResponse) and self.simple_view:
+            if isinstance(resp, QueryResponse) and self.better_settings.simple_view:
                 for res in resp.results:
                     res.sub = None
             return resp

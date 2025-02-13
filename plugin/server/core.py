@@ -36,17 +36,7 @@ def build_app(
     @routes.get("/")
     @aiohttp_jinja2.template("index.html")
     async def index(request: web.Request):
-        data = {
-            "libs": plugin.libraries.values(),
-            "main_kw": plugin.main_kw,
-            "port": plugin.static_port,
-            "rtfm_version": plugin.metadata.version,
-            "debug_mode": plugin.debug_mode,
-            "simple_view": plugin.simple_view,
-            "reset_query": plugin.reset_query,
-        }
-        log.debug("Sending data: %r", data)
-        return data
+        return {"plugin": plugin}
 
     @routes.get("/style.css")
     async def style(request: web.Request):
@@ -121,13 +111,14 @@ async def run_app(
     *,
     run_forever: bool = True,
 ) -> None:
+    static_port = plugin.better_settings.static_port
     app = build_app(plugin)
-    port = await start_runner(app, "localhost", plugin.static_port)
+    port = await start_runner(app, "localhost", static_port)
 
-    if plugin.static_port != 0 and port != plugin.static_port:
+    if static_port != 0 and port != static_port:
         await plugin.api.show_notification(
             "rtfm",
-            f"Your chosen static port ({plugin.static_port}) was already in use so webserver started on port {port}",
+            f"Your chosen static port ({static_port}) was already in use so webserver started on port {port}",
         )
 
     plugin.webserver_port = port
