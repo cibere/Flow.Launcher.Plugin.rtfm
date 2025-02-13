@@ -143,6 +143,15 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         self.better_settings.simple_view = value
         self.dump_settings()
 
+    @property
+    def reset_query(self) -> bool:
+        return self.better_settings.reset_query
+
+    @reset_query.setter
+    def reset_query(self, value: bool) -> None:
+        self.better_settings.reset_query = value
+        self.dump_settings()
+
     async def build_rtfm_lookup_tables(self) -> None:
         log.debug("Starting to build cache...")
 

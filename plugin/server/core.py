@@ -43,6 +43,7 @@ def build_app(
             "rtfm_version": plugin.metadata.version,
             "debug_mode": plugin.debug_mode,
             "simple_view": plugin.simple_view,
+            "reset_query": plugin.reset_query,
         }
         log.debug("Sending data: %r", data)
         return data

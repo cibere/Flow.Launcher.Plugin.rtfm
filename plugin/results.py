@@ -99,12 +99,16 @@ class OpenRtfmResult(BaseResult):
 
     async def callback(self) -> ExecuteResponse:
         assert self.plugin
+        assert self.plugin.last_query
 
         if self.library.path:
             log.debug("Opening URL: %r", self.url)
             await asyncio.to_thread(webbrowser.open, self.url)
         else:
             await self.plugin.api.open_url(self.url)
+
+        if self.plugin.reset_query:
+            await self.plugin.last_query.update(text="")
 
         return ExecuteResponse()
 

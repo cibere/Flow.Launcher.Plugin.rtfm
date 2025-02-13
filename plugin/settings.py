@@ -14,6 +14,7 @@ class RtfmBetterSettings(msgspec.Struct):
     )
     debug_mode: bool = False
     simple_view: bool = False
+    reset_query: bool = False
 
     @classmethod
     def decode(cls, data: str) -> RtfmBetterSettings:

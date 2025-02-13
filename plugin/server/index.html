@@ -45,6 +45,14 @@
                         {% if simple_view %}checked{% endif %}
                     >
                 {% endcall %}
+                {% call checkbox(label="Reset Query", id="main-reset-query-input", description="If checked, the plugin will reset the query to just the keyword when opening a result") %}
+                    <input
+                        id="main-reset-query-input"
+                        type="checkbox"
+                        name="plugin.reset_query"
+                        {% if reset_query %}checked{% endif %}
+                    >
+                {% endcall %}
             </div>
             {% call actions() %}
                 <button>Save Settings & Reload Cache</button>
