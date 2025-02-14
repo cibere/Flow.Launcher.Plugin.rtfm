@@ -24,17 +24,17 @@
         {% call card("Plugin Settings") %}
             <div class="two-columns">
                 {% call input(label="Webserver Port", id="webserver-port-input", description="This is the port that this settings page will be hosted on. If set to 0, the plugin will let your system choose an unused port on startup.") %}
-                    <input type="number" id="webserver-port-input" name="plugin.port" min="0" max="65535" step="1" value="{{ plugin.static_port }}">
+                    <input type="number" id="webserver-port-input" name="plugin.port" min="0" max="65535" step="1" value="{{ plugin.better_settings.static_port }}">
                 {% endcall %}
                 {% call input(label="Main Keyword", id="main-keyword-input", description="This is the keyword that lets you access the settings page, reload the cache, and open up the plugin's log file.") %}
-                    <input type="text" id="main-keyword-input" name="plugin.keyword" value="{{ plugin.main_kw }}">
+                    <input type="text" id="main-keyword-input" name="plugin.keyword" value="{{ plugin.better_settings.main_kw }}">
                 {% endcall %}
                 {% call checkbox(label="Debug Mode", id="main-debug-mode-input", description="If checked, the plugin will include debug logs in the plugin's log file.") %}
                     <input
                         id="main-debug-mode-input"
                         type="checkbox"
                         name="plugin.debug_mode"
-                        {% if plugin.debug_mode %}checked{% endif %}
+                        {% if plugin.better_settings.debug_mode %}checked{% endif %}
                     >
                 {% endcall %}
                 {% call checkbox(label="Simple View", id="main-simple-view-input", description="If checked, the plugin will remove subtitles from the results it returns") %}
@@ -42,7 +42,7 @@
                         id="main-simple-view-input"
                         type="checkbox"
                         name="plugin.simple_view"
-                        {% if plugin.simple_view %}checked{% endif %}
+                        {% if plugin.better_settings.simple_view %}checked{% endif %}
                     >
                 {% endcall %}
                 {% call checkbox(label="Reset Query", id="main-reset-query-input", description="If checked, the plugin will reset the query to just the keyword when opening a result") %}
@@ -50,7 +50,7 @@
                         id="main-reset-query-input"
                         type="checkbox"
                         name="plugin.reset_query"
-                        {% if plugin.reset_query %}checked{% endif %}
+                        {% if plugin.better_settings.reset_query %}checked{% endif %}
                     >
                 {% endcall %}
             </div>
