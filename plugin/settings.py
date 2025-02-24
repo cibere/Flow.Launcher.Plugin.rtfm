@@ -11,8 +11,10 @@ from .libraries.library import PartialLibrary
 if TYPE_CHECKING:
     from .plugin import RtfmPlugin
 
+
 def _defaultdict_factory():
     return defaultdict(_defaultdict_factory)
+
 
 class RtfmBetterSettings(msgspec.Struct):
     main_kw: str = "rtfm"
