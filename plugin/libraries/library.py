@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, ClassVar, Self
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Self
 
 import msgspec
 from yarl import URL
@@ -24,16 +24,14 @@ class PartialLibrary(msgspec.Struct):
     name: str
     type: str
     loc: str
-    cache_results: bool = False
-    is_api: bool = False
+    options: dict[str, Any] = {}
 
     def to_dict(self):
         return {
             "name": self.name,
             "type": self.type,
             "loc": self.loc,
-            "cache_results": self.cache_results,
-            "is_api": self.is_api,
+            "options": self.options,
         }
 
     def encode(self) -> bytes:
@@ -55,14 +53,27 @@ class Library:
     cache: Mapping[str, Entry | str] | None
     supports_local: ClassVar[bool] = False
     result_cache: dict[str, Iterable[Result]]
+    _options: dict[str, Any]
 
-    def __init__(self, name: str, loc: URL | Path, *, cache_results: bool) -> None:
+    def __init__(self, name: str, loc: URL | Path, **options: Any) -> None:
         self.name = name
         self.loc = loc
         self.icon: str | None = None
         self.cache = None
-        self.cache_results = cache_results
         self.result_cache = {}
+        self._options = options
+        self._options["is_api"] = self.is_api
+
+        if "cache_results" not in options:
+            options["cache_results"] = True
+
+    @property
+    def variant_name(self) -> str | None:
+        return self._options.get("variant")
+
+    @property
+    def cache_results(self) -> bool:
+        return self._options["cache_results"]
 
     @property
     def url(self) -> URL | None:
@@ -107,7 +118,7 @@ class Library:
 
     @classmethod
     def from_partial(cls: type[Self], data: PartialLibrary) -> Self:
-        kwargs = {"name": data.name, "cache_results": data.cache_results}
+        kwargs: dict[str, Any] = {"name": data.name}
 
         loc: str = data.loc
 
@@ -120,13 +131,11 @@ class Library:
                 )
             kwargs["loc"] = Path(loc)
 
-        return cls(**kwargs)
+        self = cls(**kwargs)
+        self._options = data.options
+        return self
 
     def to_partial(self) -> PartialLibrary:
         return PartialLibrary(
-            self.name,
-            type=self.typename,
-            loc=str(self.loc),
-            cache_results=self.cache_results,
-            is_api=self.is_api,
+            self.name, type=self.typename, loc=str(self.loc), options=self._options
         )

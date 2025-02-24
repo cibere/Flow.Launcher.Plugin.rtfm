@@ -6,6 +6,7 @@ import msgspec
 from aiohttp import ClientSession
 from yarl import URL
 
+from plugin.errors import PromptRequired
 from plugin.libraries.doctypes._structs.cidex import (
     ApiIndex,
     Cache,
@@ -41,11 +42,17 @@ class CidexBase(Library):
                 choice = variant
         return choice
 
+    def _resolve_variant_from_options(self) -> str | None:
+        return self._options.get("variant")
+
     def resolve_variant(self, manifest: VariantManifest) -> str | None:
         if not self.url:
             return
 
-        return self._resolve_variant_via_exact_match(self.url, manifest.variants)
+        return (
+            self._resolve_variant_from_options()
+            or self._resolve_variant_via_exact_match(self.url, manifest.variants)
+        )
 
     async def fetch_index(
         self, session: ClientSession, url: URL
@@ -58,7 +65,11 @@ class CidexBase(Library):
         if isinstance(data, VariantManifest):
             variant = self.resolve_variant(data)
             if not variant:
-                raise ValueError("Unable to resolve correct variant")
+                raise PromptRequired(
+                    "I was unable to figure out which variation of the doc/manual to use. Please choose which variation you want",
+                    data.variants,
+                    "variant",
+                )
 
             parts = list(url.parts)
             parts[-1] = parts[-1].replace(".cidex", f"-{variant}.cidex")

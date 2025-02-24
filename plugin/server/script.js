@@ -21,11 +21,17 @@
  * @property {string} name
  * @property {string} type
  * @property {string} loc
- * @property {boolean} cache_results
- * @property {boolean} is_api
+ * @property {object} options
  */
 
-/** @typedef {ServerResponse<GetLibraryResponseData>} GetLibraryResponse */
+/**
+ * @typedef {object} GetLibraryPromptResponseData
+ * @property {string} prompt
+ * @property {array<str>} options
+ * @property {string} slug
+ */
+
+/** @typedef {ServerResponse<GetLibraryResponseData | GetLibraryPromptResponseData>} GetLibraryResponse */
 
 /** @typedef {ServerResponse<undefined>} SettingsResponse */
 
@@ -66,10 +72,10 @@ function addNewDoc(data) {
         .replaceAll("{{TYPE}}", data.type);
 
     const useCacheInput = card.querySelector('input[name$="cache_results"]');
-    useCacheInput.checked = data.cache_results;
+    useCacheInput.checked = data.options.cache_results;
 
     const isApiInput = card.querySelector('input[name$="is_api"]');
-    isApiInput.checked = data.is_api;
+    isApiInput.checked = data.options.is_api;
 
     elements.addManualDiv.insertAdjacentElement("afterend", doc.querySelector(".card"));
 
@@ -109,6 +115,25 @@ elements.mainForm.addEventListener("submit", async e => {
     alert("Success!");
 });
 
+async function fetchLibraryFromUrl(payload){
+    const response = await fetch(elements.addManualDiv.dataset.action, {
+        method: elements.addManualDiv.dataset.method ?? "POST",
+        body: JSON.stringify(payload),
+    }).then(v => v.json());
+    console.log("Got get library response", response);
+
+    if (response.prompt){
+        let val = prompt(response.prompt);
+        if (response.options.includes(val)) {
+            payload.options[response.slug] = val;
+            return fetchLibraryFromUrl(payload);
+        } else {
+            return;
+        }
+    }
+    return response;
+}
+
 elements.addManualButton.addEventListener("click", async () => {
     console.log('clicked');
     try {
@@ -119,22 +144,22 @@ elements.addManualButton.addEventListener("click", async () => {
         const payload = {
             url: location,
             name: keyword,
+            options: {}
         };
-        console.log(elements.addManualDiv.dataset.action);
-        /** @type {GetLibraryResponse} */
-        const response = await fetch(elements.addManualDiv.dataset.action, {
-            method: elements.addManualDiv.dataset.method ?? "POST",
-            body: JSON.stringify(payload),
-        }).then(v => v.json());
-        console.log("Got get library response", response);
-
+        const response = await fetchLibraryFromUrl(payload);
         hideLoadingModal();
+
+        if (response == null){
+            alert("Invalid Variant, cancelling");
+            return;
+        }
         if (!response.success) {
             alert(`An error occurred: ${response.message}`);
             return;
         }
 
         alert("Success!");
+        console.log("adding new doc", response);
         addNewDoc(response.data);
     } catch (e) {
         hideLoadingModal();

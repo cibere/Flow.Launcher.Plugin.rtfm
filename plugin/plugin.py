@@ -10,6 +10,7 @@ from flogin import ErrorResponse, Plugin, QueryResponse
 from yarl import URL
 
 from .better_lock import BetterLock
+from .errors import PromptRequired
 from .libraries import doc_types, library_from_partial
 from .server.core import run_app as start_webserver
 from .settings import RtfmBetterSettings
@@ -204,22 +205,47 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
         parts = loc.split("/")
         return URL.build(scheme="https", host=parts.pop(0), path="/" + "/".join(parts))
 
-    async def get_library_from_url(self, name: str, raw_url: str) -> Library | None:
+    async def get_library_from_url(
+        self, name: str, raw_url: str, **options: str
+    ) -> Library | None:
+        doctype_to_check = options.pop("doctype", None)
+
         loc = self.convert_raw_loc(raw_url.rstrip("/"))
         log.debug("Getting library from url: %r", loc)
         is_path: bool = isinstance(loc, Path)
 
+        results: list[Library] = []
+
         for Doctype in doc_types:
-            if is_path is True and Doctype.supports_local is False:
+            if (doctype_to_check and Doctype.typename is not doctype_to_check) or (
+                is_path is True and Doctype.supports_local is False
+            ):
                 continue
+
             lib = Doctype(name, loc, cache_results=True)
+            lib._options.update(options)
+
             try:
                 log.debug("Trying doctype: %r", Doctype)
                 await lib.build_cache(self.session, self.webserver_port)
+            except PromptRequired:
+                raise
             except Exception as e:
                 log.exception("Failed to build cache for library: %r", name, exc_info=e)
             else:
-                return lib
+                if doctype_to_check:
+                    return lib
+
+                results.append(lib)
+
+        if results:
+            if len(results) == 1:
+                return results[0]
+            raise PromptRequired(
+                "I detected multiple doctypes to use for parsing this manual/doc, which one do you prefer?",
+                options=[DocType.typename for DocType in results],
+                slug="doctype",
+            )
 
     def _simple_view_converter(
         self, original: Callable[P, Awaitable[QueryResponse | ErrorResponse]]

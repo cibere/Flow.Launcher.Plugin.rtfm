@@ -11,6 +11,8 @@ from .libraries.library import PartialLibrary
 if TYPE_CHECKING:
     from .plugin import RtfmPlugin
 
+def _defaultdict_factory():
+    return defaultdict(_defaultdict_factory)
 
 class RtfmBetterSettings(msgspec.Struct):
     main_kw: str = "rtfm"
@@ -33,7 +35,7 @@ class RtfmBetterSettings(msgspec.Struct):
     @classmethod
     def parse_form_data(cls, data: dict[str, str]) -> RtfmBetterSettings:
         kwargs: dict[str, Any] = {}
-        raw_docs: dict[int, dict[str, Any]] = defaultdict(lambda: {})
+        raw_docs: dict[int, dict[str, Any]] = _defaultdict_factory()
 
         for key, value in data.items():
             parts = key.split(".")
@@ -51,9 +53,11 @@ class RtfmBetterSettings(msgspec.Struct):
                         raise ValueError(f"Unknown Settings Key: {key!r}")
                 case "doc":
                     idx = int(parts[1])
+
                     match parts[2]:
                         case "cache_results":
-                            value = True
+                            raw_docs[idx]["options"]["cache_results"] = True
+                            continue
                         case "keyword":
                             parts[2] = "name"
                             if not value:

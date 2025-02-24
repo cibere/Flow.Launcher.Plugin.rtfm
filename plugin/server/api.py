@@ -7,9 +7,14 @@ from typing import TYPE_CHECKING
 import msgspec
 from aiohttp import web
 
+from ..errors import PromptRequired
 from ..settings import RtfmBetterSettings
 from .payloads.error import ErrorResponse
-from .payloads.get_library import GetLibraryPayload, GetLibraryResponse
+from .payloads.get_library import (
+    GetLibraryPayload,
+    GetLibraryPromptResponse,
+    GetLibraryResponse,
+)
 from .payloads.settings import (
     ExportSettingsResponse,
     ImportSettingsRequest,
@@ -54,8 +59,13 @@ def build_api(
             return web.Response(
                 body=ErrorResponse("Invalid Data Received").encode(), status=400
             )
+        try:
+            lib = await plugin.get_library_from_url(data.name, data.url, **data.options)
+        except PromptRequired as e:
+            return web.Response(
+                body=GetLibraryPromptResponse(e.message, e.options, e.slug).encode()
+            )
 
-        lib = await plugin.get_library_from_url(data.name, data.url)
         if lib is None:
             return web.Response(
                 body=ErrorResponse("Could not index site").encode(), status=400
