@@ -1,21 +1,17 @@
 from __future__ import annotations
 
-import asyncio
 import logging
 import secrets
-import webbrowser
+from typing import TYPE_CHECKING, Any, Unpack
 
 import pyperclip
 from flogin import ExecuteResponse, Result
 
-TYPE_CHECKING = False
 if TYPE_CHECKING:
-    from typing import TYPE_CHECKING, Any, Unpack
+    from flogin.jsonrpc.results import ResultConstructorKwargs
 
-    from flogin.jsonrpc.results import ResultConstructorKwargs  # noqa: TC002
+    from rtfm_lookup import Entry, Manual
 
-    from .libraries.entry import Entry  # noqa: TC001
-    from .libraries.library import Library  # noqa: TC001
     from .plugin import RtfmPlugin  # noqa: F401
 
 
@@ -47,7 +43,7 @@ class ReloadCacheResult(BaseResult):
         assert self.plugin
 
         try:
-            await self.plugin.build_rtfm_lookup_tables()
+            await self.plugin.rtfm.reload_cache()
         except RuntimeError as e:
             await self.plugin.api.show_error_message("rtfm", str(e))
         else:
@@ -89,36 +85,42 @@ class OpenLogFileResult(BaseResult):
         return ExecuteResponse()
 
 
+def get_result_kwargs(
+    entry: Entry, manual: Manual, score: int
+) -> ResultConstructorKwargs:
+    kwargs = entry.options.copy()
+    kwargs["title"] = entry.text
+    if "icon" not in kwargs and manual.favicon_url:
+        kwargs["icon"] = manual.favicon_url
+    kwargs["score"] = score
+
+    return kwargs  # pyright: ignore[reportReturnType]
+
+
 class OpenRtfmResult(BaseResult):
-    def __init__(self, *, library: Library, entry: Entry, score: int) -> None:
-        self.library = library
+    def __init__(self, *, manual: Manual, entry: Entry, score: int) -> None:
+        self.manual = manual
         self.url = entry.url.replace("%23", "#")
         self.entry = entry
 
-        super().__init__(**entry.get_result_kwargs(library, score))
+        super().__init__(**get_result_kwargs(entry, manual, score))
 
-    async def callback(self) -> ExecuteResponse:
+    async def callback(self) -> None:
         assert self.plugin
         assert self.plugin.last_query
 
-        if self.library.path:
-            log.debug("Opening URL: %r", self.url)
-            await asyncio.to_thread(webbrowser.open, self.url)
-        else:
-            await self.plugin.api.open_url(self.url)
+        await self.plugin.api.open_url(self.url)
 
         if self.plugin.better_settings.reset_query:
             await self.plugin.last_query.update(text="")
-
-        return ExecuteResponse()
 
     async def context_menu(self):
         assert self.plugin
 
         yield CopyResult(self.url, title="Copy URL", icon="assets/copy.png", score=100)
 
-        for result in self.entry.ctx_menu_factory(self.entry):
-            yield result
+        # for result in self.entry.ctx_menu_factory(self.entry):
+        #     yield result
 
 
 class CopyResult(BaseResult):

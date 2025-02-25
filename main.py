@@ -21,9 +21,23 @@ logs.setup()
 with Pip(lib_dir) as pip:
     pip.ensure_installed("msgspec==0.19.0", module="msgspec._core")
 
-from plugin.plugin import RtfmPlugin
+import asyncio
 
-plugin = RtfmPlugin()
-plugin.logs = logs
-logs.update_debug(plugin.better_settings.debug_mode)
-plugin.run(setup_default_log_handler=False)
+from plugin.plugin import RtfmPlugin
+from rtfm_lookup import RtfmManager
+
+
+async def main():
+    async with RtfmManager() as rtfm:
+        plugin = RtfmPlugin()
+        plugin.rtfm = rtfm
+        plugin.logs = logs
+
+        plugin.load_settings()
+
+        logs.update_debug(plugin.better_settings.debug_mode)
+        asyncio.create_task(plugin.start_webserver())
+        await plugin.start()
+
+
+asyncio.run(main())

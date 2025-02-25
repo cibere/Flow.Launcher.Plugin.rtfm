@@ -1,0 +1,3 @@
+[submodule "rtfm-lookup"]
+	path = rtfm-lookup
+	url = https://github.com/cibere/rtfm-lookup

@@ -6,26 +6,37 @@ from typing import TYPE_CHECKING, Any
 
 import msgspec
 
-from .libraries.library import PartialLibrary
+from rtfm_lookup import IndexerName, PartialManual
 
 if TYPE_CHECKING:
     from .plugin import RtfmPlugin
 
 
-class RtfmBetterSettings(msgspec.Struct):
+def _nested_defaultdict():
+    return defaultdict(_nested_defaultdict)
+
+
+# region Current
+
+
+class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
     main_kw: str = "rtfm"
     static_port: int = 0
-    libraries: list[PartialLibrary] = []
-    version: str | None = (
-        None  # For backwards compatible settings in the future. Incase the format changes again, this key can be used to determine which format to parse.
-    )
+    manuals: list[PartialManual] = []
     debug_mode: bool = False
     simple_view: bool = False
     reset_query: bool = False
 
     @classmethod
     def decode(cls, data: bytes | str) -> RtfmBetterSettings:
-        return decoder.decode(data)
+        try:
+            return v3_decoder.decode(data)
+        except msgspec.DecodeError as error:
+            try:
+                settings = v2_decoder.decode(data)
+            except msgspec.DecodeError:
+                raise error from None
+            return settings.convert()
 
     def encode(self) -> bytes:
         return encoder.encode(self)
@@ -33,35 +44,30 @@ class RtfmBetterSettings(msgspec.Struct):
     @classmethod
     def parse_form_data(cls, data: dict[str, str]) -> RtfmBetterSettings:
         kwargs: dict[str, Any] = {}
-        raw_docs: dict[int, dict[str, Any]] = defaultdict(lambda: {})
+        raw_docs: dict[str, dict[str, Any]] = _nested_defaultdict()
 
-        for key, value in data.items():
-            parts = key.split(".")
-            match parts[0]:
-                case "plugin":
-                    name = parts[1]
+        for raw_key, value in data.items():
+            match raw_key.split("."):
+                case ["plugin", "port"]:
+                    kwargs["static_port"] = int(value)
+                case ["plugin", "keyword"]:
+                    kwargs["main_kw"] = value or "*"
+                case ["plugin", "debug_mode" | "simple_view" | "reset_query" as name]:
+                    kwargs[name] = True
+                case ["doc", idx, "loc"]:
+                    raw_docs[idx]["loc"] = value
+                case ["doc", idx, "keyword"]:
+                    raw_docs[idx]["name"] = value
+                case ["doc", idx, "type"]:
+                    raw_docs[idx]["type"] = IndexerName(value)
+                case ["doc", idx, "cache_results"]:
+                    raw_docs[idx]["options"]["cache_results"] = True
+                case ["doc", idx, name]:
+                    raw_docs[idx]["options"][name] = value
+                case other:
+                    raise ValueError(f"Unknown Settings Key: {other!r}")
 
-                    if name == "port":
-                        kwargs["static_port"] = int(value)
-                    elif name == "keyword":
-                        kwargs["main_kw"] = value or "*"
-                    elif name in ("debug_mode", "simple_view", "reset_query"):
-                        kwargs[name] = True
-                    else:
-                        raise ValueError(f"Unknown Settings Key: {key!r}")
-                case "doc":
-                    idx = int(parts[1])
-                    match parts[2]:
-                        case "cache_results":
-                            value = True
-                        case "keyword":
-                            parts[2] = "name"
-                            if not value:
-                                value = "*"
-
-                    raw_docs[idx][parts[2]] = value
-
-        kwargs["libraries"] = [PartialLibrary(**opts) for opts in raw_docs.values()]
+        kwargs["manuals"] = [PartialManual(**opts) for opts in raw_docs.values()]
         return cls(**kwargs)
 
     async def save(self, plugin: RtfmPlugin) -> None:
@@ -75,9 +81,61 @@ class RtfmBetterSettings(msgspec.Struct):
             plugin.better_settings.debug_mode = self.debug_mode
 
         plugin.dump_settings()
-        await plugin.update_libraries(self.libraries)
-        asyncio.create_task(plugin.build_rtfm_lookup_tables())
+        plugin.rtfm.load_partials(*self.manuals)
+        plugin.rtfm.trigger_cache_reload()
+        asyncio.create_task(plugin.ensure_keywords())
 
+
+# region Legacy
+
+
+class PartialLibrary(msgspec.Struct):
+    name: str
+    type: str
+    loc: str
+    cache_results: bool = False
+    is_api: bool = False
+
+
+class RtfmBetterSettingsV2(msgspec.Struct):
+    main_kw: str = "rtfm"
+    static_port: int = 0
+    libraries: list[PartialLibrary] = []
+    version: str | None = None
+    debug_mode: bool = False
+    simple_view: bool = False
+    reset_query: bool = False
+
+    def convert(self) -> RtfmBetterSettings:
+        return RtfmBetterSettings(
+            main_kw=self.main_kw,
+            static_port=self.static_port,
+            debug_mode=self.debug_mode,
+            simple_view=self.simple_view,
+            reset_query=self.reset_query,
+            manuals=[
+                PartialManual(
+                    name=lib.name,
+                    type=IndexerName(
+                        {
+                            "Preset": "cibere-rtfm-indexes",
+                            "Gidocgen": "gidocgen",
+                            "Intersphinx": "intersphinx",
+                            "Mkdocs": "mkdocs",
+                        }[lib.type]
+                    ),
+                    loc=lib.loc,
+                    options={
+                        "cache_results": lib.cache_results,
+                    },
+                )
+                for lib in self.libraries
+            ],
+        )
+
+
+# region json
 
 encoder = msgspec.json.Encoder()
-decoder = msgspec.json.Decoder(RtfmBetterSettings)
+v3_decoder = msgspec.json.Decoder(RtfmBetterSettings)
+v2_decoder = msgspec.json.Decoder(RtfmBetterSettingsV2)

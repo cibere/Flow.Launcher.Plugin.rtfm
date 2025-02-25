@@ -16,10 +16,6 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("webserver")
 
-DATA_JS_TEMPLATE = """
-const libraries = {libraries}
-"""
-
 no_cache_headers = {
     "Cache-Control": "no-cache, no-store, must-revalidate",
     "Expires": "0",
@@ -59,24 +55,24 @@ def build_app(
             headers=no_cache_headers,
         )
 
-    @routes.get("/local-docs/{name}/{path:[^{}]+}")
-    async def get_local_doc_path(request: web.Request):
-        name = request.match_info["name"]
-        path = request.match_info["path"].strip("/") or "index.html"
+    # @routes.get("/local-docs/{name}/{path:[^{}]+}")
+    # async def get_local_doc_path(request: web.Request):
+    #     name = request.match_info["name"]
+    #     path = request.match_info["path"].strip("/") or "index.html"
 
-        try:
-            lib = plugin.libraries[name]
-        except KeyError:
-            return web.Response(body="Library not found", status=404)
+    #     try:
+    #         lib = plugin.libraries[name]
+    #     except KeyError:
+    #         return web.Response(body="Library not found", status=404)
 
-        if lib.path is None:
-            return web.Response(
-                body="Library does not support local documentation", status=400
-            )
+    #     if lib.path is None:
+    #         return web.Response(
+    #             body="Library does not support local documentation", status=400
+    #         )
 
-        page = os.path.join(lib.path, path)
-        log.debug("Returning file: %r", page)
-        return web.FileResponse(page)
+    #     page = os.path.join(lib.path, path)
+    #     log.debug("Returning file: %r", page)
+    #     return web.FileResponse(page)
 
     app = web.Application()
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))

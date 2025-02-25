@@ -9,7 +9,7 @@ from aiohttp import web
 
 from ..settings import RtfmBetterSettings
 from .payloads.error import ErrorResponse
-from .payloads.get_library import GetLibraryPayload, GetLibraryResponse
+from .payloads.get_manual import GetManualPayload, GetManualResponse
 from .payloads.settings import (
     ExportSettingsResponse,
     ImportSettingsRequest,
@@ -46,22 +46,22 @@ def build_api(
         await payload.save(plugin)
         return web.json_response({"success": True}, headers=no_cache_headers)
 
-    @routes.post("/api/get_library")
-    async def get_library(request: web.Request):
+    @routes.post("/api/get_manual")
+    async def get_manual(request: web.Request):
         try:
-            data = GetLibraryPayload.decode(await request.read())
+            data = GetManualPayload.decode(await request.read())
         except msgspec.DecodeError:
             return web.Response(
                 body=ErrorResponse("Invalid Data Received").encode(), status=400
             )
 
-        lib = await plugin.get_library_from_url(data.name, data.url)
-        if lib is None:
+        man = await plugin.rtfm.get_manual(data.name, data.url, add=False)
+        if man is None:
             return web.Response(
                 body=ErrorResponse("Could not index site").encode(), status=400
             )
 
-        response = GetLibraryResponse(lib.to_partial())
+        response = GetManualResponse(man.to_partial())
         return web.Response(body=response.encode(), headers=no_cache_headers)
 
     @routes.get("/api/settings/export")
