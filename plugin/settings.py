@@ -40,7 +40,9 @@ class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
     @classmethod
     def parse_form_data(cls, data: dict[str, str]) -> RtfmBetterSettings:
         kwargs: dict[str, Any] = {}
-        raw_docs: dict[str, dict[str, Any]] = defaultdict(lambda: {"options": {"cache_results": False}})
+        raw_docs: dict[str, dict[str, Any]] = defaultdict(
+            lambda: {"options": {"dont_cache_results": True}}
+        )
 
         for raw_key, value in data.items():
             match raw_key.split("."):
@@ -56,8 +58,8 @@ class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
                     raw_docs[idx]["name"] = value
                 case ["doc", idx, "type"]:
                     raw_docs[idx]["type"] = IndexerName(value)
-                case ["doc", idx, "cache_results"]:
-                    raw_docs[idx]["options"]["cache_results"] = True
+                case ["doc", idx, "dont_cache_results"]:
+                    raw_docs[idx]["options"]["dont_cache_results"] = False
                 case ["doc", idx, name]:
                     raw_docs[idx]["options"][name] = value
                 case other:
@@ -90,7 +92,7 @@ class PartialLibrary(msgspec.Struct):
     name: str
     type: str
     loc: str
-    cache_results: bool = False
+    dont_cache_results: bool = False
     is_api: bool = False
 
 
@@ -123,7 +125,7 @@ class RtfmBetterSettingsV2(msgspec.Struct):
                     ),
                     loc=lib.loc,
                     options={
-                        "cache_results": lib.cache_results,
+                        "dont_cache_results": lib.dont_cache_results,
                     },
                 )
                 for lib in self.libraries

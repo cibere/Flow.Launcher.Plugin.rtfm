@@ -5,7 +5,7 @@
     </div>
 {% endmacro %}
 
-{% macro doc(location, index, type, name, cache_results, is_api) %}
+{% macro doc(location, index, type, name, dont_cache_results, is_api) %}
     <div class="card" data-index="{{ index }}">
         <input type="hidden" name="doc.{{ index }}.loc" value="{{ location }}">
         <input type="hidden" name="doc.{{ index }}.type" value="{{ type }}">
@@ -33,8 +33,8 @@
                 <input
                         id="lib-cache-input-{{ index }}"
                         type="checkbox"
-                        name="doc.{{ index }}.cache_results"
-                        {% if cache_results %}checked{% endif %}
+                        name="doc.{{ index }}.dont_cache_results"
+                        {% if not dont_cache_results %}checked{% endif %}
                 >
             {% endcall %}
 

@@ -28,7 +28,9 @@ from rtfm_lookup import RtfmManager
 
 
 async def main():
-    async with RtfmManager() as rtfm:
+    async with RtfmManager(
+        default_manual_options={"dont_cache_results": False}
+    ) as rtfm:
         plugin = RtfmPlugin()
         plugin.rtfm = rtfm
         plugin.logs = logs

@@ -9,7 +9,7 @@
 </head>
 <body>
 <template id="docs-template">
-    {{ doc(location="{{LOCATION}}", index="{{INDEX}}", type="{{TYPE}}", name="{{NAME}}", cache_results=False, is_api=False) }}
+    {{ doc(location="{{LOCATION}}", index="{{INDEX}}", type="{{TYPE}}", name="{{NAME}}", dont_cache_results=False, is_api=False) }}
 </template>
 <main>
     {% call card("Rtfm Plugin") %}
@@ -75,7 +75,7 @@
         </div>
 
         {% for man in plugin.rtfm.manuals.values() %}
-            {{ doc(location=man.loc, index=loop.index, type=man.indexer.name.value, name=man.name, cache_results=man.options.cache_results, is_api=man.is_api) }}
+            {{ doc(location=man.loc, index=loop.index, type=man.indexer.name.value, name=man.name, dont_cache_results=man.options.dont_cache_results, is_api=man.is_api) }}
         {% endfor %}
     </form>
 </main>
