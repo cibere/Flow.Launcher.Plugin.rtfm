@@ -294,11 +294,6 @@ select {
     overflow: hidden;
 }
 
-#loading-modal::backdrop {
-    background: var(--page-background-color);
-    opacity: 0.8;
-}
-
 .loading-spinner {
     width: 100%;
     aspect-ratio: 1;
@@ -312,4 +307,29 @@ select {
     to {
         transform: rotate(360deg);
     }
+}
+
+#alert-modal {
+    color: white;
+    width: 50%;
+    text-align: center;
+    align-self: center;
+    justify-self: center;
+    background-color: var(--card-background-color);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 16px;
+}
+
+.blurred-backdrop::backdrop {
+    background: var(--page-background-color);
+    opacity: 0.8;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }

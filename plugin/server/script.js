@@ -48,6 +48,10 @@ const elements = {
     importBtn: document.querySelector("#import-btn"),
     /** @type {HTMLButtonElement} */
     exportBtn: document.querySelector("#export-btn"),
+    /** @type {HTMLDialogElement} */
+    alertModal: document.querySelector("#alert-modal"),
+    /** @type {HTMLDivElement} */
+    alertModalContents: document.querySelector("#alert-modal-contents"),
 };
 
 /**
@@ -86,6 +90,16 @@ function hideLoadingModal() {
     elements.loadingModal.close();
 }
 
+function showAlertModal(msg){
+    elements.alertModalContents.innerHTML = msg;
+    elements.alertModal.showModal();
+}
+
+elements.alertModal.addEventListener("click", async e => {
+    elements.alertModal.close();
+    console.log("hiding");
+})
+
 elements.mainForm.addEventListener("submit", async e => {
     e.preventDefault();
 
@@ -102,11 +116,11 @@ elements.mainForm.addEventListener("submit", async e => {
 
     if (!response.success) {
         console.log("Saved settings response", response);
-        alert(`An error occurred: ${response.message}`);
+        showErrorModal(`An error occurred: ${response.message}`);
         return;
     }
 
-    alert("Success!");
+    showAlertModal("Success!");
 });
 
 elements.addManualButton.addEventListener("click", async () => {
@@ -130,11 +144,11 @@ elements.addManualButton.addEventListener("click", async () => {
 
         hideLoadingModal();
         if (!response.success) {
-            alert(`An error occurred: ${response.message}`);
+            showAlertModal(`An error occurred: ${response.message}`);
             return;
         }
 
-        alert("Success!");
+        showAlertModal("Success!");
         addNewDoc(response.data);
     } catch (e) {
         hideLoadingModal();
@@ -194,10 +208,10 @@ elements.importBtn.addEventListener("click", () => {
                     method: "POST",
                 });
                 console.log("Got Response from import settings endpoint", response);
-                alert("Settings imported successfully! A full restart of flow launcher is needed for all new settings to take affect.");
+                showAlertModal("Settings imported successfully! A full restart of flow launcher is needed for all new settings to take affect.");
                 window.location.reload();
             } catch {
-                alert("Failed to import settings!");
+                showAlertModal("Failed to import settings!");
             }
         });
     });
@@ -207,7 +221,7 @@ elements.exportBtn.addEventListener("click", async () => {
     try {
         const data = await fetch("/api/settings/export").then(res => res.json());
         if (!data.success) {
-            alert("Failed to export settings!");
+            showAlertModal("Failed to export settings!");
             return;
         }
         const file = new Blob([data.data], {type: "text/plain"});
@@ -217,9 +231,9 @@ elements.exportBtn.addEventListener("click", async () => {
         a.download = "rtfm_settings.txt";
         a.click();
         URL.revokeObjectURL(url);
-        alert("Settings exported successfully!");
+        showAlertModal("Settings exported successfully!");
         location.reload();
     } catch {
-        alert("Failed to export settings!");
+        showAlertModal("Failed to export settings!");
     }
 });

@@ -79,8 +79,15 @@
         {% endfor %}
     </form>
 </main>
-<dialog id="loading-modal">
+<dialog id="loading-modal" class="blurred-backdrop">
     <div class="loading-spinner"></div>
+</dialog>
+<dialog id="alert-modal" class="blurred-backdrop">
+    <div id="alert-modal-contents"></div>
+    <br>
+    <form method="dialog">
+        <button>Close</button>
+    </form>
 </dialog>
 </body>
 </html>
