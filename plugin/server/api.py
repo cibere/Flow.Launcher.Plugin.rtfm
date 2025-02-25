@@ -82,7 +82,10 @@ def build_api(
         except msgspec.DecodeError as e:
             log.exception("Error while import settings", exc_info=e)
             return web.Response(
-                body=ErrorResponse("Invalid Data Received. Are you sure that this file was exported by the export button?").encode(), status=400
+                body=ErrorResponse(
+                    "Invalid Data Received. Are you sure that this file was exported by the export button?"
+                ).encode(),
+                status=400,
             )
 
         await settings.save(plugin)
