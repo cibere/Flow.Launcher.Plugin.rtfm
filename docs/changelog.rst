@@ -10,3 +10,4 @@ Changelog
 - Fix a bug with certain error icons not showing
 - Remove the need to have ``image-magik`` installed for nice icons, by switching from google's favicon API to duckduckgo's favicon API.
 - Bump dependencies
+- Remove the entry children (extra context menu items) for code simplicity, might add them back later
