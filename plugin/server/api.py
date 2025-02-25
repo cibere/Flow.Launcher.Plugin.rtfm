@@ -58,7 +58,10 @@ def build_api(
         man = await plugin.rtfm.get_manual(data.name, data.url, add=False)
         if man is None:
             return web.Response(
-                body=ErrorResponse("Could not index site").encode(), status=400
+                body=ErrorResponse(
+                    'Could not index site. Feel free to open an issue on the <a href="https://github.com/cibere/flow.launcher.plugin.rtfm">plugin\'s repository</a> requesting support for this site.'
+                ).encode(),
+                status=400,
             )
 
         response = GetManualResponse(man.to_partial())
@@ -79,7 +82,7 @@ def build_api(
         except msgspec.DecodeError as e:
             log.exception("Error while import settings", exc_info=e)
             return web.Response(
-                body=ErrorResponse("Invalid Data Received").encode(), status=400
+                body=ErrorResponse("Invalid Data Received. Are you sure that this file was exported by the export button?").encode(), status=400
             )
 
         await settings.save(plugin)
