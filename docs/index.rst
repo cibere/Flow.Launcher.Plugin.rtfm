@@ -29,9 +29,6 @@ Credits
    :caption: Info
    :hidden:
 
-   presets
-   doctypes
-   favicons
    main_keyword
    settings
    changelog
