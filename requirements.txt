@@ -1,8 +1,6 @@
 flogin[pip] @ git+https://github.com/cibere/flogin@478211372d3c7c95f9c242d4cadf763af0844b21
-favicon==0.7.0
-Wand==0.6.13
+rtfm-lookup @ git+https://github.com/cibere/rtfm-lookup@d744d0897f5f8215d77a82161e06ddcc416ef021
 aiohttp==3.11.12
 aiohttp-jinja2==1.6
-beautifulsoup4==4.13.1
 msgspec==0.19.0
 pyperclip==1.9.0
