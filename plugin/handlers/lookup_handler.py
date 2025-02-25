@@ -21,7 +21,7 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
             manual = self.plugin.rtfm[keyword]
         except KeyError:
             return Result(
-                f"Manual '{keyword}' not found in settings", icon="Images/error.png"
+                f"Manual '{keyword}' not found in settings", icon="assets/error.png"
             )
 
         if manual["cache_results"] and (
