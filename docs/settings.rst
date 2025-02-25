@@ -38,7 +38,7 @@ If you would like, you can create backups by using the ``Export Settings`` and `
 
 Adding a manual/doc
 -------------------
-To add a manual or doc, find the ``Add Manual`` section and input a keyword and location. The location can be a full url (ex: ``https://rtfm.cibere.dev/latest``), url without scheme (ex: ``rtfm.cibere.dev/latest``), or a path (ex: ``C:\Users\cibere\rtfm\docs\_build\html``). When you press ``Add``, the plugin will attempt to match the URL against the current set of presets (see :doc:`presets` for more info), then it will try to guess which format the manual/doc conforms to. If either a preset or type that is supported is found, the doc/manual will be added to the list of docs/manuals on the website. If the manual/doc can't be indexed, you will receive an error.
+To add a manual or doc, find the ``Add Manual`` section and input a keyword and location. The location can be a full url (ex: ``https://rtfm.cibere.dev/latest``), url without scheme (ex: ``rtfm.cibere.dev/latest``), or a path (ex: ``C:\Users\cibere\rtfm\docs\_build\html``). When you press ``Add``, the plugin will try to guess which format the manual/doc conforms to. If either a preset or type that is supported is found, the doc/manual will be added to the list of docs/manuals on the website. If the manual/doc can't be indexed, you will receive an error.
 
 .. WARNING::
 
@@ -79,7 +79,7 @@ Type
 ~~~~
 This field shows the type that the doc/manual is marked as. This field is not editable, and is purely for information.
 
-If it is set to ``Preset``, then the doc/manual is connected to a preset (see :doc:`presets` for more info). Otherwise the value will be associated with the format or standard that the doc/manual conforms to, and which was used to index the manual/doc.
+If it is set to ``cibere-rtfm-indexes``, then the doc/manual has a special indexer that has been made specially for this plugin. Otherwise the value will be associated with the format or standard that the doc/manual conforms to, and which was used to index the manual/doc.
 
 Is API
 ~~~~~~
