@@ -1,8 +1,11 @@
 rtfm plugin
 ===========
-The rtfm plugin for `flow launcher <https://www.flowlauncher.com/>`__ makes it easy to query docs or manuals.
+The rtfm plugin for `flow launcher <https://www.flowlauncher.com/>`__ makes it easy to query docs or manuals. The plugin is a wrapper over the `rtfm lookup <https://github.com/cibere/rtfm-lookup>`__ python library from the same author, with a `rtfm indexes <https://github.com/cibere/Rtfm-Indexes/>`__ repository for manuals/docs that don't conform to any standard.
 
 For a list of versions that documentation is available for, see `here <https://rtfm.cibere.dev>`__.
+
+.. NOTE::
+   Is there a manual/doc that isn't being indexed? You can create an issue on any of the following repositories to request it: `rtfm plugin <https://github.com/cibere/Flow.Launcher.Plugin.rtfm>`__, `rtfm indexes <https://github.com/cibere/Rtfm-Indexes/>`__, `rtfm lookup <https://github.com/cibere/rtfm-lookup>`__
 
 Getting Help
 -------------
