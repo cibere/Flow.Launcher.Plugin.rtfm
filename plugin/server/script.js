@@ -66,10 +66,10 @@ function addNewDoc(data) {
         .replaceAll("{{TYPE}}", data.type);
 
     const useCacheInput = card.querySelector('input[name$="cache_results"]');
-    useCacheInput.checked = data.cache_results;
+    useCacheInput.checked = data.options.cache_results;
 
     const isApiInput = card.querySelector('input[name$="is_api"]');
-    isApiInput.checked = data.is_api;
+    isApiInput.checked = data.options.is_api;
 
     elements.addManualDiv.insertAdjacentElement("afterend", doc.querySelector(".card"));
 

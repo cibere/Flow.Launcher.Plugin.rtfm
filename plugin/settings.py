@@ -12,10 +12,6 @@ if TYPE_CHECKING:
     from .plugin import RtfmPlugin
 
 
-def _nested_defaultdict():
-    return defaultdict(_nested_defaultdict)
-
-
 # region Current
 
 
@@ -44,7 +40,7 @@ class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
     @classmethod
     def parse_form_data(cls, data: dict[str, str]) -> RtfmBetterSettings:
         kwargs: dict[str, Any] = {}
-        raw_docs: dict[str, dict[str, Any]] = _nested_defaultdict()
+        raw_docs: dict[str, dict[str, Any]] = defaultdict(lambda: {"options": {"cache_results": False}})
 
         for raw_key, value in data.items():
             match raw_key.split("."):
@@ -75,6 +71,7 @@ class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
         plugin.better_settings.main_kw = self.main_kw
         plugin.better_settings.simple_view = self.simple_view
         plugin.better_settings.reset_query = self.reset_query
+        plugin.better_settings.manuals = self.manuals
 
         if self.debug_mode != plugin.better_settings.debug_mode:
             plugin.logs.update_debug(self.debug_mode)
