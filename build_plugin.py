@@ -17,7 +17,6 @@ def main(archive_name: str):
     plugin_include_exts = ("py", "html", "css", "js")
 
     files.extend(Path("assets").iterdir())
-    files.extend(Path("rtfm_lookup").iterdir())
 
     plugin_dir = Path("plugin")
     for ext in plugin_include_exts:
