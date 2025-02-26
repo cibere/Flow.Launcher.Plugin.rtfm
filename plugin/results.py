@@ -10,6 +10,7 @@ from yarl import URL
 
 if TYPE_CHECKING:
     from flogin.jsonrpc.results import ResultConstructorKwargs
+
     from rtfm_lookup import Entry, Manual
 
     from .plugin import RtfmPlugin  # noqa: F401
