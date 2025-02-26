@@ -90,14 +90,24 @@ function hideLoadingModal() {
     elements.loadingModal.close();
 }
 
+let resolveAlertModal;
+
 function showAlertModal(msg){
+    if (resolveAlertModal) {
+        resolveAlertModal();
+        resolveAlertModal = null;
+    }
     elements.alertModalContents.innerHTML = msg;
     elements.alertModal.showModal();
+    return new Promise(resolve => resolveAlertModal = resolve);
 }
 
 elements.alertModal.addEventListener("click", async e => {
     elements.alertModal.close();
-    console.log("hiding");
+    if (resolveAlertModal) {
+        resolveAlertModal();
+        resolveAlertModal = null;
+    }
 })
 
 elements.mainForm.addEventListener("submit", async e => {
@@ -206,9 +216,12 @@ elements.importBtn.addEventListener("click", () => {
                 let response = await fetch("/api/settings/import", {
                     body: JSON.stringify({data}),
                     method: "POST",
-                });
+                }).then(v => v.json());
+                if (!response.success) {
+                    return showAlertModal("Failed to import settings");
+                }
                 console.log("Got Response from import settings endpoint", response);
-                showAlertModal("Settings imported successfully! A full restart of flow launcher is needed for all new settings to take affect.");
+                await showAlertModal("Settings imported successfully! A full restart of flow launcher is needed for all new settings to take affect.");
                 window.location.reload();
             } catch {
                 showAlertModal("Failed to import settings!");
