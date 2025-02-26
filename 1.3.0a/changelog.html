@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Logs" href="logs.html" /><link rel="prev" title="Plugin Settings" href="settings.html" />
 
-    <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+    <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 8.2.1 and Furo 2024.08.06 -->
         <title>Changelog - rtfm 1.3.0a documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
@@ -206,9 +206,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Info</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="presets.html">Presets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="doctypes.html">DocTypes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="favicons.html">Favicons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="main_keyword.html">Main Keyword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="settings.html">Plugin Settings</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Changelog</a></li>
@@ -256,8 +253,22 @@
           <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
 <ul class="simple">
-<li><p>Add the <code class="docutils literal notranslate"><span class="pre">docs.datasecurity.org</span></code> preset</p></li>
-<li><p>Add the <code class="docutils literal notranslate"><span class="pre">voidtools.com</span></code> preset</p></li>
+<li><dl class="simple">
+<dt>Remove the preset system, so that the parsers are contained in a different repository, and they are loaded via a doctype.</dt><dd><ul>
+<li><p>This will allow for faster and automatic preset updates, faster caching times, and it will reduce the strain on the hosts.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Remove the <code class="docutils literal notranslate"><span class="pre">Use</span> <span class="pre">Cache</span></code> option for non-api presets/doctypes.</p></li>
+<li><p>Add a <code class="docutils literal notranslate"><span class="pre">Cache</span> <span class="pre">Results</span></code> option for doctype entries</p></li>
+<li><p>Rewrite settings to reduce code duplication and to stop dumping settings about 5 times every time the save button in the webserver is clicked</p></li>
+<li><p>Strip the plugin’s core (~1.5k lines removed) and move them to their own repository so that they can be integrated in other places</p></li>
+<li><p>Fix a bug with certain error icons not showing</p></li>
+<li><p>Remove the need to have <code class="docutils literal notranslate"><span class="pre">image-magik</span></code> installed for nice icons, by switching from google’s favicon API to duckduckgo’s favicon API.</p></li>
+<li><p>Bump dependencies</p></li>
+<li><p>Remove the entry children (extra context menu items) for code simplicity, might add them back later</p></li>
+<li><p>Fix the previous implementation of legacy compatible settings not actually working very well</p></li>
 </ul>
 </section>
 
