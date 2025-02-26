@@ -1,5 +1,3 @@
-# ruff: noqa: E402, F401
-
 import sys
 from pathlib import Path
 
@@ -12,7 +10,6 @@ lib_dir = prod_dir if prod_dir.exists() else dev_dir
 sys.path.extend([root.as_posix(), lib_dir.as_posix()])
 
 from flogin import Pip
-
 from plugin.logs import Logs
 
 logs = Logs()

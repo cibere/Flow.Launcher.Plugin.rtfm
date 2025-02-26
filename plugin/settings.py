@@ -6,7 +6,6 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
 import msgspec
-
 from rtfm_lookup import IndexerName, PartialManual
 
 if TYPE_CHECKING:
