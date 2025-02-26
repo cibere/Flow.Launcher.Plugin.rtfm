@@ -43,7 +43,8 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "main.py" = [
     "E402", # https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file/
-    "F401" # https://docs.astral.sh/ruff/rules/unused-import/
+    "F401", # https://docs.astral.sh/ruff/rules/unused-import/
+    "I001", # https://docs.astral.sh/ruff/rules/unsorted-imports/
 ]
 
 [tool.ruff.format]
