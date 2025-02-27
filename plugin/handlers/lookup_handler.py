@@ -40,7 +40,7 @@ class LookupHandler(SearchHandler[RtfmPlugin]):
         ]
 
         if not results:
-            return Result("Could not find anything. Sorry.", icon=manual.favicon_url)
+            return Result("Could not find anything. Sorry.", icon=manual.icon_url)
 
         if manual["dont_cache_results"]:
             self.plugin.result_cache[manual][query.text] = results

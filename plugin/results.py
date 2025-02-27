@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, Unpack
 
 import pyperclip
 from flogin import ExecuteResponse, Result
-from yarl import URL
 
 if TYPE_CHECKING:
     from flogin.jsonrpc.results import ResultConstructorKwargs
@@ -92,10 +91,7 @@ def get_result_kwargs(
     kwargs = entry.options.copy()
     kwargs["title"] = entry.text
     if "icon" not in kwargs:
-        kwargs["icon"] = (
-            manual.favicon_url
-            or f"https://icons.duckduckgo.com/ip3/{URL(entry.url).host}.ico"
-        )
+        kwargs["icon"] = manual.icon_url
     kwargs["score"] = score
 
     return kwargs  # pyright: ignore[reportReturnType]
