@@ -1,7 +1,7 @@
 [tool.ruff]
 exclude = [
     "venv",
-    "test.py",
+    # "test.py",
     "plugin/fuzzy.py",
     "docs",
     "lib",
@@ -46,6 +46,9 @@ ignore = [
     "F401", # https://docs.astral.sh/ruff/rules/unused-import/
     "I001", # https://docs.astral.sh/ruff/rules/unsorted-imports/
 ]
+
+[tool.ruff.lint.isort]
+known-third-party = ["rtfm_lookup"]
 
 [tool.ruff.format]
 quote-style = "double"
