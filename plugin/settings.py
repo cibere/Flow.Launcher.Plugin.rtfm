@@ -123,6 +123,7 @@ class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
             plugin.better_settings.debug_mode = self.debug_mode
 
         plugin.dump_settings()
+        plugin.rtfm.manuals.clear()
         plugin.rtfm.load_partials(*self.manuals)
         plugin.rtfm.trigger_cache_reload()
         asyncio.create_task(plugin.ensure_keywords())
