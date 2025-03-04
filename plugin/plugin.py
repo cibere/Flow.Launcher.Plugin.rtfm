@@ -56,8 +56,10 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             with self.better_settings_file.open() as f:
                 data = f.read()
         except FileNotFoundError:
-            data = "{}"
-        self.better_settings = RtfmBetterSettings.decode(data)
+            self.better_settings = RtfmBetterSettings()
+        else:
+            self.better_settings = RtfmBetterSettings.decode(data)
+
         self.rtfm.load_partials(*self.better_settings.manuals)
 
     def dump_settings(self):
