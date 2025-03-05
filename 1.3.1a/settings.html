@@ -265,6 +265,22 @@
 <h3>Main Keyword<a class="headerlink" href="#main-keyword" title="Link to this heading">¶</a></h3>
 <p>This is where you can customize the main keyword. Defaults to <code class="docutils literal notranslate"><span class="pre">rtfm</span></code>. See the <a class="reference internal" href="main_keyword.html"><span class="doc">Main Keyword</span></a> page for more information.</p>
 </section>
+<section id="debug-mode">
+<h3>Debug Mode<a class="headerlink" href="#debug-mode" title="Link to this heading">¶</a></h3>
+<p>Turning this on will enable debug logs in the <code class="docutils literal notranslate"><span class="pre">flogin.log</span></code> file that is in the plugin’s directory. Even with this disabled, you should expect the file to be present, with some log entries getting logged despite debug mode being disabled.</p>
+</section>
+<section id="simple-view">
+<h3>Simple View<a class="headerlink" href="#simple-view" title="Link to this heading">¶</a></h3>
+<p>When this option is enabled, the plugin will remove the subtitle of all options before sending them, giving you a more simplistic view of the results.</p>
+</section>
+<section id="reset-query">
+<h3>Reset Query<a class="headerlink" href="#reset-query" title="Link to this heading">¶</a></h3>
+<p>When this option is enabled, the plugin will update your current query to just have the keyword (and subcommand if using the main eyword) that was used to query the manual, upon clicking on an option.</p>
+</section>
+<section id="condense-keywords">
+<h3>Condense Keywords<a class="headerlink" href="#condense-keywords" title="Link to this heading">¶</a></h3>
+<p>By default, the plugin will register all manual keywords so that they can be used on their own. However if this option is enabled, the plugin will not do that. However you are still able to access your manuals by doing <code class="docutils literal notranslate"><span class="pre">{main</span> <span class="pre">keyword}</span> <span class="pre">{manual</span> <span class="pre">keyword}</span> <span class="pre">{query}</span></code>.</p>
+</section>
 </section>
 <section id="saving-your-settings">
 <span id="save-settings"></span><h2>Saving your settings<a class="headerlink" href="#saving-your-settings" title="Link to this heading">¶</a></h2>
@@ -281,17 +297,17 @@
 <p>If you would like, you can create backups by using the <code class="docutils literal notranslate"><span class="pre">Export</span> <span class="pre">Settings</span></code> and <code class="docutils literal notranslate"><span class="pre">Import</span> <span class="pre">Settings</span></code> buttons. When exporting your settings, a file called <code class="docutils literal notranslate"><span class="pre">rtfm_settings.txt</span></code> will be downloaded to your downloads folder.</p>
 </section>
 <section id="adding-a-manual-doc">
-<h2>Adding a manual/doc<a class="headerlink" href="#adding-a-manual-doc" title="Link to this heading">¶</a></h2>
-<p>To add a manual or doc, find the <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">Manual</span></code> section and input a keyword and location. The location can be a full url (ex: <code class="docutils literal notranslate"><span class="pre">https://rtfm.cibere.dev/latest</span></code>), url without scheme (ex: <code class="docutils literal notranslate"><span class="pre">rtfm.cibere.dev/latest</span></code>), or a path (ex: <code class="docutils literal notranslate"><span class="pre">C:\Users\cibere\rtfm\docs\_build\html</span></code>). When you press <code class="docutils literal notranslate"><span class="pre">Add</span></code>, the plugin will try to guess which format the manual/doc conforms to. If either a preset or type that is supported is found, the doc/manual will be added to the list of docs/manuals on the website. If the manual/doc can’t be indexed, you will receive an error.</p>
+<span id="add-manual"></span><h2>Adding a manual/doc<a class="headerlink" href="#adding-a-manual-doc" title="Link to this heading">¶</a></h2>
+<p>To add a manual or doc, find the <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">Manual</span></code> section and input a keyword and location. The location can be a full url (ex: <code class="docutils literal notranslate"><span class="pre">https://rtfm.cibere.dev/dev</span></code>), url without scheme (ex: <code class="docutils literal notranslate"><span class="pre">rtfm.cibere.dev/dev</span></code>), or a path (ex: <code class="docutils literal notranslate"><span class="pre">C:\Users\cibere\rtfm\docs\_build\html</span></code>). When you press <code class="docutils literal notranslate"><span class="pre">Add</span></code>, the plugin will try to guess which format the manual/doc conforms to. If either a preset or type that is supported is found, the doc/manual will be added to the list of docs/manuals on the website. If the manual/doc can’t be indexed, you will receive an error.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Adding a manual/doc does NOT save it. See <a class="reference external" href="#saving-your-settings">the saving section</a> for more info.</p>
 </div>
 <section id="troubleshooting">
-<h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h3>
+<span id="manual-troubleshooting"></span><h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h3>
 <p>If a manual/doc that you want to use could not be indexed, you have a couple of things you can try:</p>
 <ol class="arabic simple">
-<li><p>Make sure the location you provided is the exact link to the root of the version of the manual/doc that you want to index. For example, instead of using something like <code class="docutils literal notranslate"><span class="pre">https://rtfm.cibere.dev/latest/installing.html#install-from-source</span></code>, trim it down to <code class="docutils literal notranslate"><span class="pre">https://rtfm.cibere.dev/latest</span></code> instead.</p></li>
+<li><p>Make sure the location you provided is the exact link to the root of the version of the manual/doc that you want to index. For example, instead of using something like <code class="docutils literal notranslate"><span class="pre">https://rtfm.cibere.dev/dev/installing.html#install-from-source</span></code>, trim it down to <code class="docutils literal notranslate"><span class="pre">https://rtfm.cibere.dev/dev</span></code> instead.</p></li>
 <li><p>Make sure your copy of the plugin is up to date, as there might have been changes that added support for the doc/manual you are trying to use.</p></li>
 <li><p>If neither of the two options above worked, consider opening an <a class="reference external" href="https://github.com/cibere/Flow.Launcher.Plugin.rtfm/issues/new">issue request on github</a> requesting support for the manual/doc to be added.</p></li>
 <li><p>If neither of the first two options worked and you either don’t have a github account or don’t want to create one, you can ask for help on the <a class="reference external" href="https://discord.gg/QDbDfUJaGH">official flow discord server</a>.</p></li>
@@ -307,13 +323,12 @@
 </div>
 <section id="keyword">
 <h3>Keyword<a class="headerlink" href="#keyword" title="Link to this heading">¶</a></h3>
-<p>This is the keyword that you use to query the doc/manual.</p>
+<p>This is the keyword that you use to query the doc/manual (to seperate this from the main keyword, this is often referred to as a manual keyword).</p>
 <p>If you do not want to use a keyword, setting the keyword to <code class="docutils literal notranslate"><span class="pre">*</span></code> will make it work without a keyword.</p>
 </section>
-<section id="use-cache">
-<h3>Use Cache<a class="headerlink" href="#use-cache" title="Link to this heading">¶</a></h3>
-<p>This checkbox is used to determine whether or not to cache the manual/doc’s index or not. If checked, each query will pull from an internal cache, resulting in fast responses. If unchecked, at the beginning of each query, the plugin will rebuild the cache it has for the manual/doc before giving you a response. This is significantly slower, but useful when actively developing/changing a manual/doc.</p>
-<p>If the doc/manual is marked as an <a class="reference external" href="#is-api">API</a>, then you will be unable to edit this checkbox, and it will be indefinetely unchecked.</p>
+<section id="cache-results">
+<h3>Cache Results<a class="headerlink" href="#cache-results" title="Link to this heading">¶</a></h3>
+<p>If this option is enabled, then the plugin will keep a record of every result returned for each query, and re-return the previously returned results to increase query speeds. This is especially useful when using an api manual.</p>
 </section>
 <section id="type">
 <h3>Type<a class="headerlink" href="#type" title="Link to this heading">¶</a></h3>
@@ -387,6 +402,10 @@
 <li><a class="reference internal" href="#general-options">General Options</a><ul>
 <li><a class="reference internal" href="#webserver-port">Webserver Port</a></li>
 <li><a class="reference internal" href="#main-keyword">Main Keyword</a></li>
+<li><a class="reference internal" href="#debug-mode">Debug Mode</a></li>
+<li><a class="reference internal" href="#simple-view">Simple View</a></li>
+<li><a class="reference internal" href="#reset-query">Reset Query</a></li>
+<li><a class="reference internal" href="#condense-keywords">Condense Keywords</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#saving-your-settings">Saving your settings</a></li>
@@ -397,7 +416,7 @@
 </li>
 <li><a class="reference internal" href="#editing-a-manual-doc">Editing a manual/doc</a><ul>
 <li><a class="reference internal" href="#keyword">Keyword</a></li>
-<li><a class="reference internal" href="#use-cache">Use Cache</a></li>
+<li><a class="reference internal" href="#cache-results">Cache Results</a></li>
 <li><a class="reference internal" href="#type">Type</a></li>
 <li><a class="reference internal" href="#is-api">Is API</a></li>
 </ul>

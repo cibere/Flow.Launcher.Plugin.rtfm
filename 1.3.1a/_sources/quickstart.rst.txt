@@ -17,7 +17,7 @@ To open up the settings website, type ``rtfm`` into flow launcher and press the 
 
 Adding the doc
 --------------
-Find the ``Add Manual`` section, and input a keyword and location for the doc/manual. In our case, we will choose ``kw`` as the keyword, and ``rtfm.cibere.dev/latest`` as the location. Then press the ``Add`` button to add it.
+Find the ``Add Manual`` section, and input a keyword and location for the doc/manual. In our case, we will choose ``kw`` as the keyword, and ``rtfm.cibere.dev/dev`` as the location. Then press the ``Add`` button to add it.
 
 .. NOTE::
     See :doc:`settings` for more information on the plugin settings.
@@ -64,3 +64,22 @@ Now that we've added and saved our doc/manual, we can query it to see the result
     
 .. image:: /_static/images/quickstart/kw_presets_lightmode.png
     :class: only-light
+
+Next Steps
+-----------
+Want to try it out with some more manuals? Here are some links you can practice with:
+
+- https://ss64.com/bash
+- https://jcristharif.com/msgspec
+- https://docs.pytest.org/en/stable/
+- https://developer.mozilla.org
+- https://docs.astral.sh/uv/
+- https://click.palletsprojects.com/en/stable
+- https://docs.python.org/3
+- https://docs.github.com
+
+See the :ref:`editing a manual section <edit_manual>` for how to edit a manual.
+
+See the :ref:`adding a manual section <add_manual>` for more information about adding a manual.
+
+See the :ref:`manual troubleshooting section <manual_troubleshooting>` for help troubleshooting why a manual isn't getting added properly or at all.
