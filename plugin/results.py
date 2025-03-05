@@ -102,7 +102,12 @@ class OpenRtfmResult(BaseResult):
         await self.plugin.api.open_url(self.url)
 
         if self.plugin.better_settings.reset_query:
-            await self.plugin.last_query.update(text="")
+            text = (
+                f"{self.manual.name} "
+                if self.plugin.last_query.keyword == self.plugin.better_settings.main_kw
+                else ""
+            )
+            await self.plugin.last_query.update(text=text)
 
     async def context_menu(self):
         assert self.plugin
