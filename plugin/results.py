@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from flogin.jsonrpc.results import ResultConstructorKwargs
     from rtfm_lookup import Entry, Manual
 
-    from .plugin import RtfmPlugin  # noqa: F401
+    from .plugin import RtfmPlugin
 
 
 log = logging.getLogger(__name__)
@@ -19,11 +19,8 @@ log = logging.getLogger(__name__)
 
 class BaseResult(Result["RtfmPlugin"]):
     def __modified_init(self, *args: Any, **kwargs: Any) -> None:
-        if "auto_complete_text" in kwargs:
-            raise RuntimeError(
-                "'auto_complete_text' arg not supported as to add result slugs"
-            )
-        kwargs["auto_complete_text"] = secrets.token_hex(5)
+        if "auto_complete_text" not in kwargs:
+            kwargs["auto_complete_text"] = secrets.token_hex(5)
         if "icon" not in kwargs:
             kwargs["icon"] = "assets/app.png"
         return super().__init__(*args, **kwargs)
@@ -34,9 +31,7 @@ class BaseResult(Result["RtfmPlugin"]):
 
 class ReloadCacheResult(BaseResult):
     def __init__(self) -> None:
-        super().__init__(
-            "Reload cache",
-        )
+        super().__init__("Reload cache", score=1000)
 
     async def callback(self):
         assert self.plugin
@@ -54,10 +49,7 @@ class ReloadCacheResult(BaseResult):
 
 class OpenSettingsResult(BaseResult):
     def __init__(self) -> None:
-        super().__init__(
-            "Open Settings",
-            sub="Open the settings webserver",
-        )
+        super().__init__("Open Settings", sub="Open the settings webserver", score=1000)
 
     async def callback(self):
         assert self.plugin
@@ -71,8 +63,7 @@ class OpenSettingsResult(BaseResult):
 class OpenLogFileResult(BaseResult):
     def __init__(self) -> None:
         super().__init__(
-            "Open Log File",
-            sub="Opens up the flogin log file",
+            "Open Log File", sub="Opens up the flogin log file", score=1000
         )
 
     async def callback(self):
@@ -134,3 +125,24 @@ class CopyResult(BaseResult):
         await self.plugin.api.show_notification(
             "rtfm", f"Copied Text to clipboard: {self.text!r}"
         )
+
+
+class DisplayManualResult(BaseResult):
+    def __init__(self, manual: Manual, plugin: RtfmPlugin) -> None:
+        self.new_query = (
+            f"{plugin.better_settings.main_kw} {manual.name}"
+            if plugin.better_settings.condense_keywords
+            else ("" if manual.name == "*" else manual.name)
+        ) + " "
+        super().__init__(
+            title=manual.name,
+            sub=str(manual.loc),
+            icon=manual.icon_url,
+            auto_complete_text=self.new_query,
+        )
+
+    async def callback(self):
+        assert self.plugin
+
+        await self.plugin.api.change_query(self.new_query)
+        return False
