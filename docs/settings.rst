@@ -17,6 +17,22 @@ Main Keyword
 ~~~~~~~~~~~~
 This is where you can customize the main keyword. Defaults to ``rtfm``. See the :doc:`main_keyword` page for more information.
 
+Debug Mode
+~~~~~~~~~~
+Turning this on will enable debug logs in the ``flogin.log`` file that is in the plugin's directory. Even with this disabled, you should expect the file to be present, with some log entries getting logged despite debug mode being disabled.
+
+Simple View
+~~~~~~~~~~~
+When this option is enabled, the plugin will remove the subtitle of all options before sending them, giving you a more simplistic view of the results.
+
+Reset Query
+~~~~~~~~~~~
+When this option is enabled, the plugin will update your current query to just have the keyword (and subcommand if using the main eyword) that was used to query the manual, upon clicking on an option.
+
+Condense Keywords
+~~~~~~~~~~~~~~~~~
+By default, the plugin will register all manual keywords so that they can be used on their own. However if this option is enabled, the plugin will not do that. However you are still able to access your manuals by doing ``{main keyword} {manual keyword} {query}``.
+
 .. _save_settings:
 
 Saving your settings
@@ -36,19 +52,23 @@ Backups
 --------
 If you would like, you can create backups by using the ``Export Settings`` and ``Import Settings`` buttons. When exporting your settings, a file called ``rtfm_settings.txt`` will be downloaded to your downloads folder.
 
+.. _add_manual:
+
 Adding a manual/doc
 -------------------
-To add a manual or doc, find the ``Add Manual`` section and input a keyword and location. The location can be a full url (ex: ``https://rtfm.cibere.dev/latest``), url without scheme (ex: ``rtfm.cibere.dev/latest``), or a path (ex: ``C:\Users\cibere\rtfm\docs\_build\html``). When you press ``Add``, the plugin will try to guess which format the manual/doc conforms to. If either a preset or type that is supported is found, the doc/manual will be added to the list of docs/manuals on the website. If the manual/doc can't be indexed, you will receive an error.
+To add a manual or doc, find the ``Add Manual`` section and input a keyword and location. The location can be a full url (ex: ``https://rtfm.cibere.dev/dev``), url without scheme (ex: ``rtfm.cibere.dev/dev``), or a path (ex: ``C:\Users\cibere\rtfm\docs\_build\html``). When you press ``Add``, the plugin will try to guess which format the manual/doc conforms to. If either a preset or type that is supported is found, the doc/manual will be added to the list of docs/manuals on the website. If the manual/doc can't be indexed, you will receive an error.
 
 .. WARNING::
 
     Adding a manual/doc does NOT save it. See `the saving section <#saving-your-settings>`__ for more info.
 
+.. _manual_troubleshooting:
+
 Troubleshooting
 ~~~~~~~~~~~~~~~~
 If a manual/doc that you want to use could not be indexed, you have a couple of things you can try:
 
-1. Make sure the location you provided is the exact link to the root of the version of the manual/doc that you want to index. For example, instead of using something like ``https://rtfm.cibere.dev/latest/installing.html#install-from-source``, trim it down to ``https://rtfm.cibere.dev/latest`` instead.
+1. Make sure the location you provided is the exact link to the root of the version of the manual/doc that you want to index. For example, instead of using something like ``https://rtfm.cibere.dev/dev/installing.html#install-from-source``, trim it down to ``https://rtfm.cibere.dev/dev`` instead.
 2. Make sure your copy of the plugin is up to date, as there might have been changes that added support for the doc/manual you are trying to use.
 3. If neither of the two options above worked, consider opening an `issue request on github <https://github.com/cibere/Flow.Launcher.Plugin.rtfm/issues/new>`__ requesting support for the manual/doc to be added.
 4. If neither of the first two options worked and you either don't have a github account or don't want to create one, you can ask for help on the `official flow discord server <https://discord.gg/QDbDfUJaGH>`__.
@@ -65,15 +85,13 @@ The list of manuals/docs that you have currently added will be at the bottom of 
 
 Keyword
 ~~~~~~~
-This is the keyword that you use to query the doc/manual.
+This is the keyword that you use to query the doc/manual (to seperate this from the main keyword, this is often referred to as a manual keyword).
 
 If you do not want to use a keyword, setting the keyword to ``*`` will make it work without a keyword.
 
-Use Cache
-~~~~~~~~~
-This checkbox is used to determine whether or not to cache the manual/doc's index or not. If checked, each query will pull from an internal cache, resulting in fast responses. If unchecked, at the beginning of each query, the plugin will rebuild the cache it has for the manual/doc before giving you a response. This is significantly slower, but useful when actively developing/changing a manual/doc.
-
-If the doc/manual is marked as an `API <#is-api>`__, then you will be unable to edit this checkbox, and it will be indefinetely unchecked.
+Cache Results
+~~~~~~~~~~~~~~
+If this option is enabled, then the plugin will keep a record of every result returned for each query, and re-return the previously returned results to increase query speeds. This is especially useful when using an api manual.
 
 Type
 ~~~~
