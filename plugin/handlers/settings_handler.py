@@ -11,13 +11,12 @@ log = logging.getLogger(__name__)
 
 
 class SettingsHandler(SearchHandler[RtfmPlugin]):
-    def __init__(self) -> None:
-        super().__init__(condition=self.condition)
-
     def condition(self, query: Query):
         assert self.plugin
 
-        return (query.keyword or "*") == self.plugin.better_settings.main_kw
+        return (
+            (query.keyword or "*") == self.plugin.better_settings.main_kw
+        ) and not query.text
 
     async def callback(self, query: Query):
         assert self.plugin

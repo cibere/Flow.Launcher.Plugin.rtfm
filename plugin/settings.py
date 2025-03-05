@@ -23,6 +23,7 @@ class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
     debug_mode: bool = False
     simple_view: bool = False
     reset_query: bool = False
+    condense_keywords: bool = False
 
     @classmethod
     def decode(cls, data: bytes | str) -> RtfmBetterSettings:
@@ -63,7 +64,13 @@ class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
                     kwargs["static_port"] = int(value)
                 case ["plugin", "keyword"]:
                     kwargs["main_kw"] = value or "*"
-                case ["plugin", "debug_mode" | "simple_view" | "reset_query" as name]:
+                case [
+                    "plugin",
+                    "debug_mode"
+                    | "simple_view"
+                    | "reset_query"
+                    | "condense_keywords" as name,
+                ]:
                     kwargs[name] = True
                 case ["doc", idx, "loc"]:
                     raw_docs[idx]["loc"] = value
@@ -82,37 +89,6 @@ class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
         return cls(**kwargs)
 
     async def save(self, plugin: RtfmPlugin) -> None:
-        log.debug(
-            "Saving static port. %r -> %r",
-            plugin.better_settings.static_port,
-            self.static_port,
-        )
-        plugin.better_settings.static_port = self.static_port
-
-        log.debug(
-            "Saving main kw. %r -> %r", plugin.better_settings.main_kw, self.main_kw
-        )
-        plugin.better_settings.main_kw = self.main_kw
-
-        log.debug(
-            "Saving simple_view. %r -> %r",
-            plugin.better_settings.simple_view,
-            self.simple_view,
-        )
-        plugin.better_settings.simple_view = self.simple_view
-
-        log.debug(
-            "Saving reset_query. %r -> %r",
-            plugin.better_settings.reset_query,
-            self.reset_query,
-        )
-        plugin.better_settings.reset_query = self.reset_query
-
-        log.debug(
-            "Saving manuals. %r -> %r", plugin.better_settings.manuals, self.manuals
-        )
-        plugin.better_settings.manuals = self.manuals
-
         if self.debug_mode != plugin.better_settings.debug_mode:
             log.debug(
                 "Saving debug mode. %r -> %r",
@@ -121,6 +97,29 @@ class RtfmBetterSettings(msgspec.Struct, tag="3.0", tag_field="version"):
             )
             plugin.logs.update_debug(self.debug_mode)
             plugin.better_settings.debug_mode = self.debug_mode
+
+        for attr in (
+            "main_kw",
+            "static_port",
+            "simple_view",
+            "reset_query",
+            "condense_keywords",
+        ):
+            new = getattr(self, attr)
+            current = getattr(plugin.better_settings, attr)
+
+            log.debug(
+                "Saving %s. %r -> %r",
+                attr,
+                current,
+                new,
+            )
+            setattr(plugin.better_settings, attr, new)
+
+        log.debug(
+            "Saving manuals. %r -> %r", plugin.better_settings.manuals, self.manuals
+        )
+        plugin.better_settings.manuals = self.manuals
 
         plugin.dump_settings()
         plugin.rtfm.manuals.clear()

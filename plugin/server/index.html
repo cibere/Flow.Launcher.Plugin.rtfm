@@ -53,6 +53,14 @@
                         {% if plugin.better_settings.reset_query %}checked{% endif %}
                     >
                 {% endcall %}
+                {% call checkbox(label="Condense Keywords", id="condense-keywords-input", description="If unchecked, the plugin will register all keywords with flow so that they can be used directly. However whether checked or not, manuals can still be accessed with the main keyword.") %}
+                    <input
+                        id="condense-keywords-input"
+                        type="checkbox"
+                        name="plugin.condense_keywords"
+                        {% if plugin.better_settings.condense_keywords %}checked{% endif %}
+                    >
+                {% endcall %}
             </div>
             {% call actions() %}
                 <button>Save Settings & Reload Cache</button>

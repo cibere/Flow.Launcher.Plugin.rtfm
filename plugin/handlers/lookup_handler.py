@@ -11,11 +11,26 @@ log = logging.getLogger(__name__)
 
 
 class LookupHandler(SearchHandler[RtfmPlugin]):
-    async def callback(self, query: Query):
+    def condition(self, query: Query[list[str]]) -> bool:
         assert self.plugin
 
-        text = query.text
-        keyword = query.keyword or "*"
+        if query.keyword != self.plugin.better_settings.main_kw:
+            return True
+
+        parts = query.text.split(" ")
+        query.condition_data = parts
+        log.info("lookup condition parts=%r", parts)
+        return bool(parts)
+
+    async def callback(self, query: Query[list[str]]):
+        assert self.plugin
+
+        if query.condition_data is not None:
+            keyword, *raw_text = query.text.split(" ")
+            text = " ".join(raw_text)
+        else:
+            keyword = query.keyword or "*"
+            text = query.text
 
         try:
             manual = self.plugin.rtfm[keyword]

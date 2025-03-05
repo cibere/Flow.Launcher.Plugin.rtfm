@@ -104,6 +104,13 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
             if plugin.id == self.metadata.id:
                 log.debug("Got plugin: %r", plugin)
                 keys = set(self.keywords)
+
+                if self.better_settings.condense_keywords:
+                    for kw in keys:
+                        if kw != self.better_settings.main_kw:
+                            await plugin.remove_keyword(kw)
+                    return
+
                 to_remove = set(plugin.keywords).difference(keys)
                 to_add = keys.difference(plugin.keywords)
 
@@ -111,6 +118,7 @@ class RtfmPlugin(Plugin[None]):  # type: ignore
                     await plugin.remove_keyword(kw)
                 for kw in to_add:
                     await plugin.add_keyword(kw)
+                return
 
     def _simple_view_converter(
         self, original: Callable[P, Awaitable[QueryResponse | ErrorResponse]]
