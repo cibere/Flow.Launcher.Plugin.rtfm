@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: cibere/FlowBuildPluginAction
+      - uses: cibere/FlowBuildPluginAction@master
         with:
           discord_webhook_url: ${{ secrets.DISCORD_BUILD_WEBHOOK }}
           dirs: plugin,assets
