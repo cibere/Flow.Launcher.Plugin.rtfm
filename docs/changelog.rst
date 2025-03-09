@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v1.4.1
+-------
+
+- fix bug with the plugin not properly started due to files being left out during packaging
+
+v1.4.0
+--------
+
 - Add the ability to access manuals with the main keyword via ``{main_keyword} {manual_keyword}``
 - Add a ``Condense Keywords`` option to toggle registering manual keywords with flow.
 - Display added manuals in main keyword response
