@@ -1,5 +1,5 @@
 flogin[pip] @ git+https://github.com/cibere/flogin@478211372d3c7c95f9c242d4cadf763af0844b21
-rtfm-lookup @ git+https://github.com/cibere/rtfm-lookup@cbdec58ea726340f6c6c7453d5298db11d957f5a
+rtfm-lookup @ git+https://github.com/cibere/rtfm-lookup@c5441a89806f2c131b5ada367162cfd6474c79c4
 aiohttp==3.11.14
 aiohttp-jinja2==1.6
 msgspec==0.19.0
