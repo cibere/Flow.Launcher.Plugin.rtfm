@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v1.4.2
+-------
+
+- Add a ``Copy Markdown Hyperlink`` to the context menu of results
+- fix bug with the gidocgen not working due to an undefined reference at runtime
+
 v1.4.1
 -------
 
