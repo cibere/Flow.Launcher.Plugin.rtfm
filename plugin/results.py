@@ -113,6 +113,12 @@ class OpenRtfmResult(BaseResult):
         assert self.plugin
 
         yield CopyResult(self.url, title="Copy URL", icon="assets/copy.png", score=100)
+        yield CopyResult(
+            f"[`{self.title}`](<{self.url}>)",
+            title="Copy Markdown Hyperlink",
+            icon="assets/copy.png",
+            score=50,
+        )
 
         # for result in self.entry.ctx_menu_factory(self.entry):
         #     yield result
