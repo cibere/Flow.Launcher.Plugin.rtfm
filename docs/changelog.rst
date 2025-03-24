@@ -6,6 +6,7 @@ v1.4.2
 
 - Add a ``Copy Markdown Hyperlink`` to the context menu of results
 - fix bug with the gidocgen not working due to an undefined reference at runtime
+- Bump aiohttp from 3.11.13 to 3.11.14 
 
 v1.4.1
 -------
