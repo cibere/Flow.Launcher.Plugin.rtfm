@@ -18,7 +18,7 @@ def main(archive_name: str):
 
     files.extend(Path("assets").iterdir())
 
-    plugin_dir = Path("plugin")
+    plugin_dir = Path("rtfm_plugin")
     for ext in plugin_include_exts:
         files.extend(plugin_dir.rglob(f"*.{ext}"))
 
