@@ -1,10 +1,14 @@
 Changelog
 =========
 
+v1.4.4
+-------
+- Fix bug with the plugin not properly starting with flow version 1.20
+- Bump aiohttp from 3.12.13 to 3.12.14
+
 v1.4.3
 -------
 - Bump aiohttp from 3.11.14 to 3.12.13
-- Fix bug with the plugin not properly starting with flow version 1.20
 
 v1.4.2
 -------
