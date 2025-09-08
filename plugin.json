@@ -4,9 +4,10 @@
     "Name": "rtfm",
     "Description": "a rtfm lookup plugin",
     "Author": "cibere",
-    "Version": "1.4.4a",
+    "Version": "1.4.5a",
     "Language": "python_v2",
     "Website": "https://github.com/cibere/Flow.Launcher.Plugin.rtfm",
     "IcoPath": "assets/app.png",
-    "ExecuteFileName": "main.py"
+    "ExecuteFileName": "main.py",
+    "HideActionKeywordPanel": true
 }

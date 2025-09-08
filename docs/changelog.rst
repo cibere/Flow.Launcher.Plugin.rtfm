@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v1.4.5
+------
+- Hide action keyword panel
+
 v1.4.4
 -------
 - Fix bug with the plugin not properly starting with flow version 1.20
